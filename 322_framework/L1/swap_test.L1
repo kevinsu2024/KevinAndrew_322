@@ -1,0 +1,72 @@
+(@swap_test 
+    (@swap_test
+        0 4
+        call input 0 // gets size in rax
+        r11 <- rax //store size
+
+        rdi <- rax
+        rsi <-1
+        mem rsp 0 <- r11
+        call allocate 2 //gets address of allocated array of all 0's
+        r11 <- mem rsp 0
+
+        r8 <- rax //address to array here to increment
+        r10 <- rax //address to array to save for end
+        r9 <- 1
+
+        :start_loop
+        mem rsp 0 <- r11
+        mem rsp 8 <- r8
+        mem rsp 16 <- r9
+        mem rsp 24 <- r10
+        
+        call input 0
+        r8 <- mem rsp 8
+        r9 <- mem rsp 16
+        
+        r10 <- mem rsp 24
+        
+        r11 <- mem rsp 0
+        
+
+        r8 += 8
+        
+        mem r8 0 <- rax
+        
+        r9++
+        r9++
+        
+        
+        cjump r9 < r11 :start_loop
+
+        rdi <- r10
+        rsi <- 3
+        rdx <- 9
+        mem rsp -8 <- :finish
+        call @swap 3
+        :finish
+        return
+    )
+    (@swap //takes 3 args array, first, and second index
+        3 0
+
+        r8 <- rsi 
+        r8 >>= 1
+        r8 <<= 3
+        r8 += rdi 
+           // address of first num
+
+        r9 <- mem r8 0 // value of first num
+
+        r10 <- rdx 
+        r10 >>=1
+        r10 <<=3
+        r10 += rdi // address of second num
+        r11 <- mem r10 0 // value of first num
+        
+        mem r8 0 <- r11
+        mem r10 0 <- r9
+        return
+
+    )
+)

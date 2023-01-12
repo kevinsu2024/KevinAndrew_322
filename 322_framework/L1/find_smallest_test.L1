@@ -1,0 +1,111 @@
+(@find_smallest_test
+    (@find_smallest_test
+        0 4
+        call input 0 // gets size in rax
+        r11 <- rax //store size
+
+        rdi <- rax
+        rsi <-1
+        mem rsp 0 <- r11
+        call allocate 2 //gets address of allocated array of all 0's
+        r11 <- mem rsp 0
+
+        r8 <- rax //address to array here to increment
+        r10 <- rax //address to array to save for end
+        r9 <- 1
+
+        :start_loop
+        mem rsp 0 <- r11
+        mem rsp 8 <- r8
+        mem rsp 16 <- r9
+        mem rsp 24 <- r10
+        
+        call input 0
+        r8 <- mem rsp 8
+        r9 <- mem rsp 16
+        
+        r10 <- mem rsp 24
+        
+        r11 <- mem rsp 0
+        
+
+        r8 += 8
+        
+        mem r8 0 <- rax
+        
+        r9++
+        r9++
+        
+        
+        cjump r9 < r11 :start_loop
+
+        rdi <- r10
+        rsi <- 3
+        mem rsp -8 <- :finish
+        call @find_smallest 2
+        :finish
+        rdi <- rax
+        call print 1
+        return
+    )
+    (@find_smallest 
+        2 1 // takes array , start index, return index of min element
+        mem rsp 0 <- r12
+        
+        r8 <- mem rdi 0 
+        r8 <<= 1
+        r8++ // r8 is size of array
+        r9 <- rdi //pointer to start of array
+        r10 <- rsi // index of smallest element
+        r12 <- rsi // current index
+
+        
+        r11 <- rdi
+    
+        rsi >>= 1
+        rsi <<= 3
+        rsi += 1
+
+
+        r11 += rsi
+        r11 -= 1
+        r11 <- mem r11 0 // value of smallest element
+
+        :check_next
+        rsi <- r12
+        rsi >>= 1
+        rsi <<= 3
+        rsi += 1
+        rsi += rdi 
+        rsi -= 1
+        rsi <- mem rsi 0 //current number
+
+        cjump rsi < r11 :replace
+        goto :next_iter
+        :replace // set current index as new lowest
+        r10 <- r12
+        r11 <- rsi
+
+        :next_iter
+        r12++
+        r12++
+        cjump r12 <= r8 :check_next
+
+        rax <- r10
+        rdi <- rax 
+        call print 1
+        r12 <- mem rsp 0
+        return
+
+        
+
+        
+
+
+        
+
+        
+        
+    )
+    
+)

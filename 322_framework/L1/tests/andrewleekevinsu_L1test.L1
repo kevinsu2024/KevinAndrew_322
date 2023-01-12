@@ -1,7 +1,7 @@
 (@numsprint
     (@numsprint 
         //need to check if doing caller callee saving right
-        0 0 //need to double check if the registers used here are actually ok or need to allocate local variables
+        0 4 //need to double check if the registers used here are actually ok or need to allocate local variables
         call input 0 //gets size in rax
         rbp <- rax
         rdi <- rax
@@ -19,12 +19,20 @@
         rdi <- rsi
         mem rsp 0 <- rdi
         mem rsp -8 <- :numsprint_return
+        mem rsp 8 <- r8
+        mem rsp 16 <- r9
+        mem rsp 24 <- r10
         call @orderprinter 1
         :numsprint_return
         return
     )
     (@orderprinter
-        1 1
+        1 5
+        mem rsp 0 <- r12
+        mem rsp 8 <- r13
+        mem rsp 16 <- r14
+        mem rsp 24 <- r15
+        mem rsp 32 <- rbx
         r12 <- 0 //pointer for next smallest element to swap to
         :swap_num_loop
         r13 <- 1 <<= 64 -= 1 //value of smallest element, initialize as biggest 64-bit 2's complement integer (least significant bit is 1 so its fine)
@@ -56,6 +64,11 @@
         call print 1
         r12 += 1
         cjump r12 < rsi :print_loop
+        r12 <- mem rsp 0
+        r13 <- mem rsp 8
+        r14 <- mem rsp 16
+        r15 <- mem rsp 24
+        rbx <- mem rsp 32
         return
     )
 )
