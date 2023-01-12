@@ -1,36 +1,61 @@
 (@numsprint
     (@numsprint 
         //need to check if doing caller callee saving right
-        0 FILL??? //need to double check if the registers used here are actually ok or need to allocate local variables
-
-
+        0 0 //need to double check if the registers used here are actually ok or need to allocate local variables
         call input 0 //gets size in rax
         rbp <- rax
-
         rdi <- rax
         rsi <- 1
         call allocate 2 //gets address of allocated array of all 0's
         rsi <- rax // store in rsi might need to change later
-
         rdi <- 0 //using this register as coutner
         :get_element_loop
         call input 0 // gets next element
         rdi <<= 3
-        mem rsi rdi <- rax
+        mem rsi rdi <- rax //8 times no. of elements seen CHANGE BACK TO RDI
         rdi >>= 3
         rdi++ 
         cjump  rdi < rbp :get_element_loop
-
         rdi <- rsi
+        mem rsp 0 <- rdi
         mem rsp -8 <- :numsprint_return
         call @orderprinter 1
         :numsprint_return
         return
     )
-
     (@orderprinter
-        1 FILL???
-
+        1 1
+        r12 <- 0 //pointer for next smallest element to swap to
+        :swap_num_loop
+        r13 <- 1 <<= 64 -= 1 //value of smallest element, initialize as biggest 64-bit 2's complement integer (least significant bit is 1 so its fine)
+        r9 @ rdi r12 8 // mem addr of pos to swap to element
+        r10 <- r9 //mem addr of pos of next smallest element
+        :find_smallest_loop
+        r14 <- r12 //initial iteration position
+        r15 @ rdi r14 8 // mem addr of cur number
+        rbx <- mem r15 0 //val of cur number
+        cjump r13 <= rbx :larger_cond
+        r13 <- rbx
+        r10 <- r15 //storing addr of number to be swapped
+        :larger_cond
+        r14 += 1
+        cjump r14 < rbp :find_smallest_loop
+        r12 <- mem r9 0
+        mem r9 0 <- r13
+        mem r10 0 <- rdx
+        r12 += 1
+        cjump r12 < rbx :swap_num_loop
+        :print_loop
+        r12 <- 0
+        rbx <- rdi
+        rdx <- 0
+        rdx @ rbx r12 8
+        rdi <- mem rdx 0
+        rdi <<= 1
+        rdi += 1
+        call print 1
+        r12 += 1
+        cjump r12 < rsi :print_loop
         return
     )
 )
