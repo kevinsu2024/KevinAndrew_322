@@ -1,0 +1,36 @@
+(@numsprint
+    (@numsprint 
+        //need to check if doing caller callee saving right
+        0 FILL??? //need to double check if the registers used here are actually ok or need to allocate local variables
+
+
+        call input 0 //gets size in rax
+        rbp <- rax
+
+        rdi <- rax
+        rsi <- 1
+        call allocate 2 //gets address of allocated array of all 0's
+        rsi <- rax // store in rsi might need to change later
+
+        rdi <- 0 //using this register as coutner
+        :get_element_loop
+        call input 0 // gets next element
+        rdi <<= 3
+        mem rsi rdi <- rax
+        rdi >>= 3
+        rdi++ 
+        cjump  rdi < rbp :get_element_loop
+
+        rdi <- rsi
+        mem rsp -8 <- :numsprint_return
+        call @orderprinter 1
+        :numsprint_return
+        return
+    )
+
+    (@orderprinter
+        1 FILL???
+
+        return
+    )
+)
