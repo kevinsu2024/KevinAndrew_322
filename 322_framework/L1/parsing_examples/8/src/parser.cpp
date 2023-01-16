@@ -362,15 +362,6 @@ namespace L1 {
     }
   };
 
-
-  template<> struct action < register_rsi_rule > {
-    template< typename Input >
-    static void apply( const Input & in, Program & p){
-      auto r = new Register(RegisterID::rsi);
-      parsed_items.push_back(r);
-    }
-  };
-
   template<> struct action < register_rcx_rule > {
     template< typename Input >
     static void apply( const Input & in, Program & p){
@@ -379,14 +370,6 @@ namespace L1 {
     }
   };
 
-
-  template<> struct action < register_rsi_rule > {
-    template< typename Input >
-    static void apply( const Input & in, Program & p){
-      auto r = new Register(RegisterID::rsi);
-      parsed_items.push_back(r);
-    }
-  };
 
   template<> struct action < register_r8_rule > {
     template< typename Input >
@@ -397,35 +380,10 @@ namespace L1 {
   };
 
 
-  template<> struct action < register_rsi_rule > {
-    template< typename Input >
-    static void apply( const Input & in, Program & p){
-      auto r = new Register(RegisterID::rsi);
-      parsed_items.push_back(r);
-    }
-  };
-
   template<> struct action < register_r9_rule > {
     template< typename Input >
     static void apply( const Input & in, Program & p){
       auto r = new Register(RegisterID::r9);
-      parsed_items.push_back(r);
-    }
-  };
-
-  
-  template<> struct action < register_rsi_rule > {
-    template< typename Input >
-    static void apply( const Input & in, Program & p){
-      auto r = new Register(RegisterID::rsi);
-      parsed_items.push_back(r);
-    }
-  };
-
-  template<> struct action < register_rdx_rule > {
-    template< typename Input >
-    static void apply( const Input & in, Program & p){
-      auto r = new Register(RegisterID::rdx);
       parsed_items.push_back(r);
     }
   };
