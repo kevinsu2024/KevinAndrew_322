@@ -160,7 +160,7 @@ namespace L1 {
       register_r9_rule
     > {};
   
-  struct w_register_rule:
+  struct register_rule:
     pegtl::sor<
       argument_register_rule,
       register_rax_rule,
@@ -173,9 +173,9 @@ namespace L1 {
       register_r14_rule,
       register_r15_rule
     > {};
-  struct register_rule:
+  struct x_register_rule:
     pegtl::sor<
-      w_register_rule,
+      register_rule,
       register_rsp_rule
     > {};
 
@@ -226,7 +226,7 @@ namespace L1 {
       seps,
       str_arrow,
       seps,
-      register_rule
+      x_register_rule
     > {};
 
   struct Instruction_rule:
