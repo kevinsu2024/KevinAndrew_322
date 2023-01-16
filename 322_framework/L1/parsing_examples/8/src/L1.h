@@ -5,7 +5,8 @@
 
 namespace L1 {
 
-  enum RegisterID {rdi, rax};
+  enum RegisterID {rdi, rax, rsi, rdx, rcx, r8, r9, rbx, rbp, r10, r11, r12, r13, r14, r15, rsp};
+
 
   class Item {
   };
