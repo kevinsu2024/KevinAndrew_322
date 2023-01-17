@@ -61,10 +61,26 @@ Instruction_mem_load::Instruction_mem_load (Item *dst, Item *src, Item *num)
   return ;
 }
 
+Instruction_mem_op_load::Instruction_mem_op_load (Item *dst, Item *src, Item *num, Item *op)
+  : s { src },
+    d { dst },
+    n { num },
+    o { op } {
+  return ;
+}
+
 Instruction_mem_store::Instruction_mem_store (Item *src, Item *num, Item *x_register)
   : s { src },
     n { num },
     x { x_register } {
+  return ;
+}
+
+Instruction_mem_op_store::Instruction_mem_op_store (Item *t_rule, Item *num, Item *x_register, Item *op)
+  : t { t_rule },
+    n { num },
+    x { x_register },
+    o { op } {
   return ;
 }
 
@@ -83,4 +99,66 @@ Instruction_sop::Instruction_sop (Item *shift, Item *op, Item *reg)
   return ;
 }
 
+Instruction_cjump::Instruction_cjump (Item *t1, Item *op, Item *t2, Item *label)
+  : f { t1 },
+    o { op },
+    s { t2 },
+    l {label} {
+  return ;
 }
+
+Instruction_label::Instruction_label (Item *l)
+  : label { l } {
+  return ;
+}
+Instruction_goto::Instruction_goto (Item *l)
+  : label { l } {
+    return ;
+  }
+
+Instruction_pp::Instruction_pp (Item *r)
+  : reg { r } {
+  return ;
+}
+
+
+
+Instruction_mm::Instruction_mm (Item *r)
+  : reg { r } {
+  return ;
+}
+Instruction_at::Instruction_at (Item *r1, Item *r2, Item *r3, Item *n)
+  : reg1 { r1 },
+    reg2 { r2 },
+    reg3 { r3 },
+    num { n } {
+  return ;
+}
+
+Instruction_call_u::Instruction_call_u (Item *up, Item *n)
+  : u { up },
+    num { n }{
+  return ;
+}
+
+Instruction_call_print::Instruction_call_print (){
+  return ;
+}
+
+Instruction_call_input::Instruction_call_input (){
+  return ;
+}
+
+Instruction_call_allocate::Instruction_call_allocate (){
+  return ;
+}
+
+Instruction_call_tensor_error::Instruction_call_tensor_error (Item *n)
+  : num { n }{
+  return ;
+}
+
+}
+
+
+

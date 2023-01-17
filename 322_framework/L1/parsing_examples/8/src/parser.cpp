@@ -93,6 +93,16 @@ namespace L1 {
   struct str_lt : TAOCPP_PEGTL_STRING( "<" ) {};
   struct str_leq : TAOCPP_PEGTL_STRING( "<=" ) {};
   struct str_eq : TAOCPP_PEGTL_STRING( "=" ) {};
+  struct str_cjump : TAOCPP_PEGTL_STRING( "cjump" ) {};
+  struct str_goto : TAOCPP_PEGTL_STRING( "goto" ) {};
+  struct str_pp : TAOCPP_PEGTL_STRING( "++" ) {};
+  struct str_mm : TAOCPP_PEGTL_STRING( "--" ) {};
+  struct str_at : TAOCPP_PEGTL_STRING( "@" ) {};
+  struct str_call : TAOCPP_PEGTL_STRING( "call" ) {};
+  struct str_print : TAOCPP_PEGTL_STRING( "print" ) {};
+  struct str_input : TAOCPP_PEGTL_STRING( "input" ) {};
+  struct str_allocate : TAOCPP_PEGTL_STRING( "allocate" ) {};
+  struct str_tensor_error : TAOCPP_PEGTL_STRING( "tensor-error" ) {};
 
 
   struct label:
@@ -237,6 +247,11 @@ namespace L1 {
       str_times_eq,
       str_and_eq
   > {};
+  struct plus_minus_op:
+    pegtl::sor<
+      str_plus_eq,
+      str_minus_eq
+    > {};
   struct sop:
     pegtl::sor<
       str_lshift,
@@ -244,12 +259,12 @@ namespace L1 {
   > {};
   struct cmp:
     pegtl::sor<
-      str_lt,
-      str_leq,
-      str_eq
+      pegtl::seq<pegtl::at<str_leq>, str_leq>,
+      pegtl::seq<pegtl::at<str_lt>, str_lt>,
+      pegtl::seq<pegtl::at<str_eq>, str_eq>
   > {};
 
-  struct instruction_label_rule:
+  struct label_rule:
     label {};
   struct t_rule:
     pegtl::sor<
@@ -260,22 +275,13 @@ namespace L1 {
   struct s_rule:
     pegtl::sor<
       t_rule,
-      instruction_label_rule
+      label_rule
   > {};
 
   struct u_rule:
     pegtl::sor<
       register_rule,
-      instruction_label_rule
-  > {};
-
-  struct cmp_rule:
-    pegtl::seq<
-      t_rule,
-      seps,
-      cmp,
-      seps,
-      t_rule
+      label_rule
   > {};
 
 
@@ -351,7 +357,7 @@ namespace L1 {
       instruction_number
     > {};
 
-    struct Instruction_mem_store_rule:
+  struct Instruction_mem_store_rule:
     pegtl::seq<
       str_mem,
       seps,
@@ -365,15 +371,153 @@ namespace L1 {
     > {};
 
 
+
+  struct Instruction_cjump_rule:
+    pegtl::seq<
+      str_cjump,
+      seps,
+      t_rule,
+      seps,
+      cmp,
+      seps,
+      t_rule,
+      seps,
+      label_rule
+    > {};
+
+  struct Instruction_label_rule:
+    pegtl::seq<
+      label_rule
+    > {};
+
+  struct Instruction_goto_rule:
+    pegtl::seq<
+      str_goto,
+      seps,
+      label_rule
+    > {};
+
+  struct Instruction_mem_op_store_rule:
+    pegtl::seq<
+      str_mem,
+      seps,
+      x_register_rule,
+      seps,
+      instruction_number,
+      seps,
+      plus_minus_op,
+      seps,
+      t_rule
+    > {};
+
+  struct Instruction_mem_op_load_rule:
+    pegtl::seq<
+      register_rule,
+      seps,
+      plus_minus_op,
+      seps,
+      str_mem,
+      seps,
+      x_register_rule,
+      seps,
+      instruction_number
+    > {};
+
+  struct Instruction_pp_rule:
+    pegtl::seq<
+      register_rule,
+      seps,
+      str_pp
+    > {};
+  struct Instruction_mm_rule:
+    pegtl::seq<
+      register_rule,
+      seps,
+      str_mm
+    > {};
+
+  struct Instruction_at_rule:
+    pegtl::seq<
+      register_rule,
+      seps,
+      str_at,
+      seps,
+      register_rule,
+      seps,
+      register_rule,
+      seps,
+      instruction_number
+    > {};
+
+  struct Instruction_call_u_rule:
+    pegtl::seq<
+      str_call,
+      seps,
+      u_rule,
+      seps,
+      instruction_number
+    > {};
+
+  struct Instruction_call_print_rule:
+    pegtl::seq<
+      str_call,
+      seps,
+      str_print,
+      seps,
+      pegtl::one< '1' >
+    > {};
+
+  struct Instruction_call_input_rule:
+    pegtl::seq<
+      str_call,
+      seps,
+      str_input,
+      seps,
+      pegtl::one< '0' >
+    > {};
+
+  struct Instruction_call_allocate_rule:
+    pegtl::seq<
+      str_call,
+      seps,
+      str_allocate,
+      seps,
+      pegtl::one< '2' >
+    > {};
+
+  struct Instruction_call_tensor_error_rule:
+    pegtl::seq<
+      str_call,
+      seps,
+      str_tensor_error,
+      seps,
+      instruction_number
+    > {};
+  
+
+
   struct Instruction_rule:
     pegtl::sor<
       pegtl::seq< pegtl::at<Instruction_return_rule>            , Instruction_return_rule             >,
+      pegtl::seq< pegtl::at<Instruction_cjump_rule>             , Instruction_cjump_rule              >,
+      pegtl::seq< pegtl::at<Instruction_pp_rule>                , Instruction_pp_rule                 >,
+      pegtl::seq< pegtl::at<Instruction_mm_rule>                , Instruction_mm_rule                 >,
+      pegtl::seq< pegtl::at<Instruction_call_u_rule>            , Instruction_call_u_rule             >,
+      pegtl::seq< pegtl::at<Instruction_call_print_rule>        , Instruction_call_print_rule         >,
+      pegtl::seq< pegtl::at<Instruction_call_input_rule>        , Instruction_call_input_rule         >,
+      pegtl::seq< pegtl::at<Instruction_call_allocate_rule>     , Instruction_call_allocate_rule      >,
+      pegtl::seq< pegtl::at<Instruction_call_tensor_error_rule> , Instruction_call_tensor_error_rule  >,
+      pegtl::seq< pegtl::at<Instruction_at_rule>                , Instruction_at_rule                 >,
       pegtl::seq< pegtl::at<Instruction_cmp_assignment_rule>    , Instruction_cmp_assignment_rule     >,
       pegtl::seq< pegtl::at<Instruction_assignment_rule>        , Instruction_assignment_rule         >,
+      pegtl::seq< pegtl::at<Instruction_mem_op_load_rule>       , Instruction_mem_op_load_rule        >,
+      pegtl::seq< pegtl::at<Instruction_mem_op_store_rule>      , Instruction_mem_op_store_rule       >,
       pegtl::seq< pegtl::at<Instruction_mem_load_rule>          , Instruction_mem_load_rule           >,
       pegtl::seq< pegtl::at<Instruction_mem_store_rule>         , Instruction_mem_store_rule          >,
       pegtl::seq< pegtl::at<Instruction_aop_rule>               , Instruction_aop_rule                >,
-      pegtl::seq< pegtl::at<Instruction_sop_rule>               , Instruction_sop_rule                >
+      pegtl::seq< pegtl::at<Instruction_sop_rule>               , Instruction_sop_rule                >,
+      pegtl::seq< pegtl::at<Instruction_goto_rule>              , Instruction_goto_rule               >,
+      pegtl::seq< pegtl::at<Instruction_label_rule>             , Instruction_label_rule              >
     > {};
 
   struct Instructions_rule:
@@ -383,7 +527,7 @@ namespace L1 {
         Instruction_rule,
         seps
       >
-    > { };
+    > {};
 
   struct Function_rule:
     pegtl::seq<
@@ -606,9 +750,12 @@ namespace L1 {
     }
   };
 
-  template<> struct action < instruction_label_rule > {
+  
+
+  template<> struct action < label_rule > {
     template< typename Input >
     static void apply( const Input & in, Program & p){
+      std::cout << "\n\nherer8\n\n";
       auto l = new InstructionLabel(in.string());
       parsed_items.push_back(l);
     }
@@ -633,6 +780,14 @@ namespace L1 {
     }
   };
 
+  template<> struct action < plus_minus_op > {
+    template< typename Input >
+    static void apply( const Input & in, Program & p){
+      auto op = new ArithmeticOp(in.string());
+      parsed_items.push_back(op);
+    }
+  };
+
   template<> struct action < sop > {
     template< typename Input >
     static void apply( const Input & in, Program & p){
@@ -645,6 +800,7 @@ namespace L1 {
   template<> struct action < Instruction_cmp_assignment_rule > {
     template< typename Input >
     static void apply( const Input & in, Program & p){
+      std::cout << "\n\nherer7\n\n";
       auto currentF = p.functions.back();
       
       std::cout << "\n\n" << parsed_items.size() << "   cmp_before_pop \n\n";
@@ -670,6 +826,7 @@ namespace L1 {
   template<> struct action < Instruction_assignment_rule > {
     template< typename Input >
 	  static void apply( const Input & in, Program & p){
+      std::cout << "\n\nherer6\n\n";
 
       /* 
        * Fetch the current function.
@@ -696,9 +853,45 @@ namespace L1 {
     }
   };
 
+  template<> struct action < Instruction_mem_op_load_rule > {
+    template< typename Input >
+	  static void apply( const Input & in, Program & p){
+      std::cout << "\n\nherer50\n\n";
+
+      /* 
+       * Fetch the current function.
+       */ 
+      auto currentF = p.functions.back();
+
+      /*
+       * Fetch the last two tokens parsed.
+       */
+      std::cout << "\n\n size before pop herer50" << parsed_items.size() << "\n\n";
+      auto num = parsed_items.back();
+      parsed_items.pop_back();
+      auto src = parsed_items.back();
+      parsed_items.pop_back();
+      auto op = parsed_items.back();
+      parsed_items.pop_back();
+      auto dst = parsed_items.back();
+      parsed_items.pop_back();
+      std::cout << "\n\n size after pop herer50" << parsed_items.size() << "\n\n";
+      /* 
+       * Create the instruction.
+       */ 
+      auto i = new Instruction_mem_op_load(dst, src, num, op); 
+
+      /* 
+       * Add the just-created instruction to the current function.
+       */ 
+      currentF->instructions.push_back(i);
+    }
+  };
+
   template<> struct action < Instruction_mem_load_rule > {
     template< typename Input >
 	  static void apply( const Input & in, Program & p){
+      std::cout << "\n\nherer5\n\n";
 
       /* 
        * Fetch the current function.
@@ -726,9 +919,12 @@ namespace L1 {
     }
   };
 
+  
+
   template<> struct action < Instruction_mem_store_rule > {
     template< typename Input >
 	  static void apply( const Input & in, Program & p){
+      std::cout << "\n\nherer4\n\n";
 
       /* 
        * Fetch the current function.
@@ -756,9 +952,45 @@ namespace L1 {
     }
   };
 
+  template<> struct action < Instruction_mem_op_store_rule > {
+    template< typename Input >
+	  static void apply( const Input & in, Program & p){
+      std::cout << "\n\nherer40\n\n";
+
+      /* 
+       * Fetch the current function.
+       */ 
+      auto currentF = p.functions.back();
+
+      /*
+       * Fetch the last two tokens parsed.
+       */
+      std::cout << "\n\n size before pop herer40" << parsed_items.size() << "\n\n";
+      auto t_rule = parsed_items.back();
+      parsed_items.pop_back();
+      auto op = parsed_items.back();
+      parsed_items.pop_back();
+      auto num = parsed_items.back();
+      parsed_items.pop_back();
+      auto x_register = parsed_items.back();
+      parsed_items.pop_back();
+      std::cout << "\n\n size after pop herer40" << parsed_items.size() << "\n\n";
+      /* 
+       * Create the instruction.
+       */ 
+      auto i = new Instruction_mem_op_store(t_rule, num, x_register, op); 
+
+      /* 
+       * Add the just-created instruction to the current function.
+       */ 
+      currentF->instructions.push_back(i);
+    }
+  };
+
   template<> struct action < Instruction_aop_rule > {
     template< typename Input >
 	  static void apply( const Input & in, Program & p){
+      std::cout << "\n\nherer3\n\n";
 
       /* 
        * Fetch the current function.
@@ -790,6 +1022,7 @@ namespace L1 {
   template<> struct action < Instruction_sop_rule > {
     template< typename Input >
 	  static void apply( const Input & in, Program & p){
+      std::cout << "\n\nherer2\n\n";
 
       /* 
        * Fetch the current function.
@@ -820,6 +1053,322 @@ namespace L1 {
       std::cout << "\n\n" << parsed_items.size() << "   num 4 \n\n";
     }
   };
+
+  template<> struct action < Instruction_cjump_rule > {
+    template< typename Input >
+	  static void apply( const Input & in, Program & p){
+
+      std::cout << "\n\nherer1\n\n";
+      /* 
+       * Fetch the current function.
+       */ 
+      auto currentF = p.functions.back();
+
+      /*
+       * Fetch the last two tokens parsed.
+       */
+      auto label = parsed_items.back();
+      parsed_items.pop_back();
+      auto t2 = parsed_items.back();
+      parsed_items.pop_back();
+      auto op = parsed_items.back();
+      parsed_items.pop_back();
+      auto t1 = parsed_items.back();
+      parsed_items.pop_back();
+      /* 
+       * Create the instruction.
+       */ 
+      auto i = new Instruction_cjump(t1, op, t2, label); 
+
+      /* 
+       * Add the just-created instruction to the current function.
+       */ 
+      currentF->instructions.push_back(i);
+    }
+  };
+
+  template<> struct action < Instruction_label_rule > {
+    template< typename Input >
+	  static void apply( const Input & in, Program & p){
+
+      std::cout << "\n\nherer0\n\n";
+      /* 
+       * Fetch the current function.
+       */ 
+      auto currentF = p.functions.back();
+
+      /*
+       * Fetch the last two tokens parsed.
+       */
+      auto label = parsed_items.back();
+      parsed_items.pop_back();
+      
+      /* 
+       * Create the instruction.
+       */ 
+      auto i = new Instruction_label(label); 
+
+      /* 
+       * Add the just-created instruction to the current function.
+       */ 
+      currentF->instructions.push_back(i);
+    }
+  };
+
+  template<> struct action < Instruction_goto_rule > {
+    template< typename Input >
+	  static void apply( const Input & in, Program & p){
+
+      std::cout << "\n\nherer-1\n\n";
+      /* 
+       * Fetch the current function.
+       */ 
+      auto currentF = p.functions.back();
+
+      /*
+       * Fetch the last two tokens parsed.
+       */
+      auto label = parsed_items.back();
+      parsed_items.pop_back();
+      
+      /* 
+       * Create the instruction.
+       */ 
+      auto i = new Instruction_goto(label); 
+
+      /* 
+       * Add the just-created instruction to the current function.
+       */ 
+      currentF->instructions.push_back(i);
+    }
+  };
+
+
+  template<> struct action < Instruction_pp_rule > {
+    template< typename Input >
+	  static void apply( const Input & in, Program & p){
+
+      std::cout << "\n\nherer-2\n\n";
+      /* 
+       * Fetch the current function.
+       */ 
+      auto currentF = p.functions.back();
+
+      /*
+       * Fetch the last two tokens parsed.
+       */
+      auto reg = parsed_items.back();
+      parsed_items.pop_back();
+      
+      /* 
+       * Create the instruction.
+       */ 
+      auto i = new Instruction_pp(reg); 
+
+      /* 
+       * Add the just-created instruction to the current function.
+       */ 
+      currentF->instructions.push_back(i);
+    }
+  };
+
+  template<> struct action < Instruction_mm_rule > {
+    template< typename Input >
+	  static void apply( const Input & in, Program & p){
+
+      std::cout << "\n\nherer-3\n\n";
+      /* 
+       * Fetch the current function.
+       */ 
+      auto currentF = p.functions.back();
+
+      /*
+       * Fetch the last two tokens parsed.
+       */
+      auto reg = parsed_items.back();
+      parsed_items.pop_back();
+      
+      /* 
+       * Create the instruction.
+       */ 
+      auto i = new Instruction_mm(reg); 
+
+      /* 
+       * Add the just-created instruction to the current function.
+       */ 
+      currentF->instructions.push_back(i);
+    }
+  };
+
+  template<> struct action < Instruction_at_rule > {
+    template< typename Input >
+	  static void apply( const Input & in, Program & p){
+
+      std::cout << "\n\nherer-4\n\n";
+      /* 
+       * Fetch the current function.
+       */ 
+      auto currentF = p.functions.back();
+
+      /*
+       * Fetch the last two tokens parsed.
+       */
+      auto num = parsed_items.back();
+      parsed_items.pop_back();
+      auto reg3 = parsed_items.back();
+      parsed_items.pop_back();
+      auto reg2 = parsed_items.back();
+      parsed_items.pop_back();
+      auto reg1 = parsed_items.back();
+      parsed_items.pop_back();
+      
+      /* 
+       * Create the instruction.
+       */ 
+      auto i = new Instruction_at(reg1,reg2,reg3,num); 
+
+      /* 
+       * Add the just-created instruction to the current function.
+       */ 
+      currentF->instructions.push_back(i);
+    }
+  };
+
+  template<> struct action < Instruction_call_u_rule > {
+    template< typename Input >
+	  static void apply( const Input & in, Program & p){
+
+      std::cout << "\n\nherer-5\n\n";
+      /* 
+       * Fetch the current function.
+       */ 
+      auto currentF = p.functions.back();
+
+      /*
+       * Fetch the last two tokens parsed.
+       */
+      auto num = parsed_items.back();
+      parsed_items.pop_back();
+      auto u = parsed_items.back();
+      parsed_items.pop_back();
+      
+      
+      /* 
+       * Create the instruction.
+       */ 
+      auto i = new Instruction_call_u(u, num); 
+
+      /* 
+       * Add the just-created instruction to the current function.
+       */ 
+      currentF->instructions.push_back(i);
+    }
+  };
+
+  template<> struct action < Instruction_call_print_rule > {
+    template< typename Input >
+	  static void apply( const Input & in, Program & p){
+
+      std::cout << "\n\nherer-5\n\n";
+      /* 
+       * Fetch the current function.
+       */ 
+      auto currentF = p.functions.back();
+      
+      
+      /* 
+       * Create the instruction.
+       */ 
+      auto i = new Instruction_call_print(); 
+
+      /* 
+       * Add the just-created instruction to the current function.
+       */ 
+      currentF->instructions.push_back(i);
+    }
+  };
+
+  template<> struct action < Instruction_call_input_rule > {
+    template< typename Input >
+	  static void apply( const Input & in, Program & p){
+
+      std::cout << "\n\nherer-5\n\n";
+      /* 
+       * Fetch the current function.
+       */ 
+      auto currentF = p.functions.back();
+
+      
+      
+      
+      /* 
+       * Create the instruction.
+       */ 
+      auto i = new Instruction_call_input(); 
+
+      /* 
+       * Add the just-created instruction to the current function.
+       */ 
+      currentF->instructions.push_back(i);
+    }
+  };
+
+  template<> struct action < Instruction_call_allocate_rule > {
+    template< typename Input >
+	  static void apply( const Input & in, Program & p){
+
+      std::cout << "\n\nherer-5\n\n";
+      /* 
+       * Fetch the current function.
+       */ 
+      auto currentF = p.functions.back();
+
+      
+      
+      
+      /* 
+       * Create the instruction.
+       */ 
+      auto i = new Instruction_call_allocate(); 
+
+      /* 
+       * Add the just-created instruction to the current function.
+       */ 
+      currentF->instructions.push_back(i);
+    }
+  };
+
+  template<> struct action < Instruction_call_tensor_error_rule > {
+    template< typename Input >
+	  static void apply( const Input & in, Program & p){
+
+      std::cout << "\n\nherer-5\n\n";
+      /* 
+       * Fetch the current function.
+       */ 
+      auto currentF = p.functions.back();
+
+      /*
+       * Fetch the last two tokens parsed.
+       */
+      auto num = parsed_items.back();
+      parsed_items.pop_back();
+      
+      
+      
+      /* 
+       * Create the instruction.
+       */ 
+      auto i = new Instruction_call_tensor_error(num); 
+
+      /* 
+       * Add the just-created instruction to the current function.
+       */ 
+      currentF->instructions.push_back(i);
+    }
+  };
+
+  
 
   Program parse_file (char *fileName){
 

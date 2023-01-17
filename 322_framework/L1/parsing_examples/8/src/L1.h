@@ -104,6 +104,17 @@ namespace L1 {
       Item *n;
   };
 
+  class Instruction_mem_op_load : public Instruction{
+    public:
+      Instruction_mem_op_load (Item *dst, Item *src, Item *num, Item *op);
+
+    private:
+      Item *s;
+      Item *d;
+      Item *n;
+      Item *o;
+  };
+
   class Instruction_mem_store : public Instruction{
     public:
       Instruction_mem_store (Item *s, Item *num, Item *x_register);
@@ -112,6 +123,17 @@ namespace L1 {
       Item *s;
       Item *n;
       Item *x;
+  };
+
+  class Instruction_mem_op_store : public Instruction{
+    public:
+      Instruction_mem_op_store (Item *t_rule, Item *num, Item *x_register, Item *op);
+
+    private:
+      Item *t;
+      Item *n;
+      Item *x;
+      Item *o;
   };
 
   class Instruction_aop : public Instruction{
@@ -133,6 +155,95 @@ namespace L1 {
       Item *o;
       Item *r;
   };
+
+  class Instruction_cjump : public Instruction{
+    public:
+      Instruction_cjump (Item *first, Item *op, Item *second, Item *label);
+
+    private:
+      Item *f;
+      Item *o;
+      Item *s;
+      Item *l;
+  };
+
+  class Instruction_label : public Instruction{
+    public:
+      Instruction_label (Item *l);
+
+    private:
+      Item *label;
+  };
+
+
+  class Instruction_goto : public Instruction{
+    public:
+      Instruction_goto (Item *l);
+
+    private:
+      Item *label;
+  };
+
+  class Instruction_pp : public Instruction{
+    public:
+      Instruction_pp (Item *r);
+
+    private:
+      Item *reg;
+  };
+
+  class Instruction_mm : public Instruction{
+    public:
+      Instruction_mm (Item *r);
+
+    private:
+      Item *reg;
+  };
+
+  class Instruction_at : public Instruction{
+    public:
+      Instruction_at (Item *r1, Item *r2, Item *r3, Item *num);
+
+    private:
+      Item *reg1;
+      Item *reg2;
+      Item *reg3;
+      Item *num;
+  };
+
+  class Instruction_call_u : public Instruction{
+    public:
+      Instruction_call_u (Item *up, Item *num);
+
+    private:
+      Item *u;
+      Item *num;
+  };
+
+  class Instruction_call_print : public Instruction{
+    public:
+      Instruction_call_print ();
+  };
+
+  class Instruction_call_input : public Instruction{
+    public:
+      Instruction_call_input ();
+  };
+
+  class Instruction_call_allocate : public Instruction{
+    public:
+      Instruction_call_allocate ();
+  };
+
+  class Instruction_call_tensor_error : public Instruction{
+    public:
+      Instruction_call_tensor_error (Item *n);
+
+    private:
+      Item *num;
+  };
+
+
 
   /*
    * Function.

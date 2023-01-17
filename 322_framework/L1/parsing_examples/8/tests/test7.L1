@@ -3,9 +3,48 @@
     0 0
 
     // This is my comment
+    // cjump 2 = rdi :aef
 
-    rax <- rdi
+    // :asdfawe
 
+    // rdi <- rax
+
+   goto:asdfawe
+
+    mem rdi 8 -= 9
+
+    call :xd 124
+
+
+    goto :pogp
+
+    call print 1
+
+    rdi += 4
+
+    rbx += mem rax 8
+
+    call input 0
+
+    rdx -= mem rdi 80
+
+    rdi @ rcx rdi 124819241
+
+    call rdi 124
+
+    goto :yeeet
+
+    call allocate 2
+
+    call tensor-error 2
+
+    
+
+    rdi += 4
+
+    rdi ++
+    rsi++
+    rcx -- 
     return 
   )
 
