@@ -1383,7 +1383,6 @@ namespace L1 {
     file_input< > fileInput(fileName);
     Program p;
     parse< grammar, action >(fileInput, p);
-
     return p;
   }
 
