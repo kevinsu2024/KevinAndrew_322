@@ -42,6 +42,7 @@ Register::get_register_ID(){
   } else if (ID == rsp){
     return "rsp";
   } 
+  return "";
 }
 
 
@@ -101,15 +102,16 @@ CompareExpression::CompareExpression (Item *first, Item *second, Item *op)
   return ;
 }
 
+// int64_t
+// Instruction_ret::get_dummy(){
+//   return dummy;
+// }
+
 FunctionName::FunctionName (std::string name)
   : n {name} {
     return;
 }
 
-std::string
-Instruction_ret::get_name(){
-  return "Instruction_ret";
-}
 
 Instruction_assignment::Instruction_assignment (Item *dst, Item *src)
   : s { src },
@@ -126,12 +128,6 @@ Item*
 Instruction_assignment::get_dst(){
   return d;
 }
-
-std::string
-Instruction_assignment::get_name(){
-  return "Instruction_assignment";
-}
-
 Instruction_cmp_assignment::Instruction_cmp_assignment (Item *dst, Item *first, Item *second, Item *op)
   : d { dst },
     f { first },

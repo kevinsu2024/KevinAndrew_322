@@ -17,23 +17,25 @@ namespace L1{
   }
 
   std::string convert_item_to_str(Item* i){
-    if (typeid(*i) == typeid(Register)){
+    if (dynamic_cast<Register*>(i)){
       Register* it = (Register*) i;
       return "%" + it->get_register_ID();
-    } else if (typeid(*i) == typeid(InstructionLabel)){
+    } else if (dynamic_cast<InstructionLabel*>(i)){
       InstructionLabel* it = (InstructionLabel*) i;
       return "$" + convert_label_name(it->get_label_name());
-    } else if (typeid(*i) == typeid(InstructionNumber)){
+    } else if (dynamic_cast<InstructionNumber*>(i)){
       auto it = (InstructionNumber*) i;
       return "$" + std::to_string(it->get_val());
-    } else if (typeid(*i) == typeid(ArithmeticOp)){
+    } else if (dynamic_cast<ArithmeticOp*>(i)){
       auto it = (ArithmeticOp*) i;
       std::string op_char = it->get_op_char();
       return op_char;
-    } else if (typeid(*i) == typeid(ShiftOp)){
+    } else if (dynamic_cast<ShiftOp*>(i)){
       auto it = (ShiftOp*) i;
       std::string op_char = it->get_op_char();
+      return op_char;
     }
+    return "";
   }
 
   std::string map_reg(std::string s){
@@ -98,10 +100,17 @@ namespace L1{
       //TODO STACK STUFF
       int64_t sub_stack_num = f->locals * 8;
       outputFile << "\tsubq $" << std::to_string(sub_stack_num) << ", %rsp\n";
+      int64_t loop_counter = 0;
       for(auto *i : f->instructions){
-        Instruction_assignment* is_assignment = (Instruction_assignment*)i;
-        Instruction_cjump* is_cjump = (Instruction_cjump*)i;
-        if (typeid(*i) == typeid(Instruction_ret)){
+        // Instruction_assignment* test_ass = 0;
+        // test_ass = dynamic_cast<Instruction_assignment*>(i);
+        Instruction_ret* ret_pointer_ex = (Instruction_ret*)f->instructions[2];
+        Instruction_ret* ret_pointer = dynamic_cast<Instruction_ret*>(i);
+        loop_counter++;
+        if(loop_counter > f->instructions.size()){
+          break;
+        }
+        if (dynamic_cast<Instruction_ret*>(i)){
           int64_t argument_multiplier = 0;
           if (f->arguments > 6){
             argument_multiplier += (f->arguments - 6);
@@ -109,13 +118,13 @@ namespace L1{
           sub_stack_num += (argument_multiplier * 8);
           outputFile << "\taddq $" << std::to_string(sub_stack_num) << ", %rsp\n";
           outputFile << "\tretq\n";
-        } else if(typeid(*is_cjump) == typeid(Instruction_assignment)){ //CHANGE BACK
+        } else if(dynamic_cast<Instruction_assignment*>(i)){ //CHANGE BACK
           Instruction_assignment* in = (Instruction_assignment *) i;
           std::string src = convert_item_to_str(in->get_src());
           std::string dst = convert_item_to_str(in->get_dst());
           outputFile << "\tmovq " << src << ", " << dst << "\n";
 
-        } else if(typeid(*i) == typeid(Instruction_cmp_assignment)){
+        } else if(dynamic_cast<Instruction_cmp_assignment*>(i)){
           Instruction_cmp_assignment* in = (Instruction_cmp_assignment *) i;
           std::string dst = convert_item_to_str(in->get_dst());
           Item* first = in->get_first();
@@ -176,14 +185,14 @@ namespace L1{
 
 
 
-        } else if(typeid(*i) == typeid(Instruction_mem_load)){
+        } else if(dynamic_cast<Instruction_mem_load*>(i)){
           Instruction_mem_load* in = (Instruction_mem_load*) i;
           std::string src = convert_item_to_str(in->get_src());
           std::string dst = convert_item_to_str(in->get_dst());
           std::string num = convert_item_to_str(in->get_num());
           outputFile << "\tmovq " << num << "(" << src << "), " << dst << "\n";
 
-        } else if(typeid(*i) == typeid(Instruction_mem_op_load)){
+        } else if(dynamic_cast<Instruction_mem_op_load*>(i)){
           Instruction_mem_op_load* in = (Instruction_mem_op_load*) i;
           std::string src = convert_item_to_str(in->get_src());
           std::string dst = convert_item_to_str(in->get_dst());
@@ -197,14 +206,14 @@ namespace L1{
           }
 
 
-        } else if(typeid(*i) == typeid(Instruction_mem_store)){
+        } else if(dynamic_cast<Instruction_mem_store*>(i)){
           Instruction_mem_store* in = (Instruction_mem_store*) i;
           std::string src = convert_item_to_str(in->get_src());
           std::string x_reg = convert_item_to_str(in->get_x_reg());
           std::string num = convert_item_to_str(in->get_num());
           outputFile << "\tmovq " << src << "< " << num << "(" << x_reg << ")\n";
 
-        } else if(typeid(*i) == typeid(Instruction_mem_op_store)){
+        } else if(dynamic_cast<Instruction_mem_op_store*>(i)){
           Instruction_mem_op_store* in = (Instruction_mem_op_store*) i; 
           std::string src = convert_item_to_str(in->get_src());
           std::string x_reg = convert_item_to_str(in->get_x_reg());
@@ -217,7 +226,7 @@ namespace L1{
             outputFile << "\tsubq " << src << ", " << num << "(" << x_reg << ")\n";
           }
 
-        } else if(typeid(*i) == typeid(Instruction_aop)){
+        } else if(dynamic_cast<Instruction_aop*>(i)){
           Instruction_aop* in = (Instruction_aop*) i;
           std::string src = convert_item_to_str(in->get_src());
           std::string dst = convert_item_to_str(in->get_dst());
@@ -233,7 +242,7 @@ namespace L1{
             assembly_instr = "andq";
           }
           outputFile << "\t" << assembly_instr << " " << src << ", " << dst << "\n";
-        } else if(typeid(*i) == typeid(Instruction_sop)){
+        } else if(dynamic_cast<Instruction_sop*>(i)){
           Instruction_sop* in = (Instruction_sop*) i;
           std::string src = convert_item_to_str(in->get_src());
           std::string dst = convert_item_to_str(in->get_dst());
@@ -245,7 +254,7 @@ namespace L1{
             assembly_instr = "sarq";
           }
           outputFile << "\t" << assembly_instr << " " << src << ", " << dst << "\n";
-        } else if(typeid(*i) == typeid(Instruction_cjump)){
+        } else if(dynamic_cast<Instruction_cjump*>(i)){
           auto in = (Instruction_cjump*) i;
           std::string label = convert_item_to_str(in->get_label());
 
@@ -306,37 +315,37 @@ namespace L1{
             }
           }
 
-        } else if(typeid(*i) == typeid(Instruction_label)){
+        } else if(dynamic_cast<Instruction_label*>(i)){
           auto in = (Instruction_label*) i;
           std::string l = convert_item_to_str(in->get_label()) ;
           outputFile << "\t" << l << ":\n";
 
           
-        } else if(typeid(*i) == typeid(Instruction_goto)){
+        } else if(dynamic_cast<Instruction_goto*>(i)){
           auto in = (Instruction_goto*) i;
           std::string l = convert_item_to_str(in->get_label()) ;
           outputFile << "\tjmp " << l << "\n";
-        } else if(typeid(*i) == typeid(Instruction_pp)){
+        } else if(dynamic_cast<Instruction_pp*>(i)){
           auto in = (Instruction_pp*) i;
           std::string dst = convert_item_to_str(in->get_reg());
           outputFile << "\tinc " << dst << "\n";
 
-        } else if(typeid(*i) == typeid(Instruction_mm)){
+        } else if(dynamic_cast<Instruction_mm*>(i)){
           auto in = (Instruction_mm*) i;
           std::string dst = convert_item_to_str(in->get_reg());
           outputFile << "\tdec " << dst << "\n";
-        } else if(typeid(*i) == typeid(Instruction_at)){
+        } else if(dynamic_cast<Instruction_at*>(i)){
           auto in = (Instruction_at*) i;
           std::string reg1 = convert_item_to_str(in->get_reg1());
           std::string reg2 = convert_item_to_str(in->get_reg2());
           std::string reg3 = convert_item_to_str(in->get_reg3());
           std::string num = convert_item_to_str(in->get_num());
           outputFile << "\tlea (" << reg2 << ", " << reg3 << ", " << num << "), " << reg1 << "\n";
-        } else if(typeid(*i) == typeid(Instruction_call_u)){
+        } else if(dynamic_cast<Instruction_call_u*>(i)){
           auto in = (Instruction_call_u*) i;
           Item* u = in->get_u();
           std::string num = convert_item_to_str(in->get_num());
-          if (typeid(u) == typeid(Register)){
+          if (dynamic_cast<Register*>(u)){
             outputFile << "\tsubq $8, %rsp\n";
             outputFile << "\tjmp *" << convert_item_to_str(u) << "\n";
           } else {
@@ -352,13 +361,13 @@ namespace L1{
             outputFile << "\t jmp " << convert_item_to_str(u) << "\n";
           }
 
-        } else if(typeid(*i) == typeid(Instruction_call_print)){
+        } else if(dynamic_cast<Instruction_call_print*>(i)){
           outputFile << "\tcall print \n";
-        } else if(typeid(*i) == typeid(Instruction_call_input)){
+        } else if(dynamic_cast<Instruction_call_input*>(i)){
           outputFile << "\tcall input \n";
-        } else if(typeid(*i) == typeid(Instruction_call_allocate)){
+        } else if(dynamic_cast<Instruction_call_allocate*>(i)){
           outputFile << "\tcall allocate \n";
-        } else if(typeid(*i) == typeid(Instruction_call_tensor_error)){
+        } else if(dynamic_cast<Instruction_call_tensor_error*>(i)){
           Instruction_call_tensor_error* in = (Instruction_call_tensor_error*) i;
           std::string num = convert_item_to_str(in->get_val());
           if (num == "1"){
@@ -371,7 +380,9 @@ namespace L1{
         } else {
           std::cout << "typeid doesnt match anything\n";
         }
+        
       }
+      
 
 
     }

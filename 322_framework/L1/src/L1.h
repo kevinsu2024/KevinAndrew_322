@@ -9,6 +9,8 @@ namespace L1 {
 
 
   class Item {
+    public:
+      virtual void yourfunction() = 0;
   };
 
   class Register : public Item {
@@ -80,15 +82,17 @@ namespace L1 {
    */
   class Instruction{
     public:
-    private:
+      virtual void yourfunction() = 0;
   };
 
   /*
    * Instructions.
    */
   class Instruction_ret : public Instruction{
-    public:
-      std::string get_name();
+    // public:
+    //   int64_t get_dummy();
+    // private:
+    //   int64_t dummy = 0;
   };
 
   class Instruction_assignment : public Instruction{
@@ -96,7 +100,6 @@ namespace L1 {
       Instruction_assignment (Item *dst, Item *src);
       Item *get_src();
       Item *get_dst();
-      std::string get_name();
     private:
       Item *s;
       Item *d;

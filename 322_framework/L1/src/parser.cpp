@@ -307,6 +307,15 @@ namespace L1 {
       str_return
     > { };
 
+  struct Instruction_function_start_rule:
+    pegtl::seq<
+      seps,
+      pegtl::one<'('>,
+      seps,
+      function_name_rule,
+      seps
+    > {};
+
   struct Instruction_cmp_assignment_rule:
     pegtl::seq<
       register_rule,
@@ -496,14 +505,6 @@ namespace L1 {
       instruction_number
     > {};
   
-   struct Instruction_function_start_rule:
-      pegtl::seq<
-      seps,
-      pegtl::one< '(' >,
-      seps,
-      function_name_rule,
-      seps
-    > {};
 
 
   struct Instruction_rule:
