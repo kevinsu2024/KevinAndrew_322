@@ -2,7 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <typeinfo>
-
+#include <memory>
 #include <code_generator.h>
 
 using namespace std;
@@ -98,7 +98,9 @@ namespace L1{
       //TODO STACK STUFF
       int64_t sub_stack_num = f->locals * 8;
       outputFile << "\tsubq $" << std::to_string(sub_stack_num) << ", %rsp\n";
-      for(Instruction *i : f->instructions){
+      for(auto *i : f->instructions){
+        Instruction_assignment* is_assignment = (Instruction_assignment*)i;
+        Instruction_cjump* is_cjump = (Instruction_cjump*)i;
         if (typeid(*i) == typeid(Instruction_ret)){
           int64_t argument_multiplier = 0;
           if (f->arguments > 6){
@@ -107,7 +109,7 @@ namespace L1{
           sub_stack_num += (argument_multiplier * 8);
           outputFile << "\taddq $" << std::to_string(sub_stack_num) << ", %rsp\n";
           outputFile << "\tretq\n";
-        } else if(typeid(*i) == typeid(Instruction_assignment)){
+        } else if(typeid(*is_cjump) == typeid(Instruction_assignment)){ //CHANGE BACK
           Instruction_assignment* in = (Instruction_assignment *) i;
           std::string src = convert_item_to_str(in->get_src());
           std::string dst = convert_item_to_str(in->get_dst());
@@ -366,7 +368,9 @@ namespace L1{
           } else if (num == "4"){
             outputFile << "\t call tensor_error \n";
           }
-        } else {}
+        } else {
+          std::cout << "typeid doesnt match anything\n";
+        }
       }
 
 

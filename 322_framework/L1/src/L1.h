@@ -68,16 +68,27 @@ namespace L1 {
       Item *s;
       Item *o;
   };
+
+  class FunctionName : public Item {
+    public:
+     FunctionName (std::string name);
+    private:
+      std::string n;
+  };
   /*
    * Instruction interface.
    */
   class Instruction{
+    public:
+    private:
   };
 
   /*
    * Instructions.
    */
   class Instruction_ret : public Instruction{
+    public:
+      std::string get_name();
   };
 
   class Instruction_assignment : public Instruction{
@@ -85,6 +96,7 @@ namespace L1 {
       Instruction_assignment (Item *dst, Item *src);
       Item *get_src();
       Item *get_dst();
+      std::string get_name();
     private:
       Item *s;
       Item *d;
@@ -97,6 +109,7 @@ namespace L1 {
       Item* get_first();
       Item* get_second();
       Item* get_op();
+      
 
     private:
       Item *d;

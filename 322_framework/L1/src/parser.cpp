@@ -275,13 +275,15 @@ namespace L1 {
   struct s_rule:
     pegtl::sor<
       t_rule,
-      label_rule
+      label_rule,
+      function_name_rule
   > {};
 
   struct u_rule:
     pegtl::sor<
       register_rule,
-      label_rule
+      label_rule,
+      function_name_rule
   > {};
 
 
@@ -494,6 +496,14 @@ namespace L1 {
       instruction_number
     > {};
   
+   struct Instruction_function_start_rule:
+      pegtl::seq<
+      seps,
+      pegtl::one< '(' >,
+      seps,
+      function_name_rule,
+      seps
+    > {};
 
 
   struct Instruction_rule:
@@ -517,7 +527,8 @@ namespace L1 {
       pegtl::seq< pegtl::at<Instruction_aop_rule>               , Instruction_aop_rule                >,
       pegtl::seq< pegtl::at<Instruction_sop_rule>               , Instruction_sop_rule                >,
       pegtl::seq< pegtl::at<Instruction_goto_rule>              , Instruction_goto_rule               >,
-      pegtl::seq< pegtl::at<Instruction_label_rule>             , Instruction_label_rule              >
+      pegtl::seq< pegtl::at<Instruction_label_rule>             , Instruction_label_rule              >,
+      pegtl::seq< pegtl::at<Instruction_function_start_rule>    , Instruction_function_start_rule     >
     > {};
 
   struct Instructions_rule:
@@ -582,6 +593,9 @@ namespace L1 {
       if (p.entryPointLabel.empty()){
         p.entryPointLabel = in.string();
       } else {
+        std::string input_string = in.string();
+        auto fn = new FunctionName(input_string);
+        parsed_items.push_back(fn);
         auto newF = new Function();
         newF->name = in.string();
         p.functions.push_back(newF);
@@ -796,6 +810,16 @@ namespace L1 {
       std::cout << "\n\n" << parsed_items.size() << "\n\n";
     }
   };
+  template<> struct action < Instruction_function_start_rule > {
+    template< typename Input >
+    static void apply( const Input & in, Program & p){
+      std::cout << "\n\nherer func start\n\n";
+      std::cout << "\n\n" << parsed_items.size() << "   func_start_before_pop \n\n";
+      auto name = parsed_items.back();
+      parsed_items.pop_back();
+      std::cout << "\n\n" << parsed_items.size() << "   func_start_after_pop \n\n";
+    }
+  };
 
   template<> struct action < Instruction_cmp_assignment_rule > {
     template< typename Input >
@@ -850,6 +874,7 @@ namespace L1 {
        * Add the just-created instruction to the current function.
        */ 
       currentF->instructions.push_back(i);
+      auto stored_instr = currentF->instructions.back();
     }
   };
 
@@ -934,12 +959,14 @@ namespace L1 {
       /*
        * Fetch the last two tokens parsed.
        */
+      std::cout << "\n\n size before pop herer4" << parsed_items.size() << "\n\n"; 
       auto s = parsed_items.back();
       parsed_items.pop_back();
       auto num = parsed_items.back();
       parsed_items.pop_back();
       auto x_register = parsed_items.back();
       parsed_items.pop_back();
+      std::cout << "\n\n size after pop herer4" << parsed_items.size() << "\n\n";
       /* 
        * Create the instruction.
        */ 

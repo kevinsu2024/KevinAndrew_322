@@ -101,6 +101,16 @@ CompareExpression::CompareExpression (Item *first, Item *second, Item *op)
   return ;
 }
 
+FunctionName::FunctionName (std::string name)
+  : n {name} {
+    return;
+}
+
+std::string
+Instruction_ret::get_name(){
+  return "Instruction_ret";
+}
+
 Instruction_assignment::Instruction_assignment (Item *dst, Item *src)
   : s { src },
     d { dst } {
@@ -115,6 +125,11 @@ Instruction_assignment::get_src(){
 Item*
 Instruction_assignment::get_dst(){
   return d;
+}
+
+std::string
+Instruction_assignment::get_name(){
+  return "Instruction_assignment";
 }
 
 Instruction_cmp_assignment::Instruction_cmp_assignment (Item *dst, Item *first, Item *second, Item *op)
