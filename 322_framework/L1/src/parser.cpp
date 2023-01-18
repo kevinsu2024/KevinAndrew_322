@@ -596,6 +596,7 @@ namespace L1 {
       } else {
         std::string input_string = in.string();
         auto fn = new FunctionName(input_string);
+        fn->set_name("FunctionName");
         parsed_items.push_back(fn);
         auto newF = new Function();
         newF->name = in.string();
@@ -624,6 +625,7 @@ namespace L1 {
     template< typename Input >
     static void apply( const Input & in, Program & p){
       auto n = new InstructionNumber(stoi(in.string()));
+      n->set_name("InstructionNumber");
       parsed_items.push_back(n);
     }
   };
@@ -633,6 +635,7 @@ namespace L1 {
 	  static void apply( const Input & in, Program & p){
       auto currentF = p.functions.back();
       auto i = new Instruction_ret();
+      i->set_name("Instruction_ret");
       currentF->instructions.push_back(i);
     }
   };
@@ -641,6 +644,7 @@ namespace L1 {
     template< typename Input >
     static void apply( const Input & in, Program & p){
       auto r = new Register(RegisterID::rdi);
+      r->set_name("Register");
       parsed_items.push_back(r);
     }
   };
@@ -649,6 +653,7 @@ namespace L1 {
     template< typename Input >
     static void apply( const Input & in, Program & p){
       auto r = new Register(RegisterID::rax);
+      r->set_name("Register");
       parsed_items.push_back(r);
     }
   };
@@ -658,6 +663,7 @@ namespace L1 {
     template< typename Input >
     static void apply( const Input & in, Program & p){
       auto r = new Register(RegisterID::rsi);
+      r->set_name("Register");
       parsed_items.push_back(r);
     }
   };
@@ -666,6 +672,7 @@ namespace L1 {
     template< typename Input >
     static void apply( const Input & in, Program & p){
       auto r = new Register(RegisterID::rdx);
+      r->set_name("Register");
       parsed_items.push_back(r);
     }
   };
@@ -675,6 +682,7 @@ namespace L1 {
     static void apply( const Input & in, Program & p){
 
       auto r = new Register(RegisterID::rcx);
+      r->set_name("Register");
       parsed_items.push_back(r);
     }
   };
@@ -684,6 +692,7 @@ namespace L1 {
     template< typename Input >
     static void apply( const Input & in, Program & p){
       auto r = new Register(RegisterID::r8);
+      r->set_name("Register");
       parsed_items.push_back(r);
     }
   };
@@ -693,6 +702,7 @@ namespace L1 {
     template< typename Input >
     static void apply( const Input & in, Program & p){
       auto r = new Register(RegisterID::r9);
+      r->set_name("Register");
       parsed_items.push_back(r);
     }
   };
@@ -702,6 +712,7 @@ namespace L1 {
     template< typename Input >
     static void apply( const Input & in, Program & p){
       auto r = new Register(RegisterID::rbx);
+      r->set_name("Register");
       parsed_items.push_back(r);
     }
   };
@@ -711,6 +722,7 @@ namespace L1 {
     template< typename Input >
     static void apply( const Input & in, Program & p){
       auto r = new Register(RegisterID::rbp);
+      r->set_name("Register");
       parsed_items.push_back(r);
     }
   };
@@ -719,6 +731,7 @@ namespace L1 {
     template< typename Input >
     static void apply( const Input & in, Program & p){
       auto r = new Register(RegisterID::r10);
+      r->set_name("Register");
       parsed_items.push_back(r);
     }
   };
@@ -726,6 +739,7 @@ namespace L1 {
     template< typename Input >
     static void apply( const Input & in, Program & p){
       auto r = new Register(RegisterID::r11);
+      r->set_name("Register");
       parsed_items.push_back(r);
     }
   };
@@ -733,6 +747,7 @@ namespace L1 {
     template< typename Input >
     static void apply( const Input & in, Program & p){
       auto r = new Register(RegisterID::r12);
+      r->set_name("Register");
       parsed_items.push_back(r);
     }
   };
@@ -740,6 +755,7 @@ namespace L1 {
     template< typename Input >
     static void apply( const Input & in, Program & p){
       auto r = new Register(RegisterID::r13);
+      r->set_name("Register");
       parsed_items.push_back(r);
     }
   };
@@ -747,6 +763,7 @@ namespace L1 {
     template< typename Input >
     static void apply( const Input & in, Program & p){
       auto r = new Register(RegisterID::r14);
+      r->set_name("Register");
       parsed_items.push_back(r);
     }
   };
@@ -754,6 +771,7 @@ namespace L1 {
     template< typename Input >
     static void apply( const Input & in, Program & p){
       auto r = new Register(RegisterID::r15);
+      r->set_name("Register");
       parsed_items.push_back(r);
     }
   };
@@ -761,6 +779,7 @@ namespace L1 {
     template< typename Input >
     static void apply( const Input & in, Program & p){
       auto r = new Register(RegisterID::rsp);
+      r->set_name("Register");
       parsed_items.push_back(r);
     }
   };
@@ -772,6 +791,7 @@ namespace L1 {
     static void apply( const Input & in, Program & p){
       std::cout << "\n\nherer8\n\n";
       auto l = new InstructionLabel(in.string());
+      l->set_name("InstructionLabel");
       parsed_items.push_back(l);
     }
   };
@@ -782,6 +802,7 @@ namespace L1 {
       std::cout << "\n\nadding op " << in.string();
       std:: cout << "size b4 is " << parsed_items.size();
       auto op = new CompareOp(in.string());
+      op->set_name("CompareOp");
       parsed_items.push_back(op);
       std::cout << "size after is " << parsed_items.size() << "\n\n";
     }
@@ -791,6 +812,7 @@ namespace L1 {
     template< typename Input >
     static void apply( const Input & in, Program & p){
       auto op = new ArithmeticOp(in.string());
+      op->set_name("ArithmeticOp");
       parsed_items.push_back(op);
     }
   };
@@ -799,6 +821,7 @@ namespace L1 {
     template< typename Input >
     static void apply( const Input & in, Program & p){
       auto op = new ArithmeticOp(in.string());
+      op->set_name("ArithmeticOp");
       parsed_items.push_back(op);
     }
   };
@@ -807,6 +830,7 @@ namespace L1 {
     template< typename Input >
     static void apply( const Input & in, Program & p){
       auto op = new ShiftOp(in.string());
+      op->set_name("ShiftOp");
       parsed_items.push_back(op);
       std::cout << "\n\n" << parsed_items.size() << "\n\n";
     }
@@ -840,7 +864,7 @@ namespace L1 {
       std::cout << "\n\n" << parsed_items.size() << "   cmp_after_pop \n\n";
 
       auto i = new Instruction_cmp_assignment(dst, first, second, op); 
-
+      i->set_name("Instruction_cmp_assignment");
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -870,6 +894,8 @@ namespace L1 {
        * Create the instruction.
        */ 
       auto i = new Instruction_assignment(dst, src); 
+      i->set_name("Instruction_assignment");
+      // i->instruction_name = ;
 
       /* 
        * Add the just-created instruction to the current function.
@@ -906,6 +932,7 @@ namespace L1 {
        * Create the instruction.
        */ 
       auto i = new Instruction_mem_op_load(dst, src, num, op); 
+      i->set_name("Instruction_mem_op_load");
 
       /* 
        * Add the just-created instruction to the current function.
@@ -937,7 +964,7 @@ namespace L1 {
        * Create the instruction.
        */ 
       auto i = new Instruction_mem_load(dst, src, num); 
-
+      i->set_name("Instruction_mem_load");
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -972,7 +999,7 @@ namespace L1 {
        * Create the instruction.
        */ 
       auto i = new Instruction_mem_store(s, num, x_register); 
-
+      i->set_name("Instruction_mem_store");
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1007,7 +1034,7 @@ namespace L1 {
        * Create the instruction.
        */ 
       auto i = new Instruction_mem_op_store(t_rule, num, x_register, op); 
-
+      i->set_name("Instruction_mem_op_store");
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1038,7 +1065,7 @@ namespace L1 {
        * Create the instruction.
        */ 
       auto i = new Instruction_aop(t, op, r); 
-
+      i->set_name("Instruction_aop");
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1072,6 +1099,7 @@ namespace L1 {
        * Create the instruction.
        */ 
       auto i = new Instruction_sop(shift, op, r); 
+      i->set_name("Instruction_sop");
       std::cout << "\n\n" << parsed_items.size() << "  num 3\n\n";
 
       /* 
@@ -1107,7 +1135,7 @@ namespace L1 {
        * Create the instruction.
        */ 
       auto i = new Instruction_cjump(t1, op, t2, label); 
-
+      i->set_name("Instruction_cjump");
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1134,8 +1162,8 @@ namespace L1 {
       /* 
        * Create the instruction.
        */ 
-      auto i = new Instruction_label(label); 
-
+      auto i = new Instruction_label(label);     
+      i->set_name("Instruction_label");
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1163,7 +1191,7 @@ namespace L1 {
        * Create the instruction.
        */ 
       auto i = new Instruction_goto(label); 
-
+      i->set_name("Instruction_goto");
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1192,7 +1220,7 @@ namespace L1 {
        * Create the instruction.
        */ 
       auto i = new Instruction_pp(reg); 
-
+      i->set_name("Instruction_pp");
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1220,7 +1248,7 @@ namespace L1 {
        * Create the instruction.
        */ 
       auto i = new Instruction_mm(reg); 
-
+      i->set_name("Instruction_mm");
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1254,7 +1282,7 @@ namespace L1 {
        * Create the instruction.
        */ 
       auto i = new Instruction_at(reg1,reg2,reg3,num); 
-
+      i->set_name("Instruction_at");
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1285,7 +1313,7 @@ namespace L1 {
        * Create the instruction.
        */ 
       auto i = new Instruction_call_u(u, num); 
-
+      i->set_name("Instruction_call_u");
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1308,7 +1336,7 @@ namespace L1 {
        * Create the instruction.
        */ 
       auto i = new Instruction_call_print(); 
-
+      i->set_name("Instruction_call_print");
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1333,7 +1361,7 @@ namespace L1 {
        * Create the instruction.
        */ 
       auto i = new Instruction_call_input(); 
-
+      i->set_name("Instruction_call_input");
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1358,7 +1386,7 @@ namespace L1 {
        * Create the instruction.
        */ 
       auto i = new Instruction_call_allocate(); 
-
+      i->set_name("Instruction_call_allocate");
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1388,7 +1416,7 @@ namespace L1 {
        * Create the instruction.
        */ 
       auto i = new Instruction_call_tensor_error(num); 
-
+      i->set_name("Instruction_call_tensor_error");
       /* 
        * Add the just-created instruction to the current function.
        */ 

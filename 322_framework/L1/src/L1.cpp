@@ -2,10 +2,15 @@
 
 namespace L1 {
 
-Item::Item () {
-  return;
+std::string
+Item::get_name() {
+  return name;
 }
 
+void
+Item::set_name(std::string item_name){
+  name = item_name;
+}
 Register::Register (RegisterID r)
   : ID {r}{
   return ;
@@ -74,6 +79,7 @@ CompareOp::CompareOp (std::string s)
   : op {s}{
   return ;
 }
+
 std::string
 CompareOp::get_op_char(){
   return op;
@@ -106,8 +112,14 @@ CompareExpression::CompareExpression (Item *first, Item *second, Item *op)
   return ;
 }
 
-Instruction::Instruction () {
-  return;
+std::string
+Instruction::get_name () {
+  return name;
+}
+
+void
+Instruction::set_name (std::string instruction_name) {
+  name = instruction_name;
 }
 
 Instruction_ret::Instruction_ret () {
