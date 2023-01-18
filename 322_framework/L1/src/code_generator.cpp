@@ -25,7 +25,7 @@ namespace L1{
       return "$" + convert_label_name(it->get_label_name());
     } else if (i->get_name() == "InstructionNumber"){
       auto it = (InstructionNumber*) i;
-      return "$" + std::to_string(it->get_val());
+      return "$" + it->get_val();
     } else if (i->get_name() == "ArithmeticOp"){
       auto it = (ArithmeticOp*) i;
       std::string op_char = it->get_op_char();
@@ -119,7 +119,6 @@ namespace L1{
         } else if(i->get_name() == "Instruction_assignment"){ //CHANGE BACK
           Instruction_assignment* in = (Instruction_assignment *) i;
           std::string src = convert_item_to_str(in->get_src());
-          std::cout << "\n\nxd1\n" << src << "\n";
           std::string dst = convert_item_to_str(in->get_dst());
           outputFile << "\tmovq " << src << ", " << dst << "\n";
 
@@ -160,32 +159,33 @@ namespace L1{
               bool val = f_num <= s_num;
               outputFile << "\tmovq $" << val << ", " << dst << "\n";
             }
-          } else if (!second_reg){
+          } else if (!first_reg){
             if (cop == "<"){
-              outputFile << "\tcmpq " << s_val << ", " << f_val << "\n";
+              outputFile << "\tcmpq " << f_val << ", " << s_val << "\n";
               outputFile << "\tsetg " << map_reg(dst) << "\n";
               outputFile << "\tmovzbq " << map_reg(dst) << ", " << dst << "\n";
             } else if (cop == "=") {
-              outputFile << "\tcmpq " << s_val << ", " << f_val << "\n";
+             
+              outputFile << "\tcmpq " << f_val << ", " << s_val << "\n";
               outputFile << "\tsete " << map_reg(dst) << "\n";
               outputFile << "\tmovzbq " << map_reg(dst) << ", " << dst << "\n";
             } else {
-              outputFile << "\tcmpq " << s_val << ", " << f_val << "\n";
+              outputFile << "\tcmpq " << f_val << ", " << s_val << "\n";
               outputFile << "\tsetge " << map_reg(dst) << "\n";
               outputFile << "\tmovzbq " << map_reg(dst) << ", " << dst << "\n";
             }
           } else {
             if (cop == "<"){
-              outputFile << "\tcmpq " << f_val << ", " << s_val << "\n";
-              outputFile << "\tsetg " << map_reg(dst) << "\n";
+              outputFile << "\tcmpq " << s_val << ", " << f_val << "\n";
+              outputFile << "\tsetl " << map_reg(dst) << "\n";
               outputFile << "\tmovzbq " << map_reg(dst) << ", " << dst << "\n";
             } else if (cop == "=") {
-              outputFile << "\tcmpq " << f_val << ", " << s_val << "\n";
+              outputFile << "\tcmpq " << s_val << ", " << f_val << "\n";
               outputFile << "\tsete " << map_reg(dst) << "\n";
               outputFile << "\tmovzbq " << map_reg(dst) << ", " << dst << "\n";
             } else {
-              outputFile << "\tcmpq " << f_val << ", " << s_val << "\n";
-              outputFile << "\tsetge " << map_reg(dst) << "\n";
+              outputFile << "\tcmpq " << s_val << ", " << f_val << "\n";
+              outputFile << "\tsetle " << map_reg(dst) << "\n";
               outputFile << "\tmovzbq " << map_reg(dst) << ", " << dst << "\n";
             }
           }
@@ -277,7 +277,6 @@ namespace L1{
           bool second_reg = second->get_name() == "Register";
           std::string f_val = convert_item_to_str(first);
           std::string s_val = convert_item_to_str(second);
-          std::cout << "\nasdfsadf " << f_val << " " << s_val << "\n\n";
           auto op = (CompareOp* ) in->get_op();
           std::string cop = op->get_op_char();
 
@@ -374,7 +373,10 @@ namespace L1{
           Item* u = in->get_u();
           std::string num = convert_item_to_str(in->get_num());
           if (u->get_name() == "Register"){
-            outputFile << "\tsubq $8, %rsp\n";
+            int64_t n = 1;
+            if (stoi(num.substr(1,num.size()-1)) > 6) n += (stoi(num.substr(1,num.size()-1)) - 6);
+            n *= 8;
+            outputFile << "\tsubq $" << n << ", %rsp\n";
             outputFile << "\tjmp *" << convert_item_to_str(u) << "\n";
           } else {
             int64_t num_val = std::stoi(num.substr(1,num.size()-1));

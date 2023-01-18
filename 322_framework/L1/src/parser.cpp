@@ -614,7 +614,6 @@ namespace L1 {
   template<> struct action < function_name_rule > {
     template< typename Input >
 	  static void apply( const Input & in, Program & p){
-      std::cout << "\n\nxd3\n" << in.string() << "\n\n";
       if (p.entryPointLabel.empty()){
         p.entryPointLabel = in.string();
       } else {
@@ -648,7 +647,7 @@ namespace L1 {
   template<> struct action < instruction_number > {
     template< typename Input >
     static void apply( const Input & in, Program & p){
-      auto n = new InstructionNumber(stoi(in.string()));
+      auto n = new InstructionNumber(in.string());
       n->set_name("InstructionNumber");
       parsed_items.push_back(n);
     }
@@ -813,7 +812,6 @@ namespace L1 {
   template<> struct action < label_rule > {
     template< typename Input >
     static void apply( const Input & in, Program & p){
-      std::cout << "\n\nherer8\n\n";
       auto l = new InstructionLabel(in.string());
       l->set_name("InstructionLabel");
       parsed_items.push_back(l);
@@ -823,12 +821,9 @@ namespace L1 {
   template<> struct action < cmp > {
     template< typename Input >
     static void apply( const Input & in, Program & p){
-      std::cout << "\n\nadding op " << in.string();
-      std:: cout << "size b4 is " << parsed_items.size();
       auto op = new CompareOp(in.string());
       op->set_name("CompareOp");
       parsed_items.push_back(op);
-      std::cout << "size after is " << parsed_items.size() << "\n\n";
     }
   };
 
@@ -836,7 +831,6 @@ namespace L1 {
     template< typename Input >
     static void apply ( const Input & in, Program & p){
       std::string n = in.string();
-      std::cout << "\n\nxd2 \n" << n << "\n";
       auto name = new Function_Name(n);
       name->set_name("Function_Name");
       parsed_items.push_back(name);
@@ -868,17 +862,13 @@ namespace L1 {
       auto op = new ShiftOp(in.string());
       op->set_name("ShiftOp");
       parsed_items.push_back(op);
-      std::cout << "\n\n" << parsed_items.size() << "\n\n";
     }
   };
   template<> struct action < Instruction_function_start_rule > {
     template< typename Input >
     static void apply( const Input & in, Program & p){
-      std::cout << "\n\nherer func start\n\n";
-      std::cout << "\n\n" << parsed_items.size() << "   func_start_before_pop \n\n";
       auto name = parsed_items.back();
       parsed_items.pop_back();
-      std::cout << "\n\n" << parsed_items.size() << "   func_start_after_pop \n\n";
     }
   };
 
@@ -886,7 +876,6 @@ namespace L1 {
   template<> struct action < Instruction_function_assignment_rule > {
     template< typename Input >
     static void apply( const Input & in, Program & p){
-      std::cout << "\n\nherer700\n\n";
       auto currentF = p.functions.back();
       
       auto f_name = parsed_items.back();
@@ -907,10 +896,8 @@ namespace L1 {
   template<> struct action < Instruction_cmp_assignment_rule > {
     template< typename Input >
     static void apply( const Input & in, Program & p){
-      std::cout << "\n\nherer7\n\n";
       auto currentF = p.functions.back();
       
-      std::cout << "\n\n" << parsed_items.size() << "   cmp_before_pop \n\n";
       auto second = parsed_items.back();
       parsed_items.pop_back();
       auto op = parsed_items.back();
@@ -919,7 +906,6 @@ namespace L1 {
       parsed_items.pop_back();
       auto dst = parsed_items.back();
       parsed_items.pop_back();
-      std::cout << "\n\n" << parsed_items.size() << "   cmp_after_pop \n\n";
 
       auto i = new Instruction_cmp_assignment(dst, first, second, op); 
       i->set_name("Instruction_cmp_assignment");
@@ -933,7 +919,6 @@ namespace L1 {
   template<> struct action < Instruction_assignment_rule > {
     template< typename Input >
 	  static void apply( const Input & in, Program & p){
-      std::cout << "\n\nherer6\n\n";
 
       /* 
        * Fetch the current function.
@@ -966,7 +951,6 @@ namespace L1 {
   template<> struct action < Instruction_mem_op_load_rule > {
     template< typename Input >
 	  static void apply( const Input & in, Program & p){
-      std::cout << "\n\nherer50\n\n";
 
       /* 
        * Fetch the current function.
@@ -976,7 +960,6 @@ namespace L1 {
       /*
        * Fetch the last two tokens parsed.
        */
-      std::cout << "\n\n size before pop herer50" << parsed_items.size() << "\n\n";
       auto num = parsed_items.back();
       parsed_items.pop_back();
       auto src = parsed_items.back();
@@ -985,7 +968,6 @@ namespace L1 {
       parsed_items.pop_back();
       auto dst = parsed_items.back();
       parsed_items.pop_back();
-      std::cout << "\n\n size after pop herer50" << parsed_items.size() << "\n\n";
       /* 
        * Create the instruction.
        */ 
@@ -1002,7 +984,6 @@ namespace L1 {
   template<> struct action < Instruction_mem_load_rule > {
     template< typename Input >
 	  static void apply( const Input & in, Program & p){
-      std::cout << "\n\nherer5\n\n";
 
       /* 
        * Fetch the current function.
@@ -1035,7 +1016,6 @@ namespace L1 {
   template<> struct action < Instruction_mem_store_rule > {
     template< typename Input >
 	  static void apply( const Input & in, Program & p){
-      std::cout << "\n\nherer4\n\n";
 
       /* 
        * Fetch the current function.
@@ -1066,7 +1046,6 @@ namespace L1 {
   template<> struct action < Instruction_mem_op_store_rule > {
     template< typename Input >
 	  static void apply( const Input & in, Program & p){
-      std::cout << "\n\nherer40\n\n";
 
       /* 
        * Fetch the current function.
@@ -1076,7 +1055,6 @@ namespace L1 {
       /*
        * Fetch the last two tokens parsed.
        */
-      std::cout << "\n\n size before pop herer40" << parsed_items.size() << "\n\n";
       auto t_rule = parsed_items.back();
       parsed_items.pop_back();
       auto op = parsed_items.back();
@@ -1085,7 +1063,6 @@ namespace L1 {
       parsed_items.pop_back();
       auto x_register = parsed_items.back();
       parsed_items.pop_back();
-      std::cout << "\n\n size after pop herer40" << parsed_items.size() << "\n\n";
       /* 
        * Create the instruction.
        */ 
@@ -1101,7 +1078,6 @@ namespace L1 {
   template<> struct action < Instruction_aop_rule > {
     template< typename Input >
 	  static void apply( const Input & in, Program & p){
-      std::cout << "\n\nherer3\n\n";
 
       /* 
        * Fetch the current function.
@@ -1133,13 +1109,11 @@ namespace L1 {
   template<> struct action < Instruction_sop_rule > {
     template< typename Input >
 	  static void apply( const Input & in, Program & p){
-      std::cout << "\n\nherer2\n\n";
 
       /* 
        * Fetch the current function.
        */ 
       auto currentF = p.functions.back();
-      std::cout << "\n\n" << parsed_items.size() << "   num 2\n\n";
 
       /*
        * Fetch the last two tokens parsed.
@@ -1150,19 +1124,16 @@ namespace L1 {
       parsed_items.pop_back();
       auto r = parsed_items.back();
       parsed_items.pop_back();
-      //std::cout<<"xd";
       /* 
        * Create the instruction.
        */ 
       auto i = new Instruction_sop(shift, op, r); 
       i->set_name("Instruction_sop");
-      std::cout << "\n\n" << parsed_items.size() << "  num 3\n\n";
 
       /* 
        * Add the just-created instruction to the current function.
        */ 
       currentF->instructions.push_back(i);
-      std::cout << "\n\n" << parsed_items.size() << "   num 4 \n\n";
     }
   };
 
@@ -1170,7 +1141,6 @@ namespace L1 {
     template< typename Input >
 	  static void apply( const Input & in, Program & p){
 
-      std::cout << "\n\nherer1\n\n";
       /* 
        * Fetch the current function.
        */ 
@@ -1203,7 +1173,6 @@ namespace L1 {
     template< typename Input >
 	  static void apply( const Input & in, Program & p){
 
-      std::cout << "\n\nherer0\n\n";
       /* 
        * Fetch the current function.
        */ 
@@ -1231,7 +1200,6 @@ namespace L1 {
     template< typename Input >
 	  static void apply( const Input & in, Program & p){
 
-      std::cout << "\n\nherer-1\n\n";
       /* 
        * Fetch the current function.
        */ 
@@ -1260,7 +1228,6 @@ namespace L1 {
     template< typename Input >
 	  static void apply( const Input & in, Program & p){
 
-      std::cout << "\n\nherer-2\n\n";
       /* 
        * Fetch the current function.
        */ 
@@ -1288,7 +1255,6 @@ namespace L1 {
     template< typename Input >
 	  static void apply( const Input & in, Program & p){
 
-      std::cout << "\n\nherer-3\n\n";
       /* 
        * Fetch the current function.
        */ 
@@ -1316,7 +1282,6 @@ namespace L1 {
     template< typename Input >
 	  static void apply( const Input & in, Program & p){
 
-      std::cout << "\n\nherer-4\n\n";
       /* 
        * Fetch the current function.
        */ 
@@ -1349,7 +1314,6 @@ namespace L1 {
   template<> struct action < Instruction_call_function_rule > {
     template < typename Input >
     static void apply( const Input & in, Program & p){
-      std::cout << "\n\naiowsefewpoiahfewoai\n\n";
 
       // int64_t first = in.string().find("@");
       // std::string cut = in.string().substr(first, in.string().size()-1);
@@ -1365,7 +1329,6 @@ namespace L1 {
       Function_Name* f_name = (Function_Name*) parsed_items.back();
       parsed_items.pop_back();
       std::string cut = f_name->get_val();
-      std::cout << "\n\naDFAsefseafwef\n" << cut << "\n\n";
 
       auto i = new Instruction_call_function(cut,num);
       i->set_name("Instruction_call_function");
@@ -1377,7 +1340,6 @@ namespace L1 {
     template< typename Input >
 	  static void apply( const Input & in, Program & p){
 
-      std::cout << "\n\nherer-5\n\n";
       /* 
        * Fetch the current function.
        */ 
@@ -1408,7 +1370,6 @@ namespace L1 {
     template< typename Input >
 	  static void apply( const Input & in, Program & p){
 
-      std::cout << "\n\nherer-5\n\n";
       /* 
        * Fetch the current function.
        */ 
@@ -1479,7 +1440,6 @@ namespace L1 {
     template< typename Input >
 	  static void apply( const Input & in, Program & p){
 
-      std::cout << "\n\nherer-5\n\n";
       /* 
        * Fetch the current function.
        */ 

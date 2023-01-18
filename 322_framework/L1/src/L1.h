@@ -35,11 +35,11 @@ namespace L1 {
 
   class InstructionNumber : public Item {
     public:
-      InstructionNumber (int64_t n);
-      int64_t get_val();
+      InstructionNumber (std::string n);
+      std::string get_val();
       
     private:
-      int64_t val;
+      std::string val;
   };
 
   class CompareOp : public Item {

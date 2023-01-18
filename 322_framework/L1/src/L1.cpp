@@ -65,12 +65,12 @@ InstructionLabel::get_label_name(){
   return label;
 }
 
-InstructionNumber::InstructionNumber (int64_t n)
+InstructionNumber::InstructionNumber (std::string n)
   : val {n}{
   return ;
 }
 
-int64_t
+std::string
 InstructionNumber::get_val(){
   return val;
 }
