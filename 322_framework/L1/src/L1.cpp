@@ -131,6 +131,15 @@ FunctionName::FunctionName (std::string name)
     return;
 }
 
+Function_Name::Function_Name(std::string v)
+  : val {v} {
+    return;
+}
+std::string
+Function_Name::get_val(){
+  return val;
+}
+
 
 Instruction_assignment::Instruction_assignment (Item *dst, Item *src)
   : s { src },
@@ -170,6 +179,22 @@ Instruction_cmp_assignment::get_second(){
 Item*
 Instruction_cmp_assignment::get_op(){
   return o;
+}
+
+Instruction_function_assignment::Instruction_function_assignment (Item *dst, Item *fn)
+  : d { dst },
+    fname { fn }{
+  return ;
+}
+
+Item*
+Instruction_function_assignment::get_dst(){
+  return d;
+}
+
+Item*
+Instruction_function_assignment::get_fname(){
+  return fname;
 }
 
 Instruction_mem_load::Instruction_mem_load (Item *dst, Item *src, Item *num)
@@ -416,6 +441,22 @@ Instruction_call_u::get_num(){
 
 Instruction_call_print::Instruction_call_print (){
   return ;
+}
+
+Instruction_call_function::Instruction_call_function (std::string st, Item* n)
+  : s { st },
+    num { n }{
+  return;
+}
+
+Item*
+Instruction_call_function::get_number(){
+  return num;
+}
+
+std::string
+Instruction_call_function::get_name(){
+  return s;
 }
 
 Instruction_call_input::Instruction_call_input (){

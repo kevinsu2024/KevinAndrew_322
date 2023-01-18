@@ -86,6 +86,15 @@ namespace L1 {
     private:
       std::string n;
   };
+
+  class Function_Name: public Item {
+    public:
+      Function_Name(std::string n);
+      std::string get_val();
+    private:
+      std::string val;
+  };
+
   /*
    * Instruction interface.
    */
@@ -132,6 +141,19 @@ namespace L1 {
       Item *f;
       Item *s;
       Item *o;
+  };
+
+  class Instruction_function_assignment : public Instruction{
+    public:
+      Instruction_function_assignment (Item *dst, Item *fn);
+      
+      Item* get_dst();
+      Item* get_fname();
+      
+
+    private:
+      Item *d;
+      Item *fname;
   };
 
   class Instruction_mem_load : public Instruction{
@@ -300,6 +322,17 @@ namespace L1 {
     private:
       Item *u;
       Item *num;
+  };
+
+  class Instruction_call_function : public Instruction{
+    public:
+      Instruction_call_function (std::string s, Item* num);
+      std::string get_name();
+      Item* get_number();
+    private:
+      std::string s;
+      Item* num;
+
   };
 
   class Instruction_call_print : public Instruction{

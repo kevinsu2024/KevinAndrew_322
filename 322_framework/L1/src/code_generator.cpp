@@ -92,8 +92,10 @@ namespace L1{
       "\tpopq %r12\n"
       "\tpopq %rbx\n"
       "\tpopq %rbp\n"
-      "\tpopq %r15\n"
       "\tretq\n";
+
+
+    std::cout << "starting";
 
     for(Function *f : functions){
       outputFile << convert_func_name(f->name) << ":\n";
@@ -117,10 +119,19 @@ namespace L1{
         } else if(i->get_name() == "Instruction_assignment"){ //CHANGE BACK
           Instruction_assignment* in = (Instruction_assignment *) i;
           std::string src = convert_item_to_str(in->get_src());
+          std::cout << "\n\nxd1\n" << src << "\n";
           std::string dst = convert_item_to_str(in->get_dst());
           outputFile << "\tmovq " << src << ", " << dst << "\n";
 
-        } else if(i->get_name() == "Instruction_cmp_assignment"){
+        } else if (i->get_name() == "Instruction_function_assignment"){
+          Instruction_function_assignment* in = (Instruction_function_assignment*) i;
+          std::string dst = convert_item_to_str(in->get_dst());
+          Function_Name* fname = (Function_Name*) in->get_fname();
+          std::string name = fname->get_val();
+          name = "$_" + name.substr(1,name.size()-1);
+          outputFile << "\tmovq " << name << ", " << dst << "\n";
+
+        }else if(i->get_name() == "Instruction_cmp_assignment"){
           Instruction_cmp_assignment* in = (Instruction_cmp_assignment *) i;
           std::string dst = convert_item_to_str(in->get_dst());
           Item* first = in->get_first();
@@ -149,17 +160,17 @@ namespace L1{
               bool val = f_num <= s_num;
               outputFile << "\tmovq $" << val << ", " << dst << "\n";
             }
-          } else if (!first_reg){
+          } else if (!second_reg){
             if (cop == "<"){
-              outputFile << "\tcmpq " << f_val << ", " << s_val << "\n";
+              outputFile << "\tcmpq " << s_val << ", " << f_val << "\n";
               outputFile << "\tsetg " << map_reg(dst) << "\n";
               outputFile << "\tmovzbq " << map_reg(dst) << ", " << dst << "\n";
             } else if (cop == "=") {
-              outputFile << "\tcmpq " << f_val << ", " << s_val << "\n";
+              outputFile << "\tcmpq " << s_val << ", " << f_val << "\n";
               outputFile << "\tsete " << map_reg(dst) << "\n";
               outputFile << "\tmovzbq " << map_reg(dst) << ", " << dst << "\n";
             } else {
-              outputFile << "\tcmpq " << f_val << ", " << s_val << "\n";
+              outputFile << "\tcmpq " << s_val << ", " << f_val << "\n";
               outputFile << "\tsetge " << map_reg(dst) << "\n";
               outputFile << "\tmovzbq " << map_reg(dst) << ", " << dst << "\n";
             }
@@ -186,6 +197,7 @@ namespace L1{
           std::string src = convert_item_to_str(in->get_src());
           std::string dst = convert_item_to_str(in->get_dst());
           std::string num = convert_item_to_str(in->get_num());
+          num = num.substr(1,num.size()-1);
           outputFile << "\tmovq " << num << "(" << src << "), " << dst << "\n";
 
         } else if(i->get_name() == "Instruction_mem_op_load"){
@@ -193,6 +205,7 @@ namespace L1{
           std::string src = convert_item_to_str(in->get_src());
           std::string dst = convert_item_to_str(in->get_dst());
           std::string num = convert_item_to_str(in->get_num());
+          num = num.substr(1,num.size()-1);
           auto op = (ArithmeticOp* ) in->get_op();
           std::string aop = op->get_op_char();
           if (aop == "+="){
@@ -207,13 +220,15 @@ namespace L1{
           std::string src = convert_item_to_str(in->get_src());
           std::string x_reg = convert_item_to_str(in->get_x_reg());
           std::string num = convert_item_to_str(in->get_num());
-          outputFile << "\tmovq " << src << "< " << num << "(" << x_reg << ")\n";
+          num = num.substr(1,num.size()-1);
+          outputFile << "\tmovq " << src << ", " << num << "(" << x_reg << ")\n";
 
         } else if(i->get_name() == "Instruction_mem_op_store"){
           Instruction_mem_op_store* in = (Instruction_mem_op_store*) i; 
           std::string src = convert_item_to_str(in->get_src());
           std::string x_reg = convert_item_to_str(in->get_x_reg());
           std::string num = convert_item_to_str(in->get_num());
+          num = num.substr(1,num.size()-1);
           auto op = (ArithmeticOp* ) in->get_op();
           std::string aop = op->get_op_char();
           if (aop == "+="){
@@ -234,7 +249,7 @@ namespace L1{
             assembly_instr = "subq";
           } else if (op_char == "*="){
             assembly_instr = "imulq";
-          } else if (op_char == "&*"){
+          } else if (op_char == "&="){
             assembly_instr = "andq";
           }
           outputFile << "\t" << assembly_instr << " " << src << ", " << dst << "\n";
@@ -249,10 +264,12 @@ namespace L1{
           } else if (op_char == ">>="){
             assembly_instr = "sarq";
           }
+          if (src.substr(0,1) == "%") src = map_reg(src);
           outputFile << "\t" << assembly_instr << " " << src << ", " << dst << "\n";
         } else if(i->get_name() == "Instruction_cjump"){
           auto in = (Instruction_cjump*) i;
           std::string label = convert_item_to_str(in->get_label());
+          label = label.substr(1,label.size()-1);
 
           Item* first = in->get_first();
           Item* second = in->get_second();
@@ -260,6 +277,7 @@ namespace L1{
           bool second_reg = second->get_name() == "Register";
           std::string f_val = convert_item_to_str(first);
           std::string s_val = convert_item_to_str(second);
+          std::cout << "\nasdfsadf " << f_val << " " << s_val << "\n\n";
           auto op = (CompareOp* ) in->get_op();
           std::string cop = op->get_op_char();
 
@@ -300,26 +318,28 @@ namespace L1{
             }
           } else {
             if (cop == "<"){
-              outputFile << "\tcmpq " << f_val << ", " << s_val << "\n";
-              outputFile << "\tjg " << label << "\n";
+              outputFile << "\tcmpq " << s_val << ", " << f_val << "\n";
+              outputFile << "\tjl " << label << "\n";
             } else if (cop == "=") {
-              outputFile << "\tcmpq " << f_val << ", " << s_val << "\n";
+              outputFile << "\tcmpq " << s_val << ", " << f_val << "\n";
               outputFile << "\tje " << label << "\n";
             } else {
-              outputFile << "\tcmpq " << f_val << ", " << s_val << "\n";
-              outputFile << "\tjge " << label << "\n";
+              outputFile << "\tcmpq " << s_val << ", " << f_val << "\n";
+              outputFile << "\tjle " << label << "\n";
             }
           }
 
         } else if(i->get_name() == "Instruction_label"){
           auto in = (Instruction_label*) i;
           std::string l = convert_item_to_str(in->get_label()) ;
-          outputFile << "\t" << l << ":\n";
+          l = l.substr(1,l.size()-1);
+          outputFile << l << ":\n";
 
           
         } else if(i->get_name() == "Instruction_goto"){
           auto in = (Instruction_goto*) i;
           std::string l = convert_item_to_str(in->get_label()) ;
+          l = l.substr(1,l.size()-1);
           outputFile << "\tjmp " << l << "\n";
         } else if(i->get_name() == "Instruction_pp"){
           auto in = (Instruction_pp*) i;
@@ -336,7 +356,19 @@ namespace L1{
           std::string reg2 = convert_item_to_str(in->get_reg2());
           std::string reg3 = convert_item_to_str(in->get_reg3());
           std::string num = convert_item_to_str(in->get_num());
+          num = num.substr(1,num.size()-1);
           outputFile << "\tlea (" << reg2 << ", " << reg3 << ", " << num << "), " << reg1 << "\n";
+        } else if(i->get_name() == "Instruction_call_function"){
+          auto in = (Instruction_call_function*) i;
+          std::string num = convert_item_to_str(in->get_number());
+          std::string name = in->get_name();
+          name = "_" + name.substr(1,name.size()-1);
+          int64_t n = 1;
+          if (stoi(num.substr(1,num.size()-1)) > 6) n += (stoi(num.substr(1,num.size()-1)) - 6);
+          n *= 8;
+          outputFile << "\tsubq $" << n << ", %rsp\n";
+          outputFile << "\tjmp " << name << "\n";
+
         } else if(i->get_name() == "Instruction_call_u"){
           auto in = (Instruction_call_u*) i;
           Item* u = in->get_u();
@@ -366,8 +398,9 @@ namespace L1{
         } else if(i->get_name() == "Instruction_call_tensor_error"){
           Instruction_call_tensor_error* in = (Instruction_call_tensor_error*) i;
           std::string num = convert_item_to_str(in->get_val());
+          num = num.substr(1,num.size());
           if (num == "1"){
-            outputFile << "\t call array_tensor_error_null \n";
+            outputFile << "\tcall array_tensor_error_null \n";
           } else if (num == "3"){
             outputFile << "\t call array_error \n";
           } else if (num == "4"){
