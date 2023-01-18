@@ -10,13 +10,15 @@ namespace L1 {
 
   class Item {
     public:
-      virtual void yourfunction() = 0;
+      Item();
+      virtual void dummy_func();
   };
 
   class Register : public Item {
     public:
       Register (RegisterID r);
       std::string get_register_ID();
+      void dummy_func();
 
     private:
       RegisterID ID;
@@ -26,6 +28,7 @@ namespace L1 {
     public:
       InstructionLabel (std::string l);
       std::string get_label_name();
+      void dummy_func();
     private:
       std::string label;
   };
@@ -34,6 +37,7 @@ namespace L1 {
     public:
       InstructionNumber (int64_t n);
       int64_t get_val();
+      void dummy_func();
     private:
       int64_t val;
   };
@@ -42,6 +46,7 @@ namespace L1 {
     public:
       CompareOp (std::string s);
       std::string get_op_char();
+      void dummy_func();
     private:
       std::string op;
   };
@@ -50,6 +55,7 @@ namespace L1 {
     public:
       ArithmeticOp (std::string s);
       std::string get_op_char();
+      void dummy_func();
     private:
       std::string op;
   };
@@ -58,6 +64,7 @@ namespace L1 {
     public:
       ShiftOp (std::string s);
       std::string get_op_char();
+      void dummy_func();
     private:
       std::string op;
   };
@@ -65,6 +72,7 @@ namespace L1 {
   class CompareExpression : public Item {
     public:
       CompareExpression (Item *first, Item *second, Item *Op);
+      void dummy_func();
     private:
       Item *f;
       Item *s;
@@ -74,6 +82,7 @@ namespace L1 {
   class FunctionName : public Item {
     public:
      FunctionName (std::string name);
+     void dummy_func();
     private:
       std::string n;
   };
@@ -82,22 +91,23 @@ namespace L1 {
    */
   class Instruction{
     public:
-      virtual void yourfunction() = 0;
+      Instruction();
+      virtual void dummy_func();
   };
 
   /*
    * Instructions.
    */
   class Instruction_ret : public Instruction{
-    // public:
-    //   int64_t get_dummy();
-    // private:
-    //   int64_t dummy = 0;
+    public:
+      Instruction_ret();
+      void dummy_func();
   };
 
   class Instruction_assignment : public Instruction{
     public:
       Instruction_assignment (Item *dst, Item *src);
+      void dummy_func();
       Item *get_src();
       Item *get_dst();
     private:
@@ -108,6 +118,7 @@ namespace L1 {
   class Instruction_cmp_assignment : public Instruction{
     public:
       Instruction_cmp_assignment (Item *dst, Item *first, Item *second, Item *op);
+      void dummy_func();
       Item* get_dst();
       Item* get_first();
       Item* get_second();
@@ -124,6 +135,7 @@ namespace L1 {
   class Instruction_mem_load : public Instruction{
     public:
       Instruction_mem_load (Item *dst, Item *src, Item *num);
+      void dummy_func();
       Item* get_src();
       Item* get_dst();
       Item* get_num();
@@ -137,6 +149,7 @@ namespace L1 {
   class Instruction_mem_op_load : public Instruction{
     public:
       Instruction_mem_op_load (Item *dst, Item *src, Item *num, Item *op);
+      void dummy_func();
       Item* get_src();
       Item* get_dst();
       Item* get_num();
@@ -152,6 +165,7 @@ namespace L1 {
   class Instruction_mem_store : public Instruction{
     public:
       Instruction_mem_store (Item *s, Item *num, Item *x_register);
+      void dummy_func();
       Item* get_x_reg();
       Item* get_src();
       Item* get_num();
@@ -165,6 +179,7 @@ namespace L1 {
   class Instruction_mem_op_store : public Instruction{
     public:
       Instruction_mem_op_store (Item *t_rule, Item *num, Item *x_register, Item *op);
+      void dummy_func();
       Item* get_src();
       Item* get_x_reg();
       Item* get_num();
@@ -180,6 +195,7 @@ namespace L1 {
   class Instruction_aop : public Instruction{
     public:
       Instruction_aop (Item *t_rule, Item *op, Item *reg);
+      void dummy_func();
       Item* get_op();
       Item* get_dst();
       Item* get_src();
@@ -192,6 +208,7 @@ namespace L1 {
   class Instruction_sop : public Instruction{
     public:
       Instruction_sop (Item *shift, Item *op, Item *reg);
+      void dummy_func();
       Item* get_src();
       Item* get_dst();
       Item* get_op();
@@ -204,6 +221,7 @@ namespace L1 {
   class Instruction_cjump : public Instruction{
     public:
       Instruction_cjump (Item *first, Item *op, Item *second, Item *label);
+      void dummy_func();
       Item* get_first();
       Item* get_second();
       Item* get_label();
@@ -218,6 +236,7 @@ namespace L1 {
   class Instruction_label : public Instruction{
     public:
       Instruction_label (Item *l);
+      void dummy_func();
       Item* get_label();
 
     private:
@@ -228,6 +247,7 @@ namespace L1 {
   class Instruction_goto : public Instruction{
     public:
       Instruction_goto (Item *l);
+      void dummy_func();
       Item* get_label();
 
     private:
@@ -238,6 +258,7 @@ namespace L1 {
     public:
       Instruction_pp (Item *r);
       Item* get_reg();
+      void dummy_func();
 
     private:
       Item *reg;
@@ -247,6 +268,7 @@ namespace L1 {
     public:
       Instruction_mm (Item *r);
       Item* get_reg();
+      void dummy_func();
 
     private:
       Item *reg;
@@ -259,6 +281,7 @@ namespace L1 {
       Item* get_reg2();
       Item* get_reg3();
       Item* get_num();
+      void dummy_func();
     private:
       Item *reg1;
       Item *reg2;
@@ -271,6 +294,7 @@ namespace L1 {
       Instruction_call_u (Item *up, Item *num);
       Item* get_u();
       Item* get_num();
+      void dummy_func();
     private:
       Item *u;
       Item *num;
@@ -279,16 +303,19 @@ namespace L1 {
   class Instruction_call_print : public Instruction{
     public:
       Instruction_call_print ();
+      void dummy_func();
   };
 
   class Instruction_call_input : public Instruction{
     public:
       Instruction_call_input ();
+      void dummy_func();
   };
 
   class Instruction_call_allocate : public Instruction{
     public:
       Instruction_call_allocate ();
+      void dummy_func();
   };
 
   class Instruction_call_tensor_error : public Instruction{

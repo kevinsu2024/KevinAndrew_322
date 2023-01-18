@@ -2,6 +2,10 @@
 
 namespace L1 {
 
+Item::Item () {
+  return;
+}
+
 Register::Register (RegisterID r)
   : ID {r}{
   return ;
@@ -102,10 +106,13 @@ CompareExpression::CompareExpression (Item *first, Item *second, Item *op)
   return ;
 }
 
-// int64_t
-// Instruction_ret::get_dummy(){
-//   return dummy;
-// }
+Instruction::Instruction () {
+  return;
+}
+
+Instruction_ret::Instruction_ret () {
+  return;
+}
 
 FunctionName::FunctionName (std::string name)
   : n {name} {

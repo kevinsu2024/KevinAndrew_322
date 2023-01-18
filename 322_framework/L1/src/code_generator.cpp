@@ -104,8 +104,6 @@ namespace L1{
       for(auto *i : f->instructions){
         // Instruction_assignment* test_ass = 0;
         // test_ass = dynamic_cast<Instruction_assignment*>(i);
-        Instruction_ret* ret_pointer_ex = (Instruction_ret*)f->instructions[2];
-        Instruction_ret* ret_pointer = dynamic_cast<Instruction_ret*>(i);
         loop_counter++;
         if(loop_counter > f->instructions.size()){
           break;
