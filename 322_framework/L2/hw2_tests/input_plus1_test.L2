@@ -1,0 +1,11 @@
+(@input_plus1
+    (@input_plus1
+        0
+        call input 0
+        rdi <- rax
+        rdi++
+        rdi++
+        call print 1
+        return
+    )
+)
