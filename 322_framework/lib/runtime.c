@@ -518,8 +518,8 @@ int tensor_error (int64_t instructionID, int64_t dimension, int64_t length, int6
   return 0;
 }
 
-int input (void){
-  int n = 0;
+int64_t input (void){
+  int64_t n = 0;
 
   int64_t numberSize = 100;
   char *number = malloc(sizeof(char) * numberSize);
@@ -545,7 +545,7 @@ int input (void){
     }
   } while (1);
 
-  n = atoi(number);
+  n = atoll(number);
   n = (n << 1) | 0x1;
 
   free(number);
