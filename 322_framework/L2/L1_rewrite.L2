@@ -56,7 +56,7 @@
         %r8 <- rdi //address of array
         %r9 <- mem rdi 0
         %r9 <<= 1 
-        %r9 ++ // r9 is number of elements in array
+        %r9++ // r9 is number of elements in array
         %r10 <- 3 // counter
 
         :start_of_iteration
@@ -81,7 +81,7 @@
         //mem rsp 0 <- r8
         //mem rsp 8 <- r9
         //mem rsp 16 <- r10
-        //mem rsp -8 <- :swapped_ele
+        mem rsp -8 <- :swapped_ele
         call @swap 3
         :swapped_ele
         //r8 <- mem rsp 0
@@ -90,8 +90,8 @@
 
         %r10++
         %r10++
-
-        cjump %r10 <= %r9 :start_of_iteration
+        //cjump %r10 <= 7 :start_of_iteration
+        cjump %r10 <= %r9 :start_of_iteration //SWAP ME BACK
 
         return 
         
@@ -167,6 +167,7 @@
         mem r8 0 <- %r11
         mem %r10 0 <- r9
         rdi <- %r11
+        //rdi <- 3
         call print 1
         return
 
