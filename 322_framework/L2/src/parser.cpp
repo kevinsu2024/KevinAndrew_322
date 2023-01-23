@@ -605,6 +605,11 @@ namespace L2 {
       entry_point_rule
     > {};
 
+  struct function_grammar:
+    pegtl::must<
+      Instruction_function_start_rule
+    > {};
+
   /* 
    * Actions attached to grammar rules.
    */
@@ -1486,20 +1491,21 @@ namespace L2 {
   }
   Program parse_function_file (char *fileName){
     std::cerr << "\n\n hererer xd 1\n\n";
-    pegtl::analyze< grammar >();
+    pegtl::analyze< function_grammar >();
 
-
+    std::cerr << "\n\n passed \n\n";
     
     file_input< > fileInput(fileName);
     Program p;
-    parse< grammar, action >(fileInput, p);
+    p.entryPointLabel = "Function_parse";
+    parse< function_grammar, action >(fileInput, p);
     return p;
   }
 
   Program parse_spill_file (char *fileName){
     std::cerr << "\n\n hererer xd 2\n\n";
     pegtl::analyze< grammar >();
-
+    
 
     
     file_input< > fileInput(fileName);
