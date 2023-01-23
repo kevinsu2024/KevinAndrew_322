@@ -13,6 +13,9 @@
 #include <iostream>
 #include <assert.h>
 
+#include <L2.h>
+#include <parser.h>
+
 void print_help (char *progName){
   std::cerr << "Usage: " << progName << " [-v] [-g 0|1] [-O 0|1|2] [-s] [-l] [-i] SOURCE" << std::endl;
   return ;
@@ -39,6 +42,7 @@ int main(
   int32_t opt;
   int64_t functionNumber = -1;
   while ((opt = getopt(argc, argv, "vg:O:sli")) != -1) {
+    std::cout << opt << "\n";
     switch (opt){
 
       case 'l':
@@ -76,6 +80,7 @@ int main(
    */
   L2::Program p;
   if (spill_only){
+    std::cout << "\n\n hererer xd asdf\n\n";
 
     /* 
      * Parse an L2 function and the spill arguments.
@@ -83,6 +88,7 @@ int main(
     p = L2::parse_spill_file(argv[optind]);
  
   } else if (liveness_only){
+    std::cout << "\n\n hererer xd 2 hehe\n\n";
 
     /*
      * Parse an L2 function.
@@ -90,6 +96,7 @@ int main(
     p = L2::parse_function_file(argv[optind]);
 
   } else if (interference_only){
+    std::cout << "\n\n hererer xd 3\n\n";
 
     /*
      * Parse an L2 function.
@@ -97,7 +104,7 @@ int main(
     p = L2::parse_function_file(argv[optind]);
 
   } else {
-
+    std::cout << "\n\n hererer xd 2 afhsufewui\n\n";
     /* 
      * Parse the L2 program.
      */

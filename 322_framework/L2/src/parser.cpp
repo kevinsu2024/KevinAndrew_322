@@ -1472,11 +1472,36 @@ namespace L2 {
     /* 
      * Check the grammar for some possible issues.
      */
+    std::cout << "\n\n hererer xd \n\n";
     pegtl::analyze< grammar >();
 
     /*
      * Parse.
      */
+    
+    file_input< > fileInput(fileName);
+    Program p;
+    parse< grammar, action >(fileInput, p);
+    return p;
+  }
+  Program parse_function_file (char *fileName){
+    std::cout << "\n\n hererer xd 1\n\n";
+    pegtl::analyze< grammar >();
+
+
+    
+    file_input< > fileInput(fileName);
+    Program p;
+    parse< grammar, action >(fileInput, p);
+    return p;
+  }
+
+  Program parse_spill_file (char *fileName){
+    std::cout << "\n\n hererer xd 2\n\n";
+    pegtl::analyze< grammar >();
+
+
+    
     file_input< > fileInput(fileName);
     Program p;
     parse< grammar, action >(fileInput, p);
