@@ -399,9 +399,12 @@ Instruction_goto::Instruction_goto (Item *l)
     return ;
   }
 
+
+
 Item* Instruction_goto::get_label(){
   return label;
 }
+
 
 Instruction_pp::Instruction_pp (Item *r)
   : reg { r } {
