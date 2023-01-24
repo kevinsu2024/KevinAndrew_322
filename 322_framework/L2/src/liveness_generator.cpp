@@ -4,6 +4,7 @@
 #include <typeinfo>
 #include <memory>
 #include <liveness_generator.h>
+#include <algorithm>
 
 
 using namespace std;
@@ -60,10 +61,10 @@ namespace L2{
             Instruction_cjump* i = (Instruction_cjump*) in;
             Item* first = i->get_first();
             Item* second = i->get_second();
-            if (check_item(first) != ""){
+            if (check_item(first) != "" && check_item(first) != "rsp"){
                 n->gen.insert(check_item(first));
             }
-            if (check_item(second) != ""){
+            if (check_item(second) != "" && check_item(second) != "rsp"){
                 n->gen.insert(check_item(second));
             }
         } else if (in->get_name() == "Instruction_call_u"){
@@ -74,9 +75,19 @@ namespace L2{
             if (check_item(item) != ""){
                 n->gen.insert(check_item(item));
             }
-            for (int i = 0; i < num_val; i++){
+            for (int i = 0; i < std::min(num_val, (int)argument_registers.size()); i++){
                 n->gen.insert(argument_registers[i]);
+                // std::cout << "looping arg register\n";
             }
+            n->kill.insert("rax");
+            n->kill.insert("rcx");
+            n->kill.insert("rdx");
+            n->kill.insert("rdi");
+            n->kill.insert("rsi");
+            n->kill.insert("r8");
+            n->kill.insert("r9");
+            n->kill.insert("r10");
+            n->kill.insert("r11");
 
         } else if (in->get_name() == "Instruction_pp"){
             Instruction_pp* i = (Instruction_pp*) in;
@@ -114,15 +125,17 @@ namespace L2{
             if (check_item(item) != ""){
                 n->kill.insert(check_item(item));
             }
-            if (check_item(item2) != ""){
+            if (check_item(item2) != "" && check_item(item2) != "rsp"){
                 n->gen.insert(check_item(item2));
             }
-            if (check_item(item3) != ""){
+            if (check_item(item3) != "" && check_item(item2) != "rsp"){
                 n->gen.insert(check_item(item3));
             }
         }  else if (in->get_name() == "Instruction_function_assignment"){
+            // std::cerr << "function assignment\n";
             Instruction_function_assignment* i = (Instruction_function_assignment*) in;
             Item* item = i->get_dst();
+            
             if (check_item(item) != ""){
                 n->kill.insert(check_item(item));
             }
@@ -143,7 +156,7 @@ namespace L2{
             if (check_item(first) != ""){
                 n->kill.insert(check_item(first));
             }
-            if (check_item(second) != ""){
+            if (check_item(second) != "" && check_item(second) != "rsp"){
                 n->gen.insert(check_item(second));
             }
         } else if (in->get_name() == "Instruction_mem_op_load"){
@@ -152,6 +165,7 @@ namespace L2{
             Item* second = i->get_src();
             if (check_item(first) != ""){
                 n->kill.insert(check_item(first));
+                n->gen.insert(check_item(first));
             }
             if (check_item(second) != "" && check_item(second) != "rsp"){
                 n->gen.insert(check_item(second));
@@ -192,9 +206,11 @@ namespace L2{
             Item* item2 = i->get_src();
             if (check_item(item) != ""){
                 n->kill.insert(check_item(item));
+                n->gen.insert(check_item(item));
             }
-            if (check_item(item2) != ""){
+            if (check_item(item2) != "" && check_item(item2) != "rsp"){
                 n->gen.insert(check_item(item2));
+                
             }
         } else if (in->get_name() == "Instruction_sop"){
             Instruction_sop* i = (Instruction_sop*) in;
@@ -202,25 +218,112 @@ namespace L2{
             Item* item2 = i->get_src();
             if (check_item(item) != ""){
                 n->kill.insert(check_item(item));
+                n->gen.insert(check_item(item));
             }
-            if (check_item(item2) != ""){
+            if (check_item(item2) != "" && check_item(item2) != "rsp"){
                 n->gen.insert(check_item(item2));
+                
             }
         } else if (in->get_name() == "Instruction_call_function"){
+            // std::cerr << "big func\n";
             Instruction_call_function* i = (Instruction_call_function*) in;
             InstructionNumber* num = (InstructionNumber*)i->get_number();
             int num_val = stoi(num->get_val());
-            for (int i = 0; i < num_val; i++){
+            
+            for (int i = 0; i < std::min(num_val, (int)argument_registers.size()); i++){
+                n->gen.insert(argument_registers[i]);
+                
+            }
+            
+            n->kill.insert("rax");
+            n->kill.insert("rcx");
+            n->kill.insert("rdx");
+            n->kill.insert("rdi");
+            n->kill.insert("rsi");
+            n->kill.insert("r8");
+            n->kill.insert("r9");
+            n->kill.insert("r10");
+            n->kill.insert("r11");
+            
+
+        } else if (in->get_name() == "Instruction_call_print"){
+            Instruction_call_print* i = (Instruction_call_print*) in;
+            int num_val = 1;
+            for (int i = 0; i < std::min(num_val, (int)argument_registers.size()); i++){
                 n->gen.insert(argument_registers[i]);
             }
+            n->kill.insert("rax");
+            n->kill.insert("rcx");
+            n->kill.insert("rdx");
+            n->kill.insert("rdi");
+            n->kill.insert("rsi");
+            n->kill.insert("r8");
+            n->kill.insert("r9");
+            n->kill.insert("r10");
+            n->kill.insert("r11");
+
+
+        } else if (in->get_name() == "Instruction_call_allocate"){
+            Instruction_call_allocate* i = (Instruction_call_allocate*) in;
+            int num_val = 2;
+            for (int i = 0; i < std::min(num_val, (int)argument_registers.size()); i++){
+                n->gen.insert(argument_registers[i]);
+            }
+            n->kill.insert("rax");
+            n->kill.insert("rcx");
+            n->kill.insert("rdx");
+            n->kill.insert("rdi");
+            n->kill.insert("rsi");
+            n->kill.insert("r8");
+            n->kill.insert("r9");
+            n->kill.insert("r10");
+            n->kill.insert("r11");
+
+
+        } else if (in->get_name() == "Instruction_call_input"){
+            Instruction_call_input* i = (Instruction_call_input*) in;
+            int num_val = 0;
+            for (int i = 0; i < std::min(num_val, (int)argument_registers.size()); i++){
+                n->gen.insert(argument_registers[i]);
+            }
+            n->kill.insert("rax");
+            n->kill.insert("rcx");
+            n->kill.insert("rdx");
+            n->kill.insert("rdi");
+            n->kill.insert("rsi");
+            n->kill.insert("r8");
+            n->kill.insert("r9");
+            n->kill.insert("r10");
+            n->kill.insert("r11");
+
+
+        } else if (in->get_name() == "Instruction_call_tensor_error"){
+            Instruction_call_tensor_error* i = (Instruction_call_tensor_error*) in;
+            InstructionNumber* num = (InstructionNumber*)i->get_val();
+            int num_val = stoi(num->get_val());
+            for (int i = 0; i < std::min(num_val, (int)argument_registers.size()); i++){
+                n->gen.insert(argument_registers[i]);
+            }
+            n->kill.insert("rax");
+            n->kill.insert("rcx");
+            n->kill.insert("rdx");
+            n->kill.insert("rdi");
+            n->kill.insert("rsi");
+            n->kill.insert("r8");
+            n->kill.insert("r9");
+            n->kill.insert("r10");
+            n->kill.insert("r11");
+
 
         }
+        
     }
     bool in_out(std::vector<Node*>* nodes){
         bool change = false;
+        
         for (int i = nodes->size()-1; i > -1; i--){
-            std::set<std::string> in;
-            std::set<std::string> out;
+            std::set<std::string> in = {};
+            std::set<std::string> out = {};
             Node* cur_node = (*nodes)[i];
             for (int64_t succ: cur_node->succs){
                 // std::cout << "successor for row " << i << "is " << succ << "\n";
@@ -228,19 +331,20 @@ namespace L2{
                     out.insert(ele_in_suc);
                 }
             }
-            if (out != cur_node->out){
-                change = true;
-                cur_node->out = out;
-            }
-
+            
             
             for (auto gen_item: cur_node->gen){
                 in.insert(gen_item);
             }
-            for(auto out_item : cur_node->out){
+            for (auto out_item : cur_node->out){
+                // std::cout << out_item << "\n";
                 if(cur_node->kill.find(out_item) == cur_node->kill.end()){
                     in.insert(out_item);
                 }
+            }
+            if (out != cur_node->out){
+                change = true;
+                cur_node->out = out;
             }
             if (in != cur_node->in){
                 change = true;
@@ -256,12 +360,16 @@ namespace L2{
 
     void generate_liveness(Program p){
         Function* func = p.functions.back();
-        // std::cerr << "\n\n func name is " << func->name << "\n";
+        //CHANGE ME: GET INSTRUCTIONS FROM ALL FUNCTIONS
+        // std::cerr << p.functions.size() << "\n";
         std::vector<Instruction*> instructs = func->instructions;
         std::vector<Node*> nodes (instructs.size());
+        // std::cerr << instructs.size() << "\n";
+        
         for(int64_t i = 0; i < instructs.size(); ++i){
             nodes[i] = new Node(instructs[i]);
         }
+        // std::cout << "loaded nodes\n";
         for(int64_t i = 0; i < instructs.size(); ++i){
             Instruction* in = instructs[i];
             if(in->get_name() == "Instruction_goto"){
@@ -281,7 +389,9 @@ namespace L2{
                 std::string label_name = label->get_label_name();
                 int64_t succ_position = find_label(label_name, &instructs);
                 nodes[i]->succs.insert(succ_position);
+                nodes[i]->succs.insert(i+1);
                 nodes[succ_position]->preds.insert(i);
+                nodes[i+1]->preds.insert(i);
                 // std::cout << "succ position: " << succ_position << "\n";
                 // std::cout << "pred position: " << i << "\n";
             } else {
@@ -291,18 +401,20 @@ namespace L2{
                 // std::cout << "pred position: " << i << "\n";
             }
         }
-
+        
+        // std::cout << "gen kill\n";
         //gen kill sets
         for (Node* n : nodes){
             gen_kill(n);
-
+            // std::cerr << "loop gen kill\n";
         }
-
+        // std::cerr << "before in out\n";
         //in out sets
         while (in_out(&nodes)){
+            // std::cout << "looped once\n";
             continue;
         }
-
+        
         // for (int i = 0; i < instructs.size(); i++){
         //     std::cout << "pred for row " << i << "\n";
         //     for (int64_t num: nodes[i]->preds){
@@ -315,6 +427,19 @@ namespace L2{
         //     }
         //     std::cout << "\n\n";
         // }
+        // for (int i = 0; i < instructs.size(); i++){
+        //     std::cout << "gen for row " << i << "\n";
+        //     for (auto num: nodes[i]->gen){
+        //         std::cout << num << ' ';
+        //     }
+        //     std::cout << "\n\n";
+        //     std::cout << "kill for row " << i << "\n";
+        //     for (auto num: nodes[i]->kill){
+        //         std::cout << num << " " ;
+        //     }
+        //     std::cout << "\n\n";
+        // }
+        // std::cerr << "came here\n";
         std::cout << "(\n(in\n";
         for (int i = 0; i < instructs.size(); i++){
             // std::cout << "in for row " << i << "\n";
@@ -324,15 +449,16 @@ namespace L2{
                 std::cout << "()\n";
             } else {
                 std::cout << "(";
-            }
-            for (std::string num: nodes[i]->in){
-                std::cout << num;
-                if(in_counter < nodes[i]->in.size()-1){
-                    std::cout << " ";
+            
+                for (std::string num: nodes[i]->in){
+                    std::cout << num;
+                    if(in_counter < nodes[i]->in.size()-1){
+                        std::cout << " ";
+                    }
+                    in_counter++;
                 }
-                in_counter++;
+                std::cout << ")\n";
             }
-            std::cout << ")\n";
         }
         std::cout << ")\n";
         std::cout << "\n(out\n";
@@ -344,18 +470,19 @@ namespace L2{
                 std::cout << "()\n";
             } else {
                 std::cout << "(";
-            }
             
-            for (std::string num: nodes[i]->out){
-                std::cout << num;
-                if(out_counter < nodes[i]->out.size()-1){
-                    std::cout << " ";
+            
+                for (std::string num: nodes[i]->out){
+                    std::cout << num;
+                    if(out_counter < nodes[i]->out.size()-1){
+                        std::cout << " ";
+                    }
+                    out_counter++;
                 }
-                out_counter++;
+                std::cout << ")\n";
             }
-            std::cout << ")\n";
         }
-        // std::cout << ")\n";
+        std::cout << ")\n";
         std::cout << "\n)";
         return;
     }

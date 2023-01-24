@@ -1071,6 +1071,7 @@ namespace L2 {
       /*
        * Fetch the last two tokens parsed.
        */
+      // std::cerr << parsed_items.size() << "\n";
       auto s = parsed_items.back();
       parsed_items.pop_back();
       auto num = parsed_items.back();

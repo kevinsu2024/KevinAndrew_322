@@ -128,6 +128,7 @@ int main(
    * Liveness test.
    */
   if (liveness_only){
+    // std::cerr << "generating\n";
     L2::generate_liveness(p);
     return 0;
   }
