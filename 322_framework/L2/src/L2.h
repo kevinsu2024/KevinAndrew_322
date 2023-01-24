@@ -378,7 +378,6 @@ namespace L2 {
     public:
       std::string name;
       int64_t arguments;
-      int64_t locals;
       std::vector<Instruction *> instructions;
   };
 

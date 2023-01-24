@@ -14,6 +14,7 @@
 #include <assert.h>
 #include <L2.h>
 #include <parser.h>
+#include <liveness_generator.h>
 
 void print_help (char *progName){
   std::cerr << "Usage: " << progName << " [-v] [-g 0|1] [-O 0|1|2] [-s] [-l] [-i] SOURCE" << std::endl;
@@ -91,6 +92,7 @@ int main(
      */
     p = L2::parse_function_file(argv[optind]);
 
+
   } else if (interference_only){
     /*
      * Parse an L2 function.
@@ -126,7 +128,7 @@ int main(
    * Liveness test.
    */
   if (liveness_only){
-    //TODO
+    L2::generate_liveness(p);
     return 0;
   }
 
