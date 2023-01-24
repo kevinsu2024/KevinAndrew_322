@@ -54,6 +54,15 @@ Register::get_register_ID(){
   return "";
 }
 
+Variable::Variable (std::string v)
+  : name {v} {
+    return;
+  }
+
+std::string
+Variable::get_variable_name(){
+  return name;
+}
 
 InstructionLabel::InstructionLabel (std::string l)
   : label {l}{

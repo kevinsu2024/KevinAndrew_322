@@ -67,6 +67,7 @@ namespace L2 {
    */
   struct str_return : TAOCPP_PEGTL_STRING( "return" ) {};
   struct str_arrow : TAOCPP_PEGTL_STRING( "<-" ) {};
+  struct str_stackarg : TAOCPP_PEGTL_STRING( "stack-arg" ) {};
   struct str_rdi : TAOCPP_PEGTL_STRING( "rdi" ) {};
   struct str_rax : TAOCPP_PEGTL_STRING( "rax" ) {};
   struct str_rsi : TAOCPP_PEGTL_STRING( "rsi" ) {};
@@ -186,9 +187,16 @@ namespace L2 {
   struct register_rsp_rule:
       str_rsp {};
   
+  struct variable_rule:
+    pegtl::seq<
+      pegtl::one<'%'>,
+      name
+    > {};
+  
   struct shift_register_rule:
     pegtl::sor<
-      register_rcx_rule
+      register_rcx_rule,
+      variable_rule
     > {};
   
   struct argument_register_rule:
@@ -204,22 +212,13 @@ namespace L2 {
   struct register_rule:
     pegtl::sor<
       argument_register_rule,
-      register_rax_rule,
-      register_rbx_rule,
-      register_rbp_rule,
-      register_r10_rule,
-      register_r11_rule,
-      register_r12_rule,
-      register_r13_rule,
-      register_r14_rule,
-      register_r15_rule
+      register_rax_rule
     > {};
   struct x_register_rule:
     pegtl::sor<
       register_rule,
       register_rsp_rule
     > {};
-
   /*
   * number rules
   */
@@ -349,6 +348,17 @@ namespace L2 {
       seps,
       s_rule
     > {};
+  
+  struct Instruction_stackarg_assignment_rule:
+    pegtl::seq<
+      register_rule,
+      seps,
+      str_arrow,
+      seps,
+      str_stackarg,
+      seps,
+      instruction_number
+    > {};
   struct Instruction_aop_rule:
     pegtl::seq<
       register_rule,
@@ -392,8 +402,6 @@ namespace L2 {
       seps,
       s_rule
     > {};
-
-
 
   struct Instruction_cjump_rule:
     pegtl::seq<
@@ -543,6 +551,7 @@ namespace L2 {
       pegtl::seq< pegtl::at<Instruction_at_rule>                , Instruction_at_rule                 >,
       pegtl::seq< pegtl::at<Instruction_cmp_assignment_rule>    , Instruction_cmp_assignment_rule     >,
       pegtl::seq< pegtl::at<Instruction_function_assignment_rule>        , Instruction_function_assignment_rule         >,
+      pegtl::seq< pegtl::at<Instruction_stackarg_assignment_rule>, Instruction_stackarg_assignment_rule>,
       pegtl::seq< pegtl::at<Instruction_assignment_rule>        , Instruction_assignment_rule         >,
       pegtl::seq< pegtl::at<Instruction_mem_op_load_rule>       , Instruction_mem_op_load_rule        >,
       pegtl::seq< pegtl::at<Instruction_mem_op_store_rule>      , Instruction_mem_op_store_rule       >,
@@ -572,8 +581,6 @@ namespace L2 {
       function_name_rule,
       seps,
       argument_number,
-      seps,
-      local_number,
       seps,
       Instructions_rule,
       seps,
@@ -607,7 +614,7 @@ namespace L2 {
 
   struct function_grammar:
     pegtl::must<
-      Instruction_function_start_rule
+      Functions_rule
     > {};
 
   /* 

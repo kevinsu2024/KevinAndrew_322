@@ -24,6 +24,14 @@ namespace L2 {
     private:
       RegisterID ID;
   };
+  
+  class Variable : public Item {
+    public:
+      Variable (std::string v);
+      std::string get_variable_name();
+    private:
+      std::string name;
+  };
 
   class InstructionLabel : public Item{
     public:
