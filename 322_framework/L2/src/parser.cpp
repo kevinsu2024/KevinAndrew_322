@@ -1518,7 +1518,7 @@ namespace L2 {
     /* 
      * Check the grammar for some possible issues.
      */
-    std::cerr << "\n\n hererer xd \n\n";
+    // std::cerr << "\n\n hererer xd \n\n";
     pegtl::analyze< grammar >();
 
     /*
@@ -1531,7 +1531,7 @@ namespace L2 {
     return p;
   }
   Program parse_function_file (char *fileName){
-    std::cerr << "\n\n hererer xd 1\n\n";
+    // std::cerr << "\n\n hererer xd 1\n\n";
     pegtl::analyze< function_grammar >();
 
     
@@ -1540,12 +1540,12 @@ namespace L2 {
     Program p;
     p.entryPointLabel = "Function_parse";
     parse< function_grammar, action >(fileInput, p);
-    std::cerr << "\n\n passed \n\n";
+    // std::cerr << "\n\n passed \n\n";
     return p;
   }
 
   Program parse_spill_file (char *fileName){
-    std::cerr << "\n\n hererer xd 2\n\n";
+    // std::cerr << "\n\n hererer xd 2\n\n";
     pegtl::analyze< grammar >();
     
 

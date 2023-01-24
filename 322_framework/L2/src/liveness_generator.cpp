@@ -46,8 +46,8 @@ namespace L2{
 
     void gen_kill(Node* n){
         Instruction* in = n->instr;
-        std::cout << "\nxdxd\n";
-        std::cout << in->get_name();
+        // std::cout << "\nxdxd\n";
+        // std::cout << in->get_name();
         if (in->get_name() == "Instruction_ret"){
             n->gen.insert("rax");
             n->gen.insert("r12");
@@ -134,11 +134,11 @@ namespace L2{
             }
         } else if (in->get_name() == "Instruction_assignment"){
             Instruction_assignment* i = (Instruction_assignment*) in;
-            std::cout << "herererer\n\n";
+            // std::cout << "herererer\n\n";
             
 
             Item* first = i->get_dst();
-            std::cout << check_item(first) << "\n";
+            // std::cout << check_item(first) << "\n";
             Item* second = i->get_src();
             if (check_item(first) != ""){
                 n->kill.insert(check_item(first));
@@ -223,7 +223,7 @@ namespace L2{
             std::set<std::string> out;
             Node* cur_node = (*nodes)[i];
             for (int64_t succ: cur_node->succs){
-                std::cout << "successor for row " << i << "is " << succ << "\n";
+                // std::cout << "successor for row " << i << "is " << succ << "\n";
                 for (std::string ele_in_suc: (*nodes)[succ]->in){
                     out.insert(ele_in_suc);
                 }
@@ -256,7 +256,7 @@ namespace L2{
 
     void generate_liveness(Program p){
         Function* func = p.functions.back();
-        std::cerr << "\n\n func name is " << func->name << "\n";
+        // std::cerr << "\n\n func name is " << func->name << "\n";
         std::vector<Instruction*> instructs = func->instructions;
         std::vector<Node*> nodes (instructs.size());
         for(int64_t i = 0; i < instructs.size(); ++i){
@@ -315,20 +315,48 @@ namespace L2{
         //     }
         //     std::cout << "\n\n";
         // }
-
+        std::cout << "(\n(in\n";
         for (int i = 0; i < instructs.size(); i++){
-            std::cout << "in for row " << i << "\n";
+            // std::cout << "in for row " << i << "\n";
+            
+            int in_counter = 0;
+            if(in_counter == nodes[i]->in.size()){
+                std::cout << "()\n";
+            } else {
+                std::cout << "(";
+            }
             for (std::string num: nodes[i]->in){
-                std::cout << num << ' ';
+                std::cout << num;
+                if(in_counter < nodes[i]->in.size()-1){
+                    std::cout << " ";
+                }
+                in_counter++;
             }
-            std::cout << "\n\n";
-            std::cout << "out for row " << i << "\n";
-            for (std::string num: nodes[i]->out){
-                std::cout << num << " " ;
-            }
-            std::cout << "\n\n";
+            std::cout << ")\n";
         }
-
+        std::cout << ")\n";
+        std::cout << "\n(out\n";
+        for (int i = 0; i < instructs.size(); i++){
+            // std::cout << "in for row " << i << "\n";
+            
+            int out_counter = 0;
+            if(out_counter == nodes[i]->out.size()){
+                std::cout << "()\n";
+            } else {
+                std::cout << "(";
+            }
+            
+            for (std::string num: nodes[i]->out){
+                std::cout << num;
+                if(out_counter < nodes[i]->out.size()-1){
+                    std::cout << " ";
+                }
+                out_counter++;
+            }
+            std::cout << ")\n";
+        }
+        // std::cout << ")\n";
+        std::cout << "\n)";
         return;
     }
 
