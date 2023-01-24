@@ -45,27 +45,30 @@ namespace L2{
         for(int64_t i = 0; i < instructs.size(); ++i){
             Instruction* in = instructs[i];
             if(in->get_name() == "Instruction_goto"){
-            
                 Instruction_goto* goto_label = (Instruction_goto*) in;
                 InstructionLabel* label = (InstructionLabel*) goto_label->get_label();
                 std::string label_name = label->get_label_name();
                 int64_t succ_position = find_label(label_name, &instructs);
                 nodes[i]->succs.insert(succ_position);
                 nodes[succ_position]->preds.insert(i);
+                std::cout << "succ position: " << succ_position << "\n";
+                std::cout << "pred position: " << i << "\n";
             } else if (in->get_name() == "Instruction_ret" || in->get_name() == "Instruction_call_tensor_error"){
-                break;
+
             } else if (in->get_name() == "Instruction_cjump"){
-            
                 Instruction_cjump* cjump_instr = (Instruction_cjump*) in;
                 InstructionLabel* label = (InstructionLabel*) cjump_instr->get_label();
                 std::string label_name = label->get_label_name();
                 int64_t succ_position = find_label(label_name, &instructs);
                 nodes[i]->succs.insert(succ_position);
                 nodes[succ_position]->preds.insert(i);
+                std::cout << "succ position: " << succ_position << "\n";
+                std::cout << "pred position: " << i << "\n";
             } else {
                 nodes[i]->succs.insert(i+1);
                 nodes[i+1]->preds.insert(i);
-                break;
+                std::cout << "succ position: " << i+1 << "\n";
+                std::cout << "pred position: " << i << "\n";
             }
         }
         for (int i = 0; i < instructs.size(); i++){
