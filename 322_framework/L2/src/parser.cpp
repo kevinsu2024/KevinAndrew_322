@@ -550,7 +550,7 @@ namespace L2 {
       pegtl::seq< pegtl::at<Instruction_call_tensor_error_rule> , Instruction_call_tensor_error_rule  >,
       pegtl::seq< pegtl::at<Instruction_at_rule>                , Instruction_at_rule                 >,
       pegtl::seq< pegtl::at<Instruction_cmp_assignment_rule>    , Instruction_cmp_assignment_rule     >,
-      pegtl::seq< pegtl::at<Instruction_function_assignment_rule>        , Instruction_function_assignment_rule         >,
+      pegtl::seq< pegtl::at<Instruction_function_assignment_rule> , Instruction_function_assignment_rule         >,
       pegtl::seq< pegtl::at<Instruction_stackarg_assignment_rule>, Instruction_stackarg_assignment_rule>,
       pegtl::seq< pegtl::at<Instruction_assignment_rule>        , Instruction_assignment_rule         >,
       pegtl::seq< pegtl::at<Instruction_mem_op_load_rule>       , Instruction_mem_op_load_rule        >,
