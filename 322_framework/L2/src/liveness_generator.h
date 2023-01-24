@@ -1,6 +1,7 @@
 #pragma once
 
 #include <L2.h>
+#include <set>
 
 namespace L2{
     class Node{
@@ -13,7 +14,7 @@ namespace L2{
             std::set<std::string> kill;
             std::set<std::string> in;
             std::set<std::string> out;
-    }
+    };
 
     void generate_liveness(Program p);
 
