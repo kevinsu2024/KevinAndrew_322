@@ -219,30 +219,34 @@ namespace L2{
     bool in_out(std::vector<Node*>* nodes){
         bool change = false;
         for (int i = nodes->size()-1; i > -1; i--){
+            std::set<std::string> in;
+            std::set<std::string> out;
             Node* cur_node = (*nodes)[i];
-            for (auto succ: cur_node->succs){
+            for (int64_t succ: cur_node->succs){
                 std::cout << "successor for row " << i << "is " << succ << "\n";
-                for (auto succ_in_item: (*nodes)[succ]->in){
-                    if (cur_node->out.find(succ_in_item) == cur_node->out.end()){
-                        cur_node->out.insert(succ_in_item);
-                        change = true;
-                    }
+                for (std::string ele_in_suc: (*nodes)[succ]->in){
+                    out.insert(ele_in_suc);
                 }
             }
+            if (out != cur_node->out){
+                change = true;
+                cur_node->out = out;
+            }
+
+            
             for (auto gen_item: cur_node->gen){
-                if (cur_node->in.find(gen_item) == cur_node->in.end()){
-                    cur_node->in.insert(gen_item);
-                    change = true;
+                in.insert(gen_item);
+            }
+            for(auto out_item : cur_node->out){
+                if(cur_node->kill.find(out_item) == cur_node->kill.end()){
+                    in.insert(out_item);
                 }
             }
-            for (auto out_item: cur_node->out){
-                if (cur_node->kill.find(out_item) == cur_node->kill.end()){
-                    if (cur_node->in.find(out_item) == cur_node->out.end()){
-                        cur_node->in.insert(out_item);
-                        change = true;
-                    }
-                }
+            if (in != cur_node->in){
+                change = true;
+                cur_node->in = in;
             }
+            
             
         }
         return change;
