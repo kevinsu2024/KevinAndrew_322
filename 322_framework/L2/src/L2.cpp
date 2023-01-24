@@ -165,6 +165,23 @@ Item*
 Instruction_assignment::get_dst(){
   return d;
 }
+
+Instruction_stackarg_assignment::Instruction_stackarg_assignment (Item *dst, Item *num)
+  : n { num },
+    d { dst } {
+  return ;
+}
+
+Item*
+Instruction_stackarg_assignment::get_num(){
+  return n;
+}
+
+Item*
+Instruction_stackarg_assignment::get_dst(){
+  return d;
+}
+
 Instruction_cmp_assignment::Instruction_cmp_assignment (Item *dst, Item *first, Item *second, Item *op)
   : d { dst },
     f { first },

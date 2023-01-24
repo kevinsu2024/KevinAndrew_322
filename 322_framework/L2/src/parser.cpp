@@ -648,14 +648,6 @@ namespace L2 {
     }
   };
 
-  template<> struct action < local_number > {
-    template< typename Input >
-	  static void apply( const Input & in, Program & p){
-      auto currentF = p.functions.back();
-      currentF->locals = std::stoll(in.string());
-    }
-  };
-
   template<> struct action < instruction_number > {
     template< typename Input >
     static void apply( const Input & in, Program & p){
@@ -810,6 +802,16 @@ namespace L2 {
       parsed_items.push_back(r);
     }
   };
+
+  template<> struct action < variable_rule > {
+    template< typename Input >
+    static void apply( const Input & in, Program & p){
+      auto v = new Variable(in.string());
+      v->set_name("Variable");
+      parsed_items.push_back(v);
+    }
+  };
+
   template<> struct action < register_rsp_rule > {
     template< typename Input >
     static void apply( const Input & in, Program & p){
@@ -839,7 +841,7 @@ namespace L2 {
     }
   };
 
-  template<> struct action <function_name > {
+  template<> struct action <function_name> {
     template< typename Input >
     static void apply ( const Input & in, Program & p){
       std::string n = in.string();
@@ -950,6 +952,38 @@ namespace L2 {
        */ 
       auto i = new Instruction_assignment(dst, src); 
       i->set_name("Instruction_assignment");
+      // i->instruction_name = ;
+
+      /* 
+       * Add the just-created instruction to the current function.
+       */ 
+      currentF->instructions.push_back(i);
+      auto stored_instr = currentF->instructions.back();
+    }
+  };
+
+  template<> struct action < Instruction_stackarg_assignment_rule > {
+    template< typename Input >
+	  static void apply( const Input & in, Program & p){
+
+      /* 
+       * Fetch the current function.
+       */ 
+      auto currentF = p.functions.back();
+
+      /*
+       * Fetch the last two tokens parsed.
+       */
+      auto num = parsed_items.back();
+      parsed_items.pop_back();
+      auto dst = parsed_items.back();
+      parsed_items.pop_back();
+
+      /* 
+       * Create the instruction.
+       */ 
+      auto i = new Instruction_stackarg_assignment(dst, num); 
+      i->set_name("Instruction_stackarg_assignment");
       // i->instruction_name = ;
 
       /* 
@@ -1500,12 +1534,13 @@ namespace L2 {
     std::cerr << "\n\n hererer xd 1\n\n";
     pegtl::analyze< function_grammar >();
 
-    std::cerr << "\n\n passed \n\n";
+    
     
     file_input< > fileInput(fileName);
     Program p;
     p.entryPointLabel = "Function_parse";
     parse< function_grammar, action >(fileInput, p);
+    std::cerr << "\n\n passed \n\n";
     return p;
   }
 

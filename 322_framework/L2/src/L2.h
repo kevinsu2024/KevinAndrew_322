@@ -134,6 +134,17 @@ namespace L2 {
       Item *d;
   };
 
+  class Instruction_stackarg_assignment : public Instruction{
+    public:
+      Instruction_stackarg_assignment (Item *dst, Item *num);
+      
+      Item *get_num();
+      Item *get_dst();
+    private:
+      Item *n;
+      Item *d;
+  };
+
   class Instruction_cmp_assignment : public Instruction{
     public:
       Instruction_cmp_assignment (Item *dst, Item *first, Item *second, Item *op);
@@ -378,7 +389,6 @@ namespace L2 {
     public:
       std::string name;
       int64_t arguments;
-      int64_t locals;
       std::vector<Instruction *> instructions;
   };
 
