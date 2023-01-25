@@ -1093,6 +1093,7 @@ namespace L2 {
   template<> struct action < Instruction_mem_op_store_rule > {
     template< typename Input >
 	  static void apply( const Input & in, Program & p){
+      std::cout << "\n\nherehrere " << in.string() << "\n";
 
       /* 
        * Fetch the current function.
@@ -1546,7 +1547,7 @@ namespace L2 {
   }
 
   Program parse_spill_file (char *fileName){
-    // std::cerr << "\n\n hererer xd 2\n\n";
+    std::cerr << "\n\n hererer xd 2\n\n";
     pegtl::analyze< grammar >();
     
 

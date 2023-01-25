@@ -193,6 +193,7 @@ namespace L2{
         } else if (in->get_name() == "Instruction_mem_store"){
             Instruction_mem_store* i = (Instruction_mem_store*) in;
             Item* first = i->get_src();
+            
             Item* second = i->get_x_reg();
             if (check_item(first) != ""){
                 n->gen.insert(check_item(first));
@@ -363,8 +364,9 @@ namespace L2{
         //CHANGE ME: GET INSTRUCTIONS FROM ALL FUNCTIONS
         // std::cerr << p.functions.size() << "\n";
         std::vector<Instruction*> instructs = func->instructions;
+
         std::vector<Node*> nodes (instructs.size());
-        // std::cerr << instructs.size() << "\n";
+        std::cerr << instructs.size() << "\n";
         
         for(int64_t i = 0; i < instructs.size(); ++i){
             nodes[i] = new Node(instructs[i]);
@@ -372,6 +374,14 @@ namespace L2{
         // std::cout << "loaded nodes\n";
         for(int64_t i = 0; i < instructs.size(); ++i){
             Instruction* in = instructs[i];
+
+            std::cerr << "\n\nin type is " << in->get_name() << "\n";
+            if (in->get_name() == "Instruction_mem_store"){
+                Instruction_mem_store* myin = (Instruction_mem_store*) in;
+                std::cerr << myin->get_src()->get_name();
+            }
+
+
             if(in->get_name() == "Instruction_goto"){
                 Instruction_goto* goto_label = (Instruction_goto*) in;
                 InstructionLabel* label = (InstructionLabel*) goto_label->get_label();
@@ -415,18 +425,19 @@ namespace L2{
             continue;
         }
         
-        // for (int i = 0; i < instructs.size(); i++){
-        //     std::cout << "pred for row " << i << "\n";
-        //     for (int64_t num: nodes[i]->preds){
-        //         std::cout << num << ' ';
-        //     }
-        //     std::cout << "\n\n";
-        //     std::cout << "succs for row " << i << "\n";
-        //     for (int64_t num: nodes[i]->succs){
-        //         std::cout << num << " " ;
-        //     }
-        //     std::cout << "\n\n";
-        // }
+        for (int i = 0; i < instructs.size(); i++){
+            // std::cout << "\n" << instructs[i]->get_name() << "\n";
+            // std::cout << "pred for row " << i << "\n";
+            // for (int64_t num: nodes[i]->preds){
+            //     std::cout << num << ' ';
+            // }
+            // std::cout << "\n\n";
+            // std::cout << "succs for row " << i << "\n";
+            // for (int64_t num: nodes[i]->succs){
+            //     std::cout << num << " " ;
+            // }
+            // std::cout << "\n\n";
+        }
         // for (int i = 0; i < instructs.size(); i++){
         //     std::cout << "gen for row " << i << "\n";
         //     for (auto num: nodes[i]->gen){
