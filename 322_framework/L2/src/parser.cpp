@@ -198,6 +198,8 @@ namespace L2 {
       register_rcx_rule,
       variable_rule
     > {};
+
+  
   
   struct argument_register_rule:
     pegtl::sor<
@@ -219,6 +221,7 @@ namespace L2 {
       register_rule,
       register_rsp_rule
     > {};
+
   /*
   * number rules
   */
@@ -270,12 +273,18 @@ namespace L2 {
       x_register_rule,
       instruction_number
     > {};
+
+  struct function_name:
+    pegtl::seq<
+      pegtl::one<'@'>,
+      name
+    > {};
   
   struct s_rule:
     pegtl::sor<
       t_rule,
       label_rule,
-      function_name_rule
+      function_name
   > {};
 
   struct u_rule:
@@ -286,17 +295,10 @@ namespace L2 {
   > {};
 
 
-  struct function_name:
-    pegtl::seq<
-      pegtl::one<'@'>,
-      name
-    > {};
+  
 
   struct argument_number:
     number {};
-
-  struct local_number:
-    number {} ;
 
 
 
@@ -348,17 +350,6 @@ namespace L2 {
       seps,
       s_rule
     > {};
-  
-  struct Instruction_stackarg_assignment_rule:
-    pegtl::seq<
-      register_rule,
-      seps,
-      str_arrow,
-      seps,
-      str_stackarg,
-      seps,
-      instruction_number
-    > {};
   struct Instruction_aop_rule:
     pegtl::seq<
       register_rule,
@@ -402,6 +393,19 @@ namespace L2 {
       seps,
       s_rule
     > {};
+
+  struct Instruction_stackarg_assignment_rule:
+    pegtl::seq<
+      register_rule,
+      seps,
+      str_arrow,
+      seps,
+      str_stackarg,
+      seps,
+      instruction_number
+    > {};
+
+
 
   struct Instruction_cjump_rule:
     pegtl::seq<
@@ -540,6 +544,7 @@ namespace L2 {
     pegtl::sor<
       pegtl::seq< pegtl::at<Instruction_return_rule>            , Instruction_return_rule             >,
       pegtl::seq< pegtl::at<Instruction_cjump_rule>             , Instruction_cjump_rule              >,
+      pegtl::seq< pegtl::at<Instruction_stackarg_assignment_rule>, Instruction_stackarg_assignment_rule>,
       pegtl::seq< pegtl::at<Instruction_call_function_rule>     , Instruction_call_function_rule      >,
       pegtl::seq< pegtl::at<Instruction_pp_rule>                , Instruction_pp_rule                 >,
       pegtl::seq< pegtl::at<Instruction_mm_rule>                , Instruction_mm_rule                 >,
@@ -550,8 +555,7 @@ namespace L2 {
       pegtl::seq< pegtl::at<Instruction_call_tensor_error_rule> , Instruction_call_tensor_error_rule  >,
       pegtl::seq< pegtl::at<Instruction_at_rule>                , Instruction_at_rule                 >,
       pegtl::seq< pegtl::at<Instruction_cmp_assignment_rule>    , Instruction_cmp_assignment_rule     >,
-      pegtl::seq< pegtl::at<Instruction_function_assignment_rule> , Instruction_function_assignment_rule         >,
-      pegtl::seq< pegtl::at<Instruction_stackarg_assignment_rule>, Instruction_stackarg_assignment_rule>,
+      pegtl::seq< pegtl::at<Instruction_function_assignment_rule>        , Instruction_function_assignment_rule         >,
       pegtl::seq< pegtl::at<Instruction_assignment_rule>        , Instruction_assignment_rule         >,
       pegtl::seq< pegtl::at<Instruction_mem_op_load_rule>       , Instruction_mem_op_load_rule        >,
       pegtl::seq< pegtl::at<Instruction_mem_op_store_rule>      , Instruction_mem_op_store_rule       >,
@@ -611,7 +615,7 @@ namespace L2 {
     pegtl::must< 
       entry_point_rule
     > {};
-
+  
   struct function_grammar:
     pegtl::must<
       Functions_rule
@@ -802,16 +806,6 @@ namespace L2 {
       parsed_items.push_back(r);
     }
   };
-
-  template<> struct action < variable_rule > {
-    template< typename Input >
-    static void apply( const Input & in, Program & p){
-      auto v = new Variable(in.string());
-      v->set_name("Variable");
-      parsed_items.push_back(v);
-    }
-  };
-
   template<> struct action < register_rsp_rule > {
     template< typename Input >
     static void apply( const Input & in, Program & p){
@@ -832,6 +826,15 @@ namespace L2 {
     }
   };
 
+  template<> struct action < variable_rule > {
+    template< typename Input >
+    static void apply( const Input & in, Program & p){
+      auto v = new Variable(in.string());
+      v->set_name("Variable");
+      parsed_items.push_back(v);
+    }
+  };
+
   template<> struct action < cmp > {
     template< typename Input >
     static void apply( const Input & in, Program & p){
@@ -841,12 +844,12 @@ namespace L2 {
     }
   };
 
-  template<> struct action <function_name> {
+  template<> struct action <function_name > {
     template< typename Input >
     static void apply ( const Input & in, Program & p){
       std::string n = in.string();
-      auto name = new Function_Name(n);
-      name->set_name("Function_Name");
+      auto name = new FunctionName(n);
+      name->set_name("FunctionName");
       parsed_items.push_back(name);
 
     }
@@ -1071,7 +1074,6 @@ namespace L2 {
       /*
        * Fetch the last two tokens parsed.
        */
-      // std::cerr << parsed_items.size() << "\n";
       auto s = parsed_items.back();
       parsed_items.pop_back();
       auto num = parsed_items.back();
@@ -1093,7 +1095,6 @@ namespace L2 {
   template<> struct action < Instruction_mem_op_store_rule > {
     template< typename Input >
 	  static void apply( const Input & in, Program & p){
-      std::cout << "\n\nherehrere " << in.string() << "\n";
 
       /* 
        * Fetch the current function.
@@ -1374,9 +1375,9 @@ namespace L2 {
       auto num = parsed_items.back();
       parsed_items.pop_back();
 
-      Function_Name* f_name = (Function_Name*) parsed_items.back();
+      FunctionName* f_name = (FunctionName*) parsed_items.back();
       parsed_items.pop_back();
-      std::string cut = f_name->get_val();
+      std::string cut = f_name->get_function_name();
 
       auto i = new Instruction_call_function(cut,num);
       i->set_name("Instruction_call_function");
@@ -1547,7 +1548,7 @@ namespace L2 {
   }
 
   Program parse_spill_file (char *fileName){
-    std::cerr << "\n\n hererer xd 2\n\n";
+    // std::cerr << "\n\n hererer xd 2\n\n";
     pegtl::analyze< grammar >();
     
 

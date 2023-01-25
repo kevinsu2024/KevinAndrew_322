@@ -366,7 +366,7 @@ namespace L2{
         std::vector<Instruction*> instructs = func->instructions;
 
         std::vector<Node*> nodes (instructs.size());
-        std::cerr << instructs.size() << "\n";
+        // std::cerr << instructs.size() << "\n";
         
         for(int64_t i = 0; i < instructs.size(); ++i){
             nodes[i] = new Node(instructs[i]);
@@ -375,11 +375,12 @@ namespace L2{
         for(int64_t i = 0; i < instructs.size(); ++i){
             Instruction* in = instructs[i];
 
-            std::cerr << "\n\nin type is " << in->get_name() << "\n";
-            if (in->get_name() == "Instruction_mem_store"){
-                Instruction_mem_store* myin = (Instruction_mem_store*) in;
-                std::cerr << myin->get_src()->get_name();
-            }
+            // std::cerr << "\n\nin type is " << in->get_name() << "\n";
+            // if (in->get_name() == "Instruction_mem_store"){
+            //     Instruction_mem_store* myin = (Instruction_mem_store*) in;
+            //     FunctionName* src = (FunctionName*) myin->get_src();
+            //     std::cerr << "\n\noggabooga " << src->get_function_name() << "\n";
+            // }
 
 
             if(in->get_name() == "Instruction_goto"){

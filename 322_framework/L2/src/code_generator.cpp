@@ -100,7 +100,7 @@ namespace L2{
     for(Function *f : functions){
       outputFile << convert_func_name(f->name) << ":\n";
       //TODO STACK STUFF
-      int64_t sub_stack_num = f->locals * 8;
+      int64_t sub_stack_num = 0 * 8;
       outputFile << "\tsubq $" << std::to_string(sub_stack_num) << ", %rsp\n";
       int64_t loop_counter = 0;
       for(auto *i : f->instructions){
@@ -125,8 +125,8 @@ namespace L2{
         } else if (i->get_name() == "Instruction_function_assignment"){
           Instruction_function_assignment* in = (Instruction_function_assignment*) i;
           std::string dst = convert_item_to_str(in->get_dst());
-          Function_Name* fname = (Function_Name*) in->get_fname();
-          std::string name = fname->get_val();
+          FunctionName* fname = (FunctionName*) in->get_fname();
+          std::string name = fname->get_name();
           name = "$_" + name.substr(1,name.size()-1);
           outputFile << "\tmovq " << name << ", " << dst << "\n";
 
