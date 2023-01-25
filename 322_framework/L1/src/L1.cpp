@@ -131,15 +131,10 @@ FunctionName::FunctionName (std::string name)
     return;
 }
 
-Function_Name::Function_Name(std::string v)
-  : val {v} {
-    return;
-}
 std::string
-Function_Name::get_val(){
-  return val;
+FunctionName::get_function_name(){
+  return n;
 }
-
 
 Instruction_assignment::Instruction_assignment (Item *dst, Item *src)
   : s { src },

@@ -81,19 +81,12 @@ namespace L1 {
 
   class FunctionName : public Item {
     public:
-     FunctionName (std::string name);
-     
+      FunctionName (std::string name);
+      std::string get_function_name();
     private:
       std::string n;
   };
 
-  class Function_Name: public Item {
-    public:
-      Function_Name(std::string n);
-      std::string get_val();
-    private:
-      std::string val;
-  };
 
   /*
    * Instruction interface.

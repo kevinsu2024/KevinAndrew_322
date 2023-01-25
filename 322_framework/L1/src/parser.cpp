@@ -67,6 +67,7 @@ namespace L1 {
    */
   struct str_return : TAOCPP_PEGTL_STRING( "return" ) {};
   struct str_arrow : TAOCPP_PEGTL_STRING( "<-" ) {};
+  struct str_open_bracket : TAOCPP_PEGTL_STRING( "(") {};
   struct str_rdi : TAOCPP_PEGTL_STRING( "rdi" ) {};
   struct str_rax : TAOCPP_PEGTL_STRING( "rax" ) {};
   struct str_rsi : TAOCPP_PEGTL_STRING( "rsi" ) {};
@@ -287,17 +288,25 @@ namespace L1 {
   > {};
 
 
-  struct function_name:
-    pegtl::seq<
-      pegtl::one<'@'>,
-      name
-    > {};
+  // struct function_name:
+  //   pegtl::seq<
+  //     pegtl::one<'@'>,
+  //     name
+  //   > {};
 
   struct argument_number:
     number {};
 
   struct local_number:
     number {} ;
+  
+  struct function_start_rule:
+    pegtl::seq<
+      str_open_bracket,
+      seps,
+      function_name_rule,
+      seps 
+    > {};
 
 
 
@@ -310,14 +319,7 @@ namespace L1 {
       str_return
     > { };
 
-  struct Instruction_function_start_rule:
-    pegtl::seq<
-      seps,
-      pegtl::one<'('>,
-      seps,
-      function_name_rule,
-      seps
-    > {};
+  
 
   struct Instruction_cmp_assignment_rule:
     pegtl::seq<
@@ -338,7 +340,7 @@ namespace L1 {
       seps,
       str_arrow,
       seps,
-      function_name
+      function_name_rule
     > {};
 
   struct Instruction_assignment_rule:
@@ -521,7 +523,7 @@ namespace L1 {
     pegtl::seq<
       str_call,
       seps,
-      function_name,
+      function_name_rule,
       seps,
       instruction_number
     > {};
@@ -530,6 +532,7 @@ namespace L1 {
 
   struct Instruction_rule:
     pegtl::sor<
+      // pegtl::seq< pegtl::at<Instruction_function_start_rule>    , Instruction_function_start_rule     >,
       pegtl::seq< pegtl::at<Instruction_return_rule>            , Instruction_return_rule             >,
       pegtl::seq< pegtl::at<Instruction_cjump_rule>             , Instruction_cjump_rule              >,
       pegtl::seq< pegtl::at<Instruction_call_function_rule>     , Instruction_call_function_rule      >,
@@ -551,8 +554,8 @@ namespace L1 {
       pegtl::seq< pegtl::at<Instruction_aop_rule>               , Instruction_aop_rule                >,
       pegtl::seq< pegtl::at<Instruction_sop_rule>               , Instruction_sop_rule                >,
       pegtl::seq< pegtl::at<Instruction_goto_rule>              , Instruction_goto_rule               >,
-      pegtl::seq< pegtl::at<Instruction_label_rule>             , Instruction_label_rule              >,
-      pegtl::seq< pegtl::at<Instruction_function_start_rule>    , Instruction_function_start_rule     >
+      pegtl::seq< pegtl::at<Instruction_label_rule>             , Instruction_label_rule              >
+      
     > {};
 
   struct Instructions_rule:
@@ -567,9 +570,7 @@ namespace L1 {
   struct Function_rule:
     pegtl::seq<
       seps,
-      pegtl::one< '(' >,
-      seps,
-      function_name_rule,
+      function_start_rule,
       seps,
       argument_number,
       seps,
@@ -590,9 +591,7 @@ namespace L1 {
   struct entry_point_rule:
     pegtl::seq<
       seps,
-      pegtl::one< '(' >,
-      seps,
-      function_name_rule,
+      function_start_rule,
       seps,
       Functions_rule,
       seps,
@@ -611,22 +610,43 @@ namespace L1 {
   template< typename Rule >
   struct action : pegtl::nothing< Rule > {};
 
-  template<> struct action < function_name_rule > {
+  template<> struct action < function_start_rule > {
     template< typename Input >
-	  static void apply( const Input & in, Program & p){
+    static void apply( const Input & in, Program & p){
+      auto function_item = parsed_items.back();
+      parsed_items.pop_back();
+      
+      FunctionName* fname_item = (FunctionName*) function_item;
+      std::string name = fname_item->get_function_name();
+      
       if (p.entryPointLabel.empty()){
-        p.entryPointLabel = in.string();
+        p.entryPointLabel = name;
       } else {
-        std::string input_string = in.string();
-        auto fn = new FunctionName(input_string);
-        fn->set_name("FunctionName");
-        parsed_items.push_back(fn);
+        std::string input_string = name;
         auto newF = new Function();
-        newF->name = in.string();
+        newF->name = name;
         p.functions.push_back(newF);
+        // std::cerr << "arrived\n";
       }
     }
   };
+
+
+  template<> struct action < function_name_rule > {
+    template< typename Input >
+	  static void apply( const Input & in, Program & p){
+      std::string input_string = in.string();
+      auto fn = new FunctionName(input_string);
+      // std::cout << "function name rule triggered" << "\n";
+      fn->set_name("FunctionName");
+      parsed_items.push_back(fn);
+      // std::cerr << parsed_items.size() << "\n";
+      // std::cerr << p.functions.size() << "\n";
+    }
+  };
+
+  
+  
 
   template<> struct action < argument_number > {
     template< typename Input >
@@ -827,16 +847,16 @@ namespace L1 {
     }
   };
 
-  template<> struct action <function_name > {
-    template< typename Input >
-    static void apply ( const Input & in, Program & p){
-      std::string n = in.string();
-      auto name = new Function_Name(n);
-      name->set_name("Function_Name");
-      parsed_items.push_back(name);
+  // template<> struct action <function_name> {
+  //   template< typename Input >
+  //   static void apply ( const Input & in, Program & p){
+  //     std::string n = in.string();
+  //     auto name = new Function_Name(n);
+  //     name->set_name("Function_Name");
+  //     parsed_items.push_back(name);
 
-    }
-  };
+  //   }
+  // };
 
   template<> struct action < aop > {
     template< typename Input >
@@ -862,13 +882,6 @@ namespace L1 {
       auto op = new ShiftOp(in.string());
       op->set_name("ShiftOp");
       parsed_items.push_back(op);
-    }
-  };
-  template<> struct action < Instruction_function_start_rule > {
-    template< typename Input >
-    static void apply( const Input & in, Program & p){
-      auto name = parsed_items.back();
-      parsed_items.pop_back();
     }
   };
 
@@ -1325,14 +1338,20 @@ namespace L1 {
 
       auto num = parsed_items.back();
       parsed_items.pop_back();
-
-      Function_Name* f_name = (Function_Name*) parsed_items.back();
+      
+      FunctionName* f_name = (FunctionName*) parsed_items.back();
       parsed_items.pop_back();
-      std::string cut = f_name->get_val();
+      
+      std::string cut = f_name->get_function_name();
+      // std::cerr << "arrived at call\n";
+      // std::cerr << cut << "\n";
 
       auto i = new Instruction_call_function(cut,num);
+      
       i->set_name("Instruction_call_function");
+      
       currentF->instructions.push_back(i);
+      
     }
   };
 
