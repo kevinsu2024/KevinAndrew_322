@@ -21,7 +21,11 @@ namespace L2{
         //for each line of code
         for (Node* node: nodes){
             //current register string to connect to
-            std::string cur_register = gp_registers[register_index];
+            std::string cur_register = "";
+            if (register_index < gp_registers.size()){
+                cur_register = gp_registers[register_index];
+            }
+            
             //loop in set and connect each node with one another
             Instruction* instruction = instructs[instruction_index];
             for (auto in_key: node->in){
@@ -29,15 +33,15 @@ namespace L2{
                     if (in_key == in_val){
                         continue;
                     }
-                     adj_list[in_key].insert(in_val);
-                     adj_list[in_val].insert(in_key);
-                     for (auto children: adj_list[in_val]){
-                        if (children == in_key){
-                            continue;
-                        }
-                        adj_list[in_key].insert(children);
-                        adj_list[children].insert(in_key);
-                     }
+                    adj_list[in_key].insert(in_val);
+                    adj_list[in_val].insert(in_key);
+                    //  for (auto children: adj_list[in_val]){
+                    //     if (children == in_key){
+                    //         continue;
+                    //     }
+                    //     adj_list[in_key].insert(children);
+                    //     adj_list[children].insert(in_key);
+                    //  }
                      
                 }
             }
@@ -47,39 +51,42 @@ namespace L2{
                     if (out_key == out_val){
                         continue;
                     }
-                     adj_list[out_key].insert(out_val);
-                     adj_list[out_val].insert(out_key);
-                     for (auto children: adj_list[out_val]){
-                        if (children == out_key){
-                            continue;
-                        }
-                        adj_list[out_key].insert(children);
-                        adj_list[children].insert(out_key);
-                     }
+                    adj_list[out_key].insert(out_val);
+                    adj_list[out_val].insert(out_key);
+                    // for (auto children: adj_list[out_val]){
+                    //     if (children == out_key){
+                    //         continue;
+                    //     }
+                    //     adj_list[out_key].insert(children);
+                    //     adj_list[children].insert(out_key);
+                    // }
                 }
             }
             //loop registers and connect cur_register to all other registers
-            for (auto reg: gp_registers){
-                if (reg == cur_register){
-                    continue;
-                }
-                adj_list[reg].insert(cur_register);
-                adj_list[cur_register].insert(reg);
-                for (auto children: adj_list[reg]){
-                    if (children == cur_register){
+            if (register_index < gp_registers.size()){
+                for (auto reg: gp_registers){
+                    if (reg == cur_register){
                         continue;
                     }
-                    adj_list[cur_register].insert(children);
-                    adj_list[children].insert(cur_register);
-                }
-                for (auto children: adj_list[cur_register]){
-                    if (children == reg){
-                        continue;
+                    adj_list[reg].insert(cur_register);
+                    adj_list[cur_register].insert(reg);
+                    for (auto children: adj_list[reg]){
+                        if (children == cur_register){
+                            continue;
+                        }
+                        adj_list[cur_register].insert(children);
+                        adj_list[children].insert(cur_register);
                     }
-                    adj_list[reg].insert(children);
-                    adj_list[children].insert(reg);
+                    for (auto children: adj_list[cur_register]){
+                        if (children == reg){
+                            continue;
+                        }
+                        adj_list[reg].insert(children);
+                        adj_list[children].insert(reg);
+                    }
                 }
             }
+            
             //connect variables in kill with those in out
             for (auto kill_var: node->kill){
                 for (auto out_var: node->out){
@@ -88,13 +95,13 @@ namespace L2{
                     }
                     adj_list[kill_var].insert(out_var);
                     adj_list[out_var].insert(kill_var);
-                    for (auto children: adj_list[out_var]){
-                        if (children == kill_var){
-                            continue;
-                        }
-                        adj_list[kill_var].insert(children);
-                        adj_list[children].insert(kill_var);
-                     }
+                    // for (auto children: adj_list[out_var]){
+                    //     if (children == kill_var){
+                    //         continue;
+                    //     }
+                    //     adj_list[kill_var].insert(children);
+                    //     adj_list[children].insert(kill_var);
+                    //  }
                 }
             }
             //handle shift instruction case
