@@ -2,6 +2,12 @@
 
 #include <L2.h>
 #include <set>
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <typeinfo>
+#include <memory>
+#include <algorithm>
 
 namespace L2{
     class Node{
@@ -16,6 +22,6 @@ namespace L2{
             std::set<std::string> out;
     };
 
-    void generate_liveness(Program p);
+    std::vector<Node*> generate_liveness(Program p, bool print_std);
 
 }

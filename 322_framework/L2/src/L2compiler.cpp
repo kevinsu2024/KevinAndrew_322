@@ -15,6 +15,7 @@
 #include <L2.h>
 #include <parser.h>
 #include <liveness_generator.h>
+#include <interference_generator.h>
 
 void print_help (char *progName){
   std::cerr << "Usage: " << progName << " [-v] [-g 0|1] [-O 0|1|2] [-s] [-l] [-i] SOURCE" << std::endl;
@@ -130,7 +131,7 @@ int main(
    */
   if (liveness_only){
     // std::cerr << "generating\n";
-    L2::generate_liveness(p);
+    auto _ = L2::generate_liveness(p, true);
     return 0;
   }
 
@@ -138,7 +139,7 @@ int main(
    * Interference graph test.
    */
   if (interference_only){
-    //TODO
+    auto _ = L2::generate_interference(p, true);
     return 0;
   }
 

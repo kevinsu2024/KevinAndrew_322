@@ -1,10 +1,4 @@
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <typeinfo>
-#include <memory>
 #include <liveness_generator.h>
-#include <algorithm>
 
 
 using namespace std;
@@ -359,7 +353,7 @@ namespace L2{
     }
     
 
-    void generate_liveness(Program p){
+    std::vector<Node*> generate_liveness(Program p, bool print_std){
         Function* func = p.functions.back();
         //CHANGE ME: GET INSTRUCTIONS FROM ALL FUNCTIONS
         // std::cerr << p.functions.size() << "\n";
@@ -452,7 +446,8 @@ namespace L2{
         //     std::cout << "\n\n";
         // }
         // std::cerr << "came here\n";
-        std::cout << "(\n(in\n";
+        if (print_std){
+            std::cout << "(\n(in\n";
         for (int i = 0; i < instructs.size(); i++){
             // std::cout << "in for row " << i << "\n";
             
@@ -496,7 +491,10 @@ namespace L2{
         }
         std::cout << ")\n";
         std::cout << "\n)";
-        return;
+
+        }
+        
+        return nodes;
     }
 
 }
