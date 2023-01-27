@@ -35,14 +35,21 @@ namespace L2{
                     }
                     adj_list[in_key].insert(in_val);
                     adj_list[in_val].insert(in_key);
-                    //  for (auto children: adj_list[in_val]){
-                    //     if (children == in_key){
-                    //         continue;
-                    //     }
-                    //     adj_list[in_key].insert(children);
-                    //     adj_list[children].insert(in_key);
-                    //  }
-                     
+                    for (auto c: adj_list[in_val]){
+                        if (c == in_key){
+                            continue;
+                        }
+                        adj_list[in_key].insert(c);
+                        adj_list[c].insert(in_key);
+                    } 
+                    for (auto c: adj_list[in_key]){
+                        if (c == in_val){
+                            continue;
+                        }
+                        adj_list[in_val].insert(c);
+                        adj_list[c].insert(in_val);
+                    } 
+
                 }
             }
             //loop out set and connect each node with one another
@@ -53,13 +60,20 @@ namespace L2{
                     }
                     adj_list[out_key].insert(out_val);
                     adj_list[out_val].insert(out_key);
-                    // for (auto children: adj_list[out_val]){
-                    //     if (children == out_key){
-                    //         continue;
-                    //     }
-                    //     adj_list[out_key].insert(children);
-                    //     adj_list[children].insert(out_key);
-                    // }
+                    for (auto c: adj_list[out_val]){
+                        if (c == out_key){
+                            continue;
+                        }
+                        adj_list[out_key].insert(c);
+                        adj_list[c].insert(out_key);
+                    } 
+                    for (auto c: adj_list[out_key]){
+                        if (c == out_val){
+                            continue;
+                        }
+                        adj_list[out_val].insert(c);
+                        adj_list[c].insert(out_val);
+                    } 
                 }
             }
             //loop registers and connect cur_register to all other registers
@@ -70,20 +84,20 @@ namespace L2{
                     }
                     adj_list[reg].insert(cur_register);
                     adj_list[cur_register].insert(reg);
-                    for (auto children: adj_list[reg]){
-                        if (children == cur_register){
+                    for (auto c: adj_list[reg]){
+                        if (c == cur_register){
                             continue;
                         }
-                        adj_list[cur_register].insert(children);
-                        adj_list[children].insert(cur_register);
-                    }
-                    for (auto children: adj_list[cur_register]){
-                        if (children == reg){
+                        adj_list[cur_register].insert(c);
+                        adj_list[c].insert(cur_register);
+                    } 
+                    for (auto c: adj_list[cur_register]){
+                        if (c == reg){
                             continue;
                         }
-                        adj_list[reg].insert(children);
-                        adj_list[children].insert(reg);
-                    }
+                        adj_list[reg].insert(c);
+                        adj_list[c].insert(reg);
+                    } 
                 }
             }
             
@@ -95,13 +109,20 @@ namespace L2{
                     }
                     adj_list[kill_var].insert(out_var);
                     adj_list[out_var].insert(kill_var);
-                    // for (auto children: adj_list[out_var]){
-                    //     if (children == kill_var){
-                    //         continue;
-                    //     }
-                    //     adj_list[kill_var].insert(children);
-                    //     adj_list[children].insert(kill_var);
-                    //  }
+                    for (auto c: adj_list[kill_var]){
+                        if (c == out_var){
+                            continue;
+                        }
+                        adj_list[out_var].insert(c);
+                        adj_list[c].insert(out_var);
+                    } 
+                    for (auto c: adj_list[out_var]){
+                        if (c == kill_var){
+                            continue;
+                        }
+                        adj_list[kill_var].insert(c);
+                        adj_list[c].insert(kill_var);
+                    } 
                 }
             }
             //handle shift instruction case
@@ -120,6 +141,20 @@ namespace L2{
                         }
                         adj_list[src_reg].insert(r);
                         adj_list[r].insert(src_reg);
+                        for (auto c: adj_list[src_reg]){
+                            if (c == r){
+                                continue;
+                            }
+                            adj_list[r].insert(c);
+                            adj_list[c].insert(r);
+                        } 
+                        for (auto c: adj_list[r]){
+                            if (c == src_reg){
+                                continue;
+                            }
+                            adj_list[src_reg].insert(c);
+                            adj_list[c].insert(src_reg);
+                        } 
                     }
                 } else if (src_item->get_name() == "Variable"){
 
@@ -132,6 +167,20 @@ namespace L2{
                         }
                         adj_list[src_var].insert(r);
                         adj_list[r].insert(src_var);
+                        for (auto c: adj_list[src_var]){
+                            if (c == r){
+                                continue;
+                            }
+                            adj_list[r].insert(c);
+                            adj_list[c].insert(r);
+                        } 
+                        for (auto c: adj_list[r]){
+                            if (c == src_var){
+                                continue;
+                            }
+                            adj_list[src_var].insert(c);
+                            adj_list[c].insert(src_var);
+                        } 
                     }
                     
                 }
