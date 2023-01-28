@@ -19,113 +19,176 @@ namespace L2{
         //current line of instruction corresponding to node
         int64_t instruction_index = 0;
         //for each line of code
-        for (Node* node: nodes){
+        
+        for(Node* node: nodes){
+           
             //current register string to connect to
             
             //loop in set and connect each node with one another
-            for (auto in_key: node->in){
-                for (auto in_val: node->in){
-                    if (in_key == in_val){
-                        continue;
-                    }
-                    adj_list[in_key].insert(in_val);
-                    adj_list[in_val].insert(in_key);
-                    for (auto c: adj_list[in_val]){
-                        if (c == in_key){
-                            continue;
-                        }
-                        adj_list[in_key].insert(c);
-                        adj_list[c].insert(in_key);
-                    } 
-                    for (auto c: adj_list[in_key]){
-                        if (c == in_val){
-                            continue;
-                        }
-                        adj_list[in_val].insert(c);
-                        adj_list[c].insert(in_val);
-                    } 
+            // for (auto in_key: node->in){
+            //     for (auto in_val: node->in){
+            //         if (in_key == in_val){
+            //             continue;
+            //         }
+            //         adj_list[in_key].insert(in_val);
+            //         adj_list[in_val].insert(in_key);
+            //         for (auto c: adj_list[in_val]){
+            //             if (c == in_key){
+            //                 continue;
+            //             }
+            //             adj_list[in_key].insert(c);
+            //             adj_list[c].insert(in_key);
+            //         } 
+            //         for (auto c: adj_list[in_key]){
+            //             if (c == in_val){
+            //                 continue;
+            //             }
+            //             adj_list[in_val].insert(c);
+            //             adj_list[c].insert(in_val);
+            //         } 
 
-                }
-            }
+            //     }
+            // }
+            
+
             //loop out set and connect each node with one another
-            for (auto out_key: node->out){
-                for (auto out_val: node->out){
-                    if (out_key == out_val){
-                        continue;
-                    }
-                    adj_list[out_key].insert(out_val);
-                    adj_list[out_val].insert(out_key);
-                    for (auto c: adj_list[out_val]){
-                        if (c == out_key){
-                            continue;
-                        }
-                        adj_list[out_key].insert(c);
-                        adj_list[c].insert(out_key);
-                    } 
-                    for (auto c: adj_list[out_key]){
-                        if (c == out_val){
-                            continue;
-                        }
-                        adj_list[out_val].insert(c);
-                        adj_list[c].insert(out_val);
-                    } 
+            std::set<std::string> in_set = node->in;
+            auto out_set = node->out;
+            for(std::string val : in_set){
+                for(std::string val2 : in_set){
+                    if(val == val2) continue;
+                    adj_list[val].insert(val2);
+                    adj_list[val2].insert(val);
                 }
             }
+            for(std::string val : out_set){
+                for(std::string val2 : out_set){
+                    if(val == val2) continue;
+                    adj_list[val].insert(val2);
+                    adj_list[val2].insert(val);
+                }
+            }
+            for(std::string val : gp_registers){
+                for(std::string val2 : gp_registers){
+                    if(val == val2) continue;
+                    adj_list[val].insert(val2);
+                    adj_list[val2].insert(val);
+                }
+            }
+            for(std::string val : node->out){
+                for(std::string val2 : node->kill){
+                    if(val == val2) continue;
+                    adj_list[val].insert(val2);
+                    adj_list[val2].insert(val);
+                }
+            }
+            // if(node->instr->get_name() == "Instruction_sop"){
+            //     Instruction_sop* in = (Instruction_sop*) node;
+            //     Item* second = in->get_src();
+            //     std::string sname = second->get_name();
+            //     if(second->get_name() == "Variable"){
+            //         Variable* sec = (Variable*) second;
+            //         for(std::string val : gp_registers){
+            //             if(val == "rcx") continue;
+            //             adj_list[val].insert(sec->get_variable_name());
+            //             adj_list[sec->get_variable_name()].insert(val);
+                        
+            //          }
+            //     }
+            // }
+            // std::cout << "herere";
+            // for (auto out_key: node->out){
+            //     for (auto out_val: node->out){
+            //         if (out_key == out_val){
+            //             continue;
+            //         }
+            //         adj_list[out_key].insert(out_val);
+            //         adj_list[out_val].insert(out_key);
+            //         for (auto c: adj_list[out_val]){
+            //             if (c == out_key){
+            //                 continue;
+            //             }
+            //             adj_list[out_key].insert(c);
+            //             adj_list[c].insert(out_key);
+            //         } 
+            //         for (auto c: adj_list[out_key]){
+            //             if (c == out_val){
+            //                 continue;
+            //             }
+            //             adj_list[out_val].insert(c);
+            //             adj_list[c].insert(out_val);
+            //         } 
+            //     }
+            // }
         }
+
+        //printing adj list here
+        // std::cout << "\n\n\n\nprinting here\n\n\n\n";
+        // if (true){
+        //     for (auto key: adj_list){
+        //         std::cout << key.first;
+        //         for(std::string val: key.second){
+        //             std::cout << " " << val;
+        //         }
+        //         std::cout << "\n";
+        //     }
+        // }
+        // std::cout << "\n\n";
+
             //loop registers and connect cur_register to all other registers
-        std::string cur_register = "rdi";
-        for (auto r: gp_registers){
-            if (adj_list.find(r) == adj_list.end()){
-                cur_register = r;
-            }
-        }
-        for (auto reg: gp_registers){
-            if (reg == cur_register){
-                continue;
-            }
-            adj_list[reg].insert(cur_register);
-            adj_list[cur_register].insert(reg);
-            for (auto c: adj_list[reg]){
-                if (c == cur_register){
-                    continue;
-                }
-                adj_list[cur_register].insert(c);
-                adj_list[c].insert(cur_register);
-            } 
-            for (auto c: adj_list[cur_register]){
-                if (c == reg){
-                    continue;
-                }
-                adj_list[reg].insert(c);
-                adj_list[c].insert(reg);
-            } 
-        }
-        for (Node* node: nodes){
-            //connect variables in kill with those in out
-            for (auto kill_var: node->kill){
-                for (auto out_var: node->out){
-                    if (kill_var == out_var){
-                        continue;
-                    }
-                    adj_list[kill_var].insert(out_var);
-                    adj_list[out_var].insert(kill_var);
-                    for (auto c: adj_list[kill_var]){
-                        if (c == out_var){
-                            continue;
-                        }
-                        adj_list[out_var].insert(c);
-                        adj_list[c].insert(out_var);
-                    } 
-                    for (auto c: adj_list[out_var]){
-                        if (c == kill_var){
-                            continue;
-                        }
-                        adj_list[kill_var].insert(c);
-                        adj_list[c].insert(kill_var);
-                    } 
-                }
-            }
-        }
+        // std::string cur_register = "rdi";
+        // for (auto r: gp_registers){
+        //     if (adj_list.find(r) == adj_list.end()){
+        //         cur_register = r;
+        //     }
+        // }
+        // for (auto reg: gp_registers){
+        //     if (reg == cur_register){
+        //         continue;
+        //     }
+        //     adj_list[reg].insert(cur_register);
+        //     adj_list[cur_register].insert(reg);
+        //     for (auto c: adj_list[reg]){
+        //         if (c == cur_register){
+        //             continue;
+        //         }
+        //         adj_list[cur_register].insert(c);
+        //         adj_list[c].insert(cur_register);
+        //     } 
+        //     for (auto c: adj_list[cur_register]){
+        //         if (c == reg){
+        //             continue;
+        //         }
+        //         adj_list[reg].insert(c);
+        //         adj_list[c].insert(reg);
+        //     } 
+        // }
+        // for (Node* node: nodes){
+        //     //connect variables in kill with those in out
+        //     for (auto kill_var: node->kill){
+        //         for (auto out_var: node->out){
+        //             if (kill_var == out_var){
+        //                 continue;
+        //             }
+        //             adj_list[kill_var].insert(out_var);
+        //             adj_list[out_var].insert(kill_var);
+        //             for (auto c: adj_list[kill_var]){
+        //                 if (c == out_var){
+        //                     continue;
+        //                 }
+        //                 adj_list[out_var].insert(c);
+        //                 adj_list[c].insert(out_var);
+        //             } 
+        //             for (auto c: adj_list[out_var]){
+        //                 if (c == kill_var){
+        //                     continue;
+        //                 }
+        //                 adj_list[kill_var].insert(c);
+        //                 adj_list[c].insert(kill_var);
+        //             } 
+        //         }
+        //     }
+        // }
         for (Node* node: nodes){
             Instruction* instruction = instructs[instruction_index];
             //handle shift instruction case
@@ -134,33 +197,7 @@ namespace L2{
                 Instruction_sop* shift_instruction = (Instruction_sop*) instruction;
                 //get src item and convert to get register/variable
                 Item* src_item = shift_instruction->get_src();
-                if (src_item->get_name() == "Register"){
-                    Register* src_reg_item = (Register*) src_item;
-                    std::string src_reg = src_reg_item->get_register_ID();
-                    //connect src_reg with all registers except rcx
-                    for (auto r: gp_registers){
-                        if (r == "rcx"){
-                            continue;
-                        }
-                        adj_list[src_reg].insert(r);
-                        adj_list[r].insert(src_reg);
-                        for (auto c: adj_list[src_reg]){
-                            if (c == r){
-                                continue;
-                            }
-                            adj_list[r].insert(c);
-                            adj_list[c].insert(r);
-                        } 
-                        for (auto c: adj_list[r]){
-                            if (c == src_reg){
-                                continue;
-                            }
-                            adj_list[src_reg].insert(c);
-                            adj_list[c].insert(src_reg);
-                        } 
-                    }
-                } else if (src_item->get_name() == "Variable"){
-
+                if (src_item->get_name() == "Variable"){
                     Variable* src_var_item = (Variable*) src_item;
                     std::string src_var = src_var_item->get_variable_name();
                     //connect src_var with all registers except rcx
@@ -170,20 +207,6 @@ namespace L2{
                         }
                         adj_list[src_var].insert(r);
                         adj_list[r].insert(src_var);
-                        for (auto c: adj_list[src_var]){
-                            if (c == r){
-                                continue;
-                            }
-                            adj_list[r].insert(c);
-                            adj_list[c].insert(r);
-                        } 
-                        for (auto c: adj_list[r]){
-                            if (c == src_var){
-                                continue;
-                            }
-                            adj_list[src_var].insert(c);
-                            adj_list[c].insert(src_var);
-                        } 
                     }
                     
                 }
@@ -194,6 +217,14 @@ namespace L2{
             instruction_index++;
             
         }
+
+        // for (auto key: adj_list){
+        //         std::cout << key.first;
+        //         for(std::string val: key.second){
+        //             std::cout << " " << val;
+        //         }
+        //         std::cout << "\n";
+        //     }
 
         if (print_std){
             for (auto key: adj_list){

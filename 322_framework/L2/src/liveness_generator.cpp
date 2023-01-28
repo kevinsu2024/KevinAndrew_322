@@ -313,7 +313,8 @@ namespace L2{
         }
         
     }
-    bool in_out(std::vector<Node*>* nodes){
+    bool 
+    in_out(std::vector<Node*>* nodes){
         bool change = false;
         
         for (int i = nodes->size()-1; i > -1; i--){
@@ -353,7 +354,8 @@ namespace L2{
     }
     
 
-    std::vector<Node*> generate_liveness(Program p, bool print_std){
+    std::vector<Node*> 
+    generate_liveness(Program p, bool print_std){
         Function* func = p.functions.back();
         //CHANGE ME: GET INSTRUCTIONS FROM ALL FUNCTIONS
         // std::cerr << p.functions.size() << "\n";
