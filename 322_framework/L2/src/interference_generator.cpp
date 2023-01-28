@@ -21,13 +21,8 @@ namespace L2{
         //for each line of code
         for (Node* node: nodes){
             //current register string to connect to
-            std::string cur_register = "";
-            if (register_index < gp_registers.size()){
-                cur_register = gp_registers[register_index];
-            }
             
             //loop in set and connect each node with one another
-            Instruction* instruction = instructs[instruction_index];
             for (auto in_key: node->in){
                 for (auto in_val: node->in){
                     if (in_key == in_val){
@@ -76,31 +71,36 @@ namespace L2{
                     } 
                 }
             }
+        }
             //loop registers and connect cur_register to all other registers
-            if (register_index < gp_registers.size()){
-                for (auto reg: gp_registers){
-                    if (reg == cur_register){
-                        continue;
-                    }
-                    adj_list[reg].insert(cur_register);
-                    adj_list[cur_register].insert(reg);
-                    for (auto c: adj_list[reg]){
-                        if (c == cur_register){
-                            continue;
-                        }
-                        adj_list[cur_register].insert(c);
-                        adj_list[c].insert(cur_register);
-                    } 
-                    for (auto c: adj_list[cur_register]){
-                        if (c == reg){
-                            continue;
-                        }
-                        adj_list[reg].insert(c);
-                        adj_list[c].insert(reg);
-                    } 
-                }
+        std::string cur_register = "rdi";
+        for (auto r: gp_registers){
+            if (adj_list.find(r) == adj_list.end()){
+                cur_register = r;
             }
-            
+        }
+        for (auto reg: gp_registers){
+            if (reg == cur_register){
+                continue;
+            }
+            adj_list[reg].insert(cur_register);
+            adj_list[cur_register].insert(reg);
+            for (auto c: adj_list[reg]){
+                if (c == cur_register){
+                    continue;
+                }
+                adj_list[cur_register].insert(c);
+                adj_list[c].insert(cur_register);
+            } 
+            for (auto c: adj_list[cur_register]){
+                if (c == reg){
+                    continue;
+                }
+                adj_list[reg].insert(c);
+                adj_list[c].insert(reg);
+            } 
+        }
+        for (Node* node: nodes){
             //connect variables in kill with those in out
             for (auto kill_var: node->kill){
                 for (auto out_var: node->out){
@@ -125,6 +125,9 @@ namespace L2{
                     } 
                 }
             }
+        }
+        for (Node* node: nodes){
+            Instruction* instruction = instructs[instruction_index];
             //handle shift instruction case
             if (instruction->get_name() == "Instruction_sop"){
                 //cast to shift op
@@ -187,8 +190,9 @@ namespace L2{
 
             }
             //add to our indices
-            register_index++;
+            // register_index++;
             instruction_index++;
+            
         }
 
         if (print_std){
