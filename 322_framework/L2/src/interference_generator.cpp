@@ -3,11 +3,11 @@
 using namespace std;
 
 namespace L2{
-    std::unordered_map<std::string, std::set<std::string>> generate_interference(Program p, bool print_std){
+    std::unordered_map<std::string, std::set<std::string>> generate_interference(Function* func, bool print_std){
         //Initialize nodes with liveness analysis generated
-        std::vector<Node*> nodes = L2::generate_liveness(p, false); //don't want to print here
+        std::vector<Node*> nodes = L2::generate_liveness(func, false); //don't want to print here
         //get list of instructions(will use for the shift op case)
-        Function* func = p.functions.back();
+        // Function* func = p.functions.back();
         std::vector<Instruction*> instructs = func->instructions;
         //initialize interference graph
         std::unordered_map<std::string, std::set<std::string>> adj_list;

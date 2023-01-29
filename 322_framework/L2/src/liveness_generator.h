@@ -22,6 +22,6 @@ namespace L2{
             std::set<std::string> out;
     };
 
-    std::vector<Node*> generate_liveness(Program p, bool print_std);
+    std::vector<Node*> generate_liveness(Function* func, bool print_std);
 
 }

@@ -355,10 +355,10 @@ namespace L2{
     
 
     std::vector<Node*> 
-    generate_liveness(Program p, bool print_std){
-        Function* func = p.functions.back();
-        //CHANGE ME: GET INSTRUCTIONS FROM ALL FUNCTIONS
-        // std::cerr << p.functions.size() << "\n";
+    generate_liveness(Function* func, bool print_std){
+        // Function* func = p.functions.back();
+        // //CHANGE ME: GET INSTRUCTIONS FROM ALL FUNCTIONS
+        // // std::cerr << p.functions.size() << "\n";
         std::vector<Instruction*> instructs = func->instructions;
 
         std::vector<Node*> nodes (instructs.size());

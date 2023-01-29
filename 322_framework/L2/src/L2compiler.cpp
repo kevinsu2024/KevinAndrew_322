@@ -131,7 +131,10 @@ int main(
    */
   if (liveness_only){
     // std::cerr << "generating\n";
-    auto _ = L2::generate_liveness(p, true);
+    L2::Function* func = p.functions.back();
+        //CHANGE ME: GET INSTRUCTIONS FROM ALL FUNCTIONS
+        // std::cerr << p.functions.size() << "\n";
+    auto _ = L2::generate_liveness(func, true);
     return 0;
   }
 
@@ -139,7 +142,8 @@ int main(
    * Interference graph test.
    */
   if (interference_only){
-    auto _ = L2::generate_interference(p, true);
+    L2::Function* func = p.functions.back();
+    auto _ = L2::generate_interference(func, true);
     return 0;
   }
 
