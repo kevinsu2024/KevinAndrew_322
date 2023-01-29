@@ -621,6 +621,17 @@ namespace L2 {
       Functions_rule
     > {};
 
+  struct spill_grammar:
+    pegtl::must<
+      pegtl::seq<
+        Functions_rule,
+        seps,
+        variable_rule,
+        seps,
+        variable_rule //Not sure how to handle %S
+      >
+    > {};
+
   /* 
    * Actions attached to grammar rules.
    */
@@ -1549,13 +1560,12 @@ namespace L2 {
 
   Program parse_spill_file (char *fileName){
     // std::cerr << "\n\n hererer xd 2\n\n";
-    pegtl::analyze< grammar >();
-    
-
+    pegtl::analyze< spill_grammar >();
     
     file_input< > fileInput(fileName);
     Program p;
-    parse< grammar, action >(fileInput, p);
+    p.entryPointLabel = "Spill_parse";
+    parse< spill_grammar, action >(fileInput, p);
     return p;
   }
 

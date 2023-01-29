@@ -16,6 +16,7 @@
 #include <parser.h>
 #include <liveness_generator.h>
 #include <interference_generator.h>
+#include <spill_generator.h>
 
 void print_help (char *progName){
   std::cerr << "Usage: " << progName << " [-v] [-g 0|1] [-O 0|1|2] [-s] [-l] [-i] SOURCE" << std::endl;
@@ -113,16 +114,8 @@ int main(
    */
   if (spill_only){
 
-    /*
-     * Spill.
-     */
-    //TODO
-
-    /*
-     * Dump the L2 code.
-     */
-    //TODO
-
+    L2::Function* func = p.functions.back();
+    L2::dump_spill(func);
     return 0;
   }
 
