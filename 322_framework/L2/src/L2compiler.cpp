@@ -115,7 +115,6 @@ int main(
   if (spill_only){
 
     L2::Function* func = p.functions.back();
-    L2::dump_spill(func);
     return 0;
   }
 
@@ -127,7 +126,7 @@ int main(
     L2::Function* func = p.functions.back();
         //CHANGE ME: GET INSTRUCTIONS FROM ALL FUNCTIONS
         // std::cerr << p.functions.size() << "\n";
-    auto _ = L2::generate_liveness(func, true);
+    //auto _ = L2::generate_liveness(func, true);
     return 0;
   }
 

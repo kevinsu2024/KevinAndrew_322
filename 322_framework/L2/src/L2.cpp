@@ -132,6 +132,16 @@ Instruction::set_name (std::string instruction_name) {
   name = instruction_name;
 }
 
+void
+Instruction::set_string(std::string s){
+  this->input_string = s;
+}
+
+std::string
+Instruction::to_string(){
+  return this->input_string;
+}
+
 Instruction_ret::Instruction_ret () {
   return;
 }
@@ -503,6 +513,16 @@ Instruction_call_tensor_error::Instruction_call_tensor_error (Item *n)
 Item*
 Instruction_call_tensor_error::get_val(){
   return num;
+}
+
+std::string
+Function::to_string(){
+  auto instructions = this->instructions;
+  std::string ans = "";
+  for(Instruction* instr : instructions){
+    ans += instr->to_string() + "\n";
+  }
+  return ans;
 }
 
 }
