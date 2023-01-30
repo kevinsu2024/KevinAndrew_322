@@ -913,6 +913,7 @@ namespace L2 {
 
       auto i = new Instruction_function_assignment(dst, f_name); 
       i->set_name("Instruction_function_assignment");
+      i->set_string(in.string());
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -937,6 +938,7 @@ namespace L2 {
 
       auto i = new Instruction_cmp_assignment(dst, first, second, op); 
       i->set_name("Instruction_cmp_assignment");
+      i->set_string(in.string());
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -966,6 +968,7 @@ namespace L2 {
        */ 
       auto i = new Instruction_assignment(dst, src); 
       i->set_name("Instruction_assignment");
+      i->set_string(in.string());
       // i->instruction_name = ;
 
       /* 
@@ -998,6 +1001,7 @@ namespace L2 {
        */ 
       auto i = new Instruction_stackarg_assignment(dst, num); 
       i->set_name("Instruction_stackarg_assignment");
+      i->set_string(in.string());
       // i->instruction_name = ;
 
       /* 
@@ -1033,6 +1037,7 @@ namespace L2 {
        */ 
       auto i = new Instruction_mem_op_load(dst, src, num, op); 
       i->set_name("Instruction_mem_op_load");
+      i->set_string(in.string());
 
       /* 
        * Add the just-created instruction to the current function.
@@ -1064,6 +1069,7 @@ namespace L2 {
        */ 
       auto i = new Instruction_mem_load(dst, src, num); 
       i->set_name("Instruction_mem_load");
+      i->set_string(in.string());
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1096,6 +1102,7 @@ namespace L2 {
        */ 
       auto i = new Instruction_mem_store(s, num, x_register); 
       i->set_name("Instruction_mem_store");
+      i->set_string(in.string());
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1128,6 +1135,7 @@ namespace L2 {
        */ 
       auto i = new Instruction_mem_op_store(t_rule, num, x_register, op); 
       i->set_name("Instruction_mem_op_store");
+      i->set_string(in.string());
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1158,6 +1166,7 @@ namespace L2 {
        */ 
       auto i = new Instruction_aop(t, op, r); 
       i->set_name("Instruction_aop");
+      i->set_string(in.string());
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1189,6 +1198,7 @@ namespace L2 {
        */ 
       auto i = new Instruction_sop(shift, op, r); 
       i->set_name("Instruction_sop");
+      i->set_string(in.string());
 
       /* 
        * Add the just-created instruction to the current function.
@@ -1222,6 +1232,7 @@ namespace L2 {
        */ 
       auto i = new Instruction_cjump(t1, op, t2, label); 
       i->set_name("Instruction_cjump");
+      i->set_string(in.string());
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1249,6 +1260,7 @@ namespace L2 {
        */ 
       auto i = new Instruction_label(label);     
       i->set_name("Instruction_label");
+      i->set_string(in.string());
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1276,6 +1288,7 @@ namespace L2 {
        */ 
       auto i = new Instruction_goto(label); 
       i->set_name("Instruction_goto");
+      i->set_string(in.string());
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1304,6 +1317,7 @@ namespace L2 {
        */ 
       auto i = new Instruction_pp(reg); 
       i->set_name("Instruction_pp");
+      i->set_string(in.string());
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1331,6 +1345,7 @@ namespace L2 {
        */ 
       auto i = new Instruction_mm(reg); 
       i->set_name("Instruction_mm");
+      i->set_string(in.string());
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1359,11 +1374,13 @@ namespace L2 {
       auto reg1 = parsed_items.back();
       parsed_items.pop_back();
       
+      
       /* 
        * Create the instruction.
        */ 
       auto i = new Instruction_at(reg1,reg2,reg3,num); 
       i->set_name("Instruction_at");
+      i->set_string(in.string());
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1392,6 +1409,7 @@ namespace L2 {
 
       auto i = new Instruction_call_function(cut,num);
       i->set_name("Instruction_call_function");
+      i->set_string(in.string());
       currentF->instructions.push_back(i);
     }
   };
@@ -1419,6 +1437,7 @@ namespace L2 {
        */ 
       auto i = new Instruction_call_u(u, num); 
       i->set_name("Instruction_call_u");
+      i->set_string(in.string());
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1441,6 +1460,7 @@ namespace L2 {
        */ 
       auto i = new Instruction_call_print(); 
       i->set_name("Instruction_call_print");
+      i->set_string(in.string());
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1465,6 +1485,7 @@ namespace L2 {
        */ 
       auto i = new Instruction_call_input(); 
       i->set_name("Instruction_call_input");
+      i->set_string(in.string());
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1489,6 +1510,7 @@ namespace L2 {
        */ 
       auto i = new Instruction_call_allocate(); 
       i->set_name("Instruction_call_allocate");
+      i->set_string(in.string());
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1518,6 +1540,7 @@ namespace L2 {
        */ 
       auto i = new Instruction_call_tensor_error(num); 
       i->set_name("Instruction_call_tensor_error");
+      i->set_string(in.string());
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1554,6 +1577,8 @@ namespace L2 {
     Program p;
     p.entryPointLabel = "Function_parse";
     parse< function_grammar, action >(fileInput, p);
+    Function* f = p.functions.back();
+    std::cout << f->to_string();
     // std::cerr << "\n\n passed \n\n";
     return p;
   }

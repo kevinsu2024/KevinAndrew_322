@@ -103,8 +103,11 @@ namespace L2 {
     public:
       std::string get_name();
       void set_name(std::string instruction_name);
+      std::string to_string();
+      void set_string(std::string s);
     private:
       std::string name;
+      std::string input_string;
   };
 
   /*
@@ -383,6 +386,7 @@ namespace L2 {
       std::string name;
       int64_t arguments;
       std::vector<Instruction *> instructions;
+      std::string to_string();
   };
 
   class Program{
