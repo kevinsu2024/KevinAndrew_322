@@ -115,6 +115,10 @@ int main(
   if (spill_only){
 
     L2::Function* func = p.functions.back();
+    std::string spill_var = p.spill_variable_name;
+    std::string new_var = p.spill_string;
+    L2::Function* new_func = L2::generate_spill_code(func,spill_var, new_var);
+    std::cout << new_func->to_string();
     return 0;
   }
 
