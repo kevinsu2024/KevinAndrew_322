@@ -567,14 +567,7 @@ namespace L2{
                     }
                 }
                 ctr++;
-            }
-            
-
-
-
-
-            
-            
+            }   
         }
         return &new_func;
     }
