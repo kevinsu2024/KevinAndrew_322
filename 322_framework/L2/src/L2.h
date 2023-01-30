@@ -389,6 +389,8 @@ namespace L2 {
     public:
       std::string entryPointLabel;
       std::vector<Function *> functions;
+      std::string spill_variable_name;
+      std::string spill_string;
   };
 
 }

@@ -23,6 +23,7 @@
 #include <cstdlib>
 #include <stdint.h>
 #include <assert.h>
+#include <variant>
 
 #include <tao/pegtl.hpp>
 #include <tao/pegtl/analyze.hpp>
@@ -616,21 +617,25 @@ namespace L2 {
       entry_point_rule
     > {};
   
-  struct function_grammar:
-    pegtl::must<
-      Functions_rule
+  struct spill_function_rule:
+    pegtl::seq<
+      Functions_rule,
+      seps,
+      variable_rule,
+      seps,
+      variable_rule //Not sure how to handle %S
+      
     > {};
 
-  struct spill_grammar:
+  struct function_grammar:
     pegtl::must<
-      pegtl::seq<
-        Functions_rule,
-        seps,
-        variable_rule,
-        seps,
-        variable_rule //Not sure how to handle %S
+      pegtl::sor<
+        pegtl::seq< pegtl::at<spill_function_rule>, spill_function_rule>,
+        pegtl::seq< pegtl::at<Functions_rule>, Functions_rule>
       >
     > {};
+
+  
 
   /* 
    * Actions attached to grammar rules.
@@ -1560,12 +1565,24 @@ namespace L2 {
 
   Program parse_spill_file (char *fileName){
     // std::cerr << "\n\n hererer xd 2\n\n";
-    pegtl::analyze< spill_grammar >();
-    
+    pegtl::analyze< function_grammar >();
     file_input< > fileInput(fileName);
     Program p;
     p.entryPointLabel = "Spill_parse";
-    parse< spill_grammar, action >(fileInput, p);
+    parse< function_grammar, action >(fileInput, p);
+    Item* str_item = parsed_items.back();
+    parsed_items.pop_back();
+    Item* var_item = parsed_items.back();
+    parsed_items.pop_back();
+    Variable* var_ptr = (Variable*) var_item;
+    std::string var_name = var_ptr->get_variable_name();
+    Variable* str_ptr = (Variable*) str_item;
+    std::string str_name = str_ptr->get_variable_name();
+    std::cout << var_name << "\n";
+    p.spill_variable_name = var_name;
+    std::cout << "yee\n";
+    p.spill_string = str_name;
+    
     return p;
   }
 
