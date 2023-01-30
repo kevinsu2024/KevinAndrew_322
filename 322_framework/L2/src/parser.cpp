@@ -1603,9 +1603,7 @@ namespace L2 {
     std::string var_name = var_ptr->get_variable_name();
     Variable* str_ptr = (Variable*) str_item;
     std::string str_name = str_ptr->get_variable_name();
-    std::cout << var_name << "\n";
     p.spill_variable_name = var_name;
-    std::cout << "yee\n";
     p.spill_string = str_name;
     
     return p;
