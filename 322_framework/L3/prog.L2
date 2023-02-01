@@ -1,0 +1,146 @@
+(@main
+  (@numsprint
+    0
+    call input 0
+    %r11 <- rax
+    rdi <- %r11
+    rsi <- 1
+    call allocate 2
+    %r8 <- rax
+    %r10 <- %r8
+    %r9 <- 1
+    :call_label0
+    %r8 <- %r8
+    %r8 += 8
+    call input 0
+    %inp <- rax
+    mem %r8 0  <- %inp
+    %r9 <- %r9
+    %r9 += 2
+    %cont_start_loop <- %r11 <= %r9
+    
+    cjump %cont_start_loop = 1 :call_label0
+    rdi <- %r10
+    mem rsp -8 <- 
+:call_label2
+    call @orderprinter 1
+    
+:call_label2
+    :call_label1
+    return
+  )
+  (@orderprinter
+    1
+    %arr_addr <- rdi
+    %r8 <- %arr_addr
+    %r9 <- mem %arr_addr 0 
+    %r9 <- %r9
+    %r9 <<= 1
+    %r9 <- %r9
+    %r9 += 1
+    %r10 <- 3
+    :call_label_ciao_3
+    rdi <- %r8
+    rsi <- %r10
+    mem rsp -8 <- 
+:call_label_ciao_6
+    call @find_smallest 2
+    
+:call_label_ciao_6
+    %smallest_num <- rax
+    :call_label_ciao_4
+    rdi <- %r8
+    rsi <- %r10
+    rdx <- %smallest_num
+    mem rsp -8 <- 
+:call_label_ciao_7
+    call @swap 3
+    
+:call_label_ciao_7
+    :call_label_ciao_5
+    %r10 <- %r10
+    %r10 += 2
+    %cjump_val <- %r10 <= %r9
+    
+    cjump %cjump_val = 1 :call_label_ciao_3
+    return
+  )
+  (@find_smallest
+    2
+    %one <- rdi
+    %two <- rsi
+    %r8 <- mem %one 0 
+    %r8 <- %r8
+    %r8 <<= 1
+    %r8 <- %r8
+    %r8 += 1
+    %r9 <- %one
+    %r10 <- %two
+    %r12 <- %two
+    %r11 <- %one
+    %two <- %two
+    %two >>= 1
+    %two <- %two
+    %two <<= 3
+    %two <- %two
+    %two += 1
+    %r11 <- %r11
+    %r11 += %two
+    %r11 <- %r11
+    %r11 -= 1
+    %r11 <- mem %r11 0 
+    :call_label_ciao__ciao_8
+    %two <- %r12
+    %two <- %two
+    %two >>= 1
+    %two <- %two
+    %two <<= 3
+    %two <- %two
+    %two += 1
+    %two <- %two
+    %two += %one
+    %two <- %two
+    %two -= 1
+    %two <- mem %two 0 
+    %replace_val <- %two < %r11
+    
+    cjump %replace_val = 1 :call_label_ciao__ciao_9
+    goto :call_label_ciao__ciao_10
+    :call_label_ciao__ciao_9
+    %r10 <- %r12
+    %r11 <- %two
+    :call_label_ciao__ciao_10
+    %r12 <- %r12
+    %r12 += 2
+    %check_next_val <- %r12 <= %r8
+    
+    cjump %check_next_val = 1 :call_label_ciao__ciao_8
+    rax <- %r10
+    return
+  )
+  (@swap
+    3
+    %arr <- rdi
+    %first <- rsi
+    %second <- rdx
+    %first <- %first
+    %first >>= 1
+    %first <- %first
+    %first <<= 3
+    %first <- %first
+    %first += %arr
+    %r9 <- mem %first 0 
+    %second <- %second
+    %second >>= 1
+    %second <- %second
+    %second <<= 3
+    %second <- %second
+    %second += %arr
+    %r11 <- mem %second 0 
+    mem %first 0  <- %r11
+    mem %second 0  <- %r9
+    rdi <- %r9
+    call print 1
+    return
+  )
+)

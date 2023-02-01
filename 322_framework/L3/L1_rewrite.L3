@@ -1,0 +1,86 @@
+define @numsprint (){
+    %r11 <- call input()
+    %r8 <- call allocate(%r11, 1)
+    %r10 <- %r8
+    %r9 <- 1
+    :start_loop
+    %r8 <- %r8 + 8
+    %inp <- call input()
+    store %r8 <- %inp
+    %r9 <- %r9 + 2
+    %cont_start_loop <- %r9 >= %r11
+    br %cont_start_loop :start_loop
+    call @orderprinter(%r10)
+    :finished
+    return
+}
+
+define @orderprinter (%arr_addr){
+    %r8 <- %arr_addr
+    %r9 <- load %arr_addr
+    %r9 <- %r9 << 1
+    %r9 <- %r9 + 1
+    %r10 <- 3
+    :start_of_iteration
+    %smallest_num <- call @find_smallest(%r8, %r10)
+    :got_smallest
+    call @swap(%r8,%r10,%smallest_num)
+    :swapped_ele
+    %r10 <- %r10 + 2
+    %cjump_val <- %r10 <= %r9
+    br %cjump_val :start_of_iteration
+    return
+}
+
+define @find_smallest(%one, %two){
+    %r8 <- load %one
+    %r8 <- %r8 << 1
+    %r8 <- %r8 + 1
+    %r9 <- %one
+    %r10 <- %two
+    %r12 <- %two
+    %r11 <- %one
+    %two <- %two >> 1
+    %two <- %two << 3
+    %two <- %two + 1
+    %r11 <- %r11 + %two
+    %r11 <- %r11 - 1
+    %r11 <- load %r11
+    :check_next
+    %two <- %r12
+    %two <- %two >> 1
+    %two <- %two << 3
+    %two <- %two + 1
+    %two <- %two + %one
+    %two <- %two - 1
+    %two <- load %two
+    %replace_val <- %two < %r11
+    br %replace_val :replace
+    br :next_iter
+    :replace
+    %r10 <- %r12
+    %r11 <- %two
+
+    :next_iter
+    %r12 <- %r12 + 2
+    %check_next_val <- %r12 <= %r8 
+    br %check_next_val :check_next
+    return %r10
+}
+
+define @swap (%arr, %first, %second){
+    %first <- %first >> 1
+    %first <- %first << 3
+    %first <- %first + %arr
+    %r9 <- load %first
+    %second <- %second >> 1
+    %second <- %second << 3
+    %second <- %second + %arr
+    %r11 <- load %second
+    store %first <- %r11
+    store %second <- %r9
+    call print(%r9)
+    return
+}
+
+    
