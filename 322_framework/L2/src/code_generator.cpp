@@ -19,20 +19,20 @@ namespace L2{
   std::string convert_item_to_str(Item* i){
     if (i->get_name() == "Register"){
       Register* it = (Register*) i;
-      return "%" + it->get_register_ID();
+      return "%" + i->to_string();
     } else if (i->get_name() == "InstructionLabel"){
       InstructionLabel* it = (InstructionLabel*) i;
-      return "$" + convert_label_name(it->get_label_name());
+      return "$" + convert_label_name(it->to_string());
     } else if (i->get_name() == "InstructionNumber"){
       auto it = (InstructionNumber*) i;
-      return "$" + it->get_val();
+      return "$" + it->to_string();
     } else if (i->get_name() == "ArithmeticOp"){
       auto it = (ArithmeticOp*) i;
-      std::string op_char = it->get_op_char();
+      std::string op_char = it->to_string();
       return op_char;
     } else if (i->get_name() == "ShiftOp"){
       auto it = (ShiftOp*) i;
-      std::string op_char = it->get_op_char();
+      std::string op_char = it->to_string();
       return op_char;
     }
     return "";
@@ -140,7 +140,7 @@ namespace L2{
           std::string f_val = convert_item_to_str(first);
           std::string s_val = convert_item_to_str(second);
           auto op = (CompareOp* ) in->get_op();
-          std::string cop = op->get_op_char();
+          std::string cop = op->to_string();
 
           if ((!first_reg) && (!second_reg)){
             if (cop == "<"){
@@ -207,7 +207,7 @@ namespace L2{
           std::string num = convert_item_to_str(in->get_num());
           num = num.substr(1,num.size()-1);
           auto op = (ArithmeticOp* ) in->get_op();
-          std::string aop = op->get_op_char();
+          std::string aop = op->to_string();
           if (aop == "+="){
             outputFile << "\taddq " << num << "(" << src << "), " << dst << "\n";
           } else{
@@ -230,7 +230,7 @@ namespace L2{
           std::string num = convert_item_to_str(in->get_num());
           num = num.substr(1,num.size()-1);
           auto op = (ArithmeticOp* ) in->get_op();
-          std::string aop = op->get_op_char();
+          std::string aop = op->to_string();
           if (aop == "+="){
             outputFile << "\taddq " << src << ", " << num << "(" << x_reg << ")\n";
           } else{
@@ -278,7 +278,7 @@ namespace L2{
           std::string f_val = convert_item_to_str(first);
           std::string s_val = convert_item_to_str(second);
           auto op = (CompareOp* ) in->get_op();
-          std::string cop = op->get_op_char();
+          std::string cop = op->to_string();
 
           if ((!first_reg) && (!second_reg)){
             if (cop == "<"){

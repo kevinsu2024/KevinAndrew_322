@@ -292,13 +292,16 @@ namespace L2 {
     pegtl::sor<
       register_rule,
       label_rule,
-      function_name_rule
+      function_name
   > {};
 
 
   
 
   struct argument_number:
+    number {};
+
+  struct local_number:
     number {};
 
 
@@ -587,6 +590,8 @@ namespace L2 {
       seps,
       argument_number,
       seps,
+      pegtl::star< local_number>,
+      seps,
       Instructions_rule,
       seps,
       pegtl::one< ')' >
@@ -643,6 +648,8 @@ namespace L2 {
   template< typename Rule >
   struct action : pegtl::nothing< Rule > {};
 
+  
+
   template<> struct action < function_name_rule > {
     template< typename Input >
 	  static void apply( const Input & in, Program & p){
@@ -668,11 +675,18 @@ namespace L2 {
     }
   };
 
+  template<> struct action < local_number > {
+    template< typename Input >
+	  static void apply( const Input & in, Program & p){
+      auto currentF = p.functions.back();
+      currentF->locals = std::stoll(in.string());
+    }
+  };
+
   template<> struct action < instruction_number > {
     template< typename Input >
     static void apply( const Input & in, Program & p){
       auto n = new InstructionNumber(in.string());
-      n->set_name("InstructionNumber");
       parsed_items.push_back(n);
     }
   };
@@ -683,6 +697,7 @@ namespace L2 {
       auto currentF = p.functions.back();
       auto i = new Instruction_ret();
       i->set_name("Instruction_ret");
+      i->set_string(in.string());
       currentF->instructions.push_back(i);
     }
   };
@@ -972,8 +987,6 @@ namespace L2 {
        * Create the instruction.
        */ 
       auto i = new Instruction_assignment(dst, src); 
-      i->set_name("Instruction_assignment");
-      i->set_string(in.string());
       // i->instruction_name = ;
 
       /* 
@@ -1073,8 +1086,6 @@ namespace L2 {
        * Create the instruction.
        */ 
       auto i = new Instruction_mem_load(dst, src, num); 
-      i->set_name("Instruction_mem_load");
-      i->set_string(in.string());
       /* 
        * Add the just-created instruction to the current function.
        */ 
@@ -1573,7 +1584,6 @@ namespace L2 {
     return p;
   }
   Program parse_function_file (char *fileName){
-    // std::cerr << "\n\n hererer xd 1\n\n";
     pegtl::analyze< function_grammar >();
 
     
@@ -1583,8 +1593,6 @@ namespace L2 {
     p.entryPointLabel = "Function_parse";
     parse< function_grammar, action >(fileInput, p);
     Function* f = p.functions.back();
-    std::cout << f->to_string();
-    // std::cerr << "\n\n passed \n\n";
     return p;
   }
 
@@ -1600,9 +1608,9 @@ namespace L2 {
     Item* var_item = parsed_items.back();
     parsed_items.pop_back();
     Variable* var_ptr = (Variable*) var_item;
-    std::string var_name = var_ptr->get_variable_name();
+    std::string var_name = var_ptr->Item::to_string();
     Variable* str_ptr = (Variable*) str_item;
-    std::string str_name = str_ptr->get_variable_name();
+    std::string str_name = str_ptr->Item::to_string();
     p.spill_variable_name = var_name;
     p.spill_string = str_name;
     

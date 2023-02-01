@@ -18,11 +18,9 @@ namespace L2{
     std::vector<std::string> argument_registers{"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
     std::string check_item(Item* it){
         if(it->get_name() == "Register"){
-                Register* f = (Register*) it;
-                return f->get_register_ID();
+                return it->to_string();
             } else if (it->get_name() == "Variable"){
-                Variable* f = (Variable*) it;
-                return f->get_variable_name();
+                return it->to_string();
             } 
             return "";
     }
@@ -31,7 +29,7 @@ namespace L2{
             if ((*instructions)[i]->get_name() == "Instruction_label"){
                 Instruction_label* label_instr = (Instruction_label*) (*instructions)[i];
                 InstructionLabel* label_item = (InstructionLabel*) label_instr->get_label();
-                if (label_item->get_label_name() == target_label){
+                if (label_item->to_string() == target_label){
                     return i;
                 }
             }
@@ -65,7 +63,7 @@ namespace L2{
             Instruction_call_u* i = (Instruction_call_u*) in;
             Item* item = i->get_u();
             InstructionNumber* num = (InstructionNumber*) i->get_num();
-            int num_val = stoi(num->get_val());
+            int num_val = stoi(num->to_string());
             if (check_item(item) != ""){
                 n->gen.insert(check_item(item));
             }
@@ -223,7 +221,7 @@ namespace L2{
             // std::cerr << "big func\n";
             Instruction_call_function* i = (Instruction_call_function*) in;
             InstructionNumber* num = (InstructionNumber*)i->get_number();
-            int num_val = stoi(num->get_val());
+            int num_val = stoi(num->to_string());
             
             for (int i = 0; i < std::min(num_val, (int)argument_registers.size()); i++){
                 n->gen.insert(argument_registers[i]);
@@ -295,7 +293,7 @@ namespace L2{
         } else if (in->get_name() == "Instruction_call_tensor_error"){
             Instruction_call_tensor_error* i = (Instruction_call_tensor_error*) in;
             InstructionNumber* num = (InstructionNumber*)i->get_val();
-            int num_val = stoi(num->get_val());
+            int num_val = stoi(num->to_string());
             for (int i = 0; i < std::min(num_val, (int)argument_registers.size()); i++){
                 n->gen.insert(argument_registers[i]);
             }
@@ -356,44 +354,29 @@ namespace L2{
 
     std::vector<Node*> 
     generate_liveness(Function* func, bool print_std){
-        // Function* func = p.functions.back();
-        // //CHANGE ME: GET INSTRUCTIONS FROM ALL FUNCTIONS
-        // // std::cerr << p.functions.size() << "\n";
         std::vector<Instruction*> instructs = func->instructions;
 
         std::vector<Node*> nodes (instructs.size());
-        // std::cerr << instructs.size() << "\n";
         
         for(int64_t i = 0; i < instructs.size(); ++i){
             nodes[i] = new Node(instructs[i]);
         }
-        // std::cout << "loaded nodes\n";
         for(int64_t i = 0; i < instructs.size(); ++i){
             Instruction* in = instructs[i];
-
-            // std::cerr << "\n\nin type is " << in->get_name() << "\n";
-            // if (in->get_name() == "Instruction_mem_store"){
-            //     Instruction_mem_store* myin = (Instruction_mem_store*) in;
-            //     FunctionName* src = (FunctionName*) myin->get_src();
-            //     std::cerr << "\n\noggabooga " << src->get_function_name() << "\n";
-            // }
-
 
             if(in->get_name() == "Instruction_goto"){
                 Instruction_goto* goto_label = (Instruction_goto*) in;
                 InstructionLabel* label = (InstructionLabel*) goto_label->get_label();
-                std::string label_name = label->get_label_name();
+                std::string label_name = label->to_string();
                 int64_t succ_position = find_label(label_name, &instructs);
                 nodes[i]->succs.insert(succ_position);
                 nodes[succ_position]->preds.insert(i);
-                // std::cout << "succ position: " << succ_position << "\n";
-                // std::cout << "pred position: " << i << "\n";
             } else if (in->get_name() == "Instruction_ret" || in->get_name() == "Instruction_call_tensor_error"){
 
             } else if (in->get_name() == "Instruction_cjump"){
                 Instruction_cjump* cjump_instr = (Instruction_cjump*) in;
                 InstructionLabel* label = (InstructionLabel*) cjump_instr->get_label();
-                std::string label_name = label->get_label_name();
+                std::string label_name = label->to_string();
                 int64_t succ_position = find_label(label_name, &instructs);
                 nodes[i]->succs.insert(succ_position);
                 nodes[i]->succs.insert(i+1);

@@ -3,6 +3,7 @@
 #include <utility>
 #include <algorithm>
 #include <set>
+#include<tuple>
 #include <iterator>
 #include <iostream>
 #include <cstring>
@@ -17,6 +18,7 @@
 #include <liveness_generator.h>
 #include <interference_generator.h>
 #include <spill_generator.h>
+#include <color_graph.h>
 
 void print_help (char *progName){
   std::cerr << "Usage: " << progName << " [-v] [-g 0|1] [-O 0|1|2] [-s] [-l] [-i] SOURCE" << std::endl;
@@ -115,6 +117,7 @@ int main(
   if (spill_only){
 
     L2::Function* func = p.functions.back();
+
     std::string spill_var = p.spill_variable_name;
     std::string new_var = p.spill_string;
     L2::Function* new_func = L2::generate_spill_code(func,spill_var, new_var);
@@ -139,9 +142,58 @@ int main(
    */
   if (interference_only){
     L2::Function* func = p.functions.back();
-    auto _ = L2::generate_interference(func, true);
+    auto _ = L2::generate_interference(func,true);
     return 0;
   }
+
+
+  //general full case
+  auto functions = p.functions;
+  std::ofstream outputFile;
+  outputFile.open("prog.L1");
+
+  outputFile << "(" + p.entryPointLabel + "\n";
+  for(int64_t i = 0; i < functions.size(); i++){
+    L2::Function* f = functions.at(i);
+    auto map = L2::generate_interference(f,false);
+    std::set<std::string> spilled;
+    std::cout<< "oring func is\n" << f->to_string();
+    
+    bool done = false;
+    while(!done){
+      auto res = L2::assign_colors(map,f);
+      
+      if(std::get<0>(res) == 0){
+        outputFile << "\t" << L2::translate_to_code(std::get<1>(res), f);
+        done = true;
+      } else{
+        auto uncolored = std::get<2>(res);
+        std::cout << "uncovers has :\n";
+        for(auto e : uncolored){
+          std::cout << e << "\n";
+        }
+
+        for(auto ele : uncolored){
+          std::cout << "\ngonna spill " << ele << "\n";
+          if(spilled.size() == 0 || spilled.find(ele) == spilled.end()){
+            spilled.insert(ele);
+            std::cout << "\nfunc b4 was\n" << f->to_string();
+            f = L2::generate_spill_code(f, ele, "%s");
+            std::cout << "\nfunc after was\n" << f->to_string();
+          }
+          
+        }
+
+        
+        done = true;
+      }
+    }
+  }
+  
+  
+
+  outputFile << ")\n";
+
 
   /*
    * Generate the target code.
@@ -149,6 +201,6 @@ int main(
   if (enable_code_generator){
     //TODO
   }
-
+  outputFile.close();
   return 0;
 }

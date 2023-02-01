@@ -7,20 +7,24 @@
 namespace L2 {
 
   enum RegisterID {rdi, rax, rsi, rdx, rcx, r8, r9, rbx, rbp, r10, r11, r12, r13, r14, r15, rsp};
-
+  
+  std::string print_reg_id(RegisterID r);
 
   class Item {
     public:
       std::string get_name();
+      std::string to_string();
       void set_name(std::string item_name);
+      void set_string(std::string in);
     private:
       std::string name;
+      std::string in;
   };
 
   class Register : public Item {
     public:
       Register (RegisterID r);
-      std::string get_register_ID();
+      std::string to_string();
     private:
       RegisterID ID;
   };
@@ -28,63 +32,31 @@ namespace L2 {
   class Variable : public Item {
     public:
       Variable (std::string v);
-      std::string get_variable_name();
-    private:
-      std::string name;
   };
 
   class InstructionLabel : public Item{
     public:
       InstructionLabel (std::string l);
-      std::string get_label_name();
-    private:
-      std::string label;
   };
 
   class InstructionNumber : public Item {
     public:
       InstructionNumber (std::string n);
-      std::string get_val();
-      
-    private:
-      std::string val;
   };
 
   class CompareOp : public Item {
     public:
       CompareOp (std::string s);
-      std::string get_op_char();
-      
-    private:
-      std::string op;
   };
 
   class ArithmeticOp : public Item {
     public:
       ArithmeticOp (std::string s);
-      std::string get_op_char();
-      
-    private:
-      std::string op;
   };
 
   class ShiftOp : public Item {
     public:
       ShiftOp (std::string s);
-      std::string get_op_char();
-      
-    private:
-      std::string op;
-  };
-
-  class CompareExpression : public Item {
-    public:
-      CompareExpression (Item *first, Item *second, Item *Op);
-      
-    private:
-      Item *f;
-      Item *s;
-      Item *o;
   };
 
   class FunctionName : public Item {
@@ -107,7 +79,7 @@ namespace L2 {
       void set_string(std::string s);
     private:
       std::string name;
-      std::string input_string;
+      std::string s;
   };
 
   /*
@@ -385,6 +357,7 @@ namespace L2 {
     public:
       std::string name;
       int64_t arguments;
+      int64_t locals;
       std::vector<Instruction *> instructions;
       std::string to_string();
   };
