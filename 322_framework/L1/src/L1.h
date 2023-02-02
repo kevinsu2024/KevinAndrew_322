@@ -7,20 +7,25 @@
 namespace L1 {
 
   enum RegisterID {rdi, rax, rsi, rdx, rcx, r8, r9, rbx, rbp, r10, r11, r12, r13, r14, r15, rsp};
-
+  
+  std::string print_reg_id(RegisterID r);
+  std::string map_reg(std::string s);
 
   class Item {
     public:
       std::string get_name();
+      std::string to_string();
       void set_name(std::string item_name);
+      void set_string(std::string in);
     private:
       std::string name;
+      std::string in;
   };
 
   class Register : public Item {
     public:
       Register (RegisterID r);
-      std::string get_register_ID();
+      std::string to_string();
     private:
       RegisterID ID;
   };
@@ -28,65 +33,36 @@ namespace L1 {
   class InstructionLabel : public Item{
     public:
       InstructionLabel (std::string l);
-      std::string get_label_name();
-    private:
-      std::string label;
   };
 
   class InstructionNumber : public Item {
     public:
       InstructionNumber (std::string n);
-      std::string get_val();
-      
-    private:
-      std::string val;
   };
 
   class CompareOp : public Item {
     public:
       CompareOp (std::string s);
-      std::string get_op_char();
-      
-    private:
-      std::string op;
   };
 
   class ArithmeticOp : public Item {
     public:
       ArithmeticOp (std::string s);
-      std::string get_op_char();
-      
-    private:
-      std::string op;
   };
 
   class ShiftOp : public Item {
     public:
       ShiftOp (std::string s);
-      std::string get_op_char();
-      
-    private:
-      std::string op;
-  };
-
-  class CompareExpression : public Item {
-    public:
-      CompareExpression (Item *first, Item *second, Item *Op);
-      
-    private:
-      Item *f;
-      Item *s;
-      Item *o;
   };
 
   class FunctionName : public Item {
     public:
-      FunctionName (std::string name);
-      std::string get_function_name();
+     FunctionName (std::string name);
+     std::string get_function_name();
+     
     private:
       std::string n;
   };
-
 
   /*
    * Instruction interface.
@@ -95,8 +71,11 @@ namespace L1 {
     public:
       std::string get_name();
       void set_name(std::string instruction_name);
+      std::string to_string();
+      void set_string(std::string s);
     private:
       std::string name;
+      std::string s;
   };
 
   /*
@@ -365,6 +344,7 @@ namespace L1 {
       int64_t arguments;
       int64_t locals;
       std::vector<Instruction *> instructions;
+      std::string to_string();
   };
 
   class Program{

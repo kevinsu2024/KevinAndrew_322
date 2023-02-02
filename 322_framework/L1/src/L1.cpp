@@ -2,6 +2,26 @@
 
 namespace L1 {
 
+std::string map_reg(std::string s){
+    if (s == "%rax"){
+      return R"(%al)";
+    } else if (s == R"(%rbp)"){
+      return R"(%bpl)";
+    } else if (s == R"(%rbx)"){
+      return R"(%bl)";
+    } else if (s == R"(%rcx)"){
+      return R"(%cl)";
+    } else if (s == R"(%rdi)"){
+      return R"(%dil)";
+    } else if ( s == R"(%rdx)"){
+      return R"(%dl)";
+    } else if ( s == R"(%rsi)"){
+      return R"(%sil)";
+    } else{
+      return s + "b";
+    }
+  }
+
 std::string
 Item::get_name() {
   return name;
@@ -11,13 +31,25 @@ void
 Item::set_name(std::string item_name){
   name = item_name;
 }
-Register::Register (RegisterID r)
-  : ID {r}{
-  return ;
+
+void
+Item::set_string(std::string i){
+  in = i;
 }
 
 std::string
-Register::get_register_ID(){
+Item::to_string(){
+  return in;
+}
+Register::Register (RegisterID r)
+  : ID {r}{
+  set_name("Register");
+  set_string("%" +print_reg_id(r));
+  return;
+}
+
+std::string
+print_reg_id(RegisterID ID){
   if(ID == rdi){
     return "rdi";
   } else if (ID == rax){
@@ -55,62 +87,39 @@ Register::get_register_ID(){
 }
 
 
-InstructionLabel::InstructionLabel (std::string l)
-  : label {l}{
+InstructionLabel::InstructionLabel (std::string l){
+  set_name("InstructionLabel");
+  set_string(l);
   return ;
 }
 
-std::string 
-InstructionLabel::get_label_name(){
-  return label;
-}
-
-InstructionNumber::InstructionNumber (std::string n)
-  : val {n}{
+InstructionNumber::InstructionNumber (std::string n){
+  set_name("InstructionNumber");
+  set_string("$" + n);
   return ;
 }
 
-std::string
-InstructionNumber::get_val(){
-  return val;
+
+
+CompareOp::CompareOp (std::string s){
+  set_name("CompareOp");
+  set_string(s);
+  return;
 }
 
-CompareOp::CompareOp (std::string s)
-  : op {s}{
-  return ;
+ArithmeticOp::ArithmeticOp (std::string s){
+  set_name("ArithmeticOp");
+  set_string(s);
+  return;
 }
 
-std::string
-CompareOp::get_op_char(){
-  return op;
+ShiftOp::ShiftOp (std::string s){
+  set_name("ShiftOp");
+  set_string(s);
+  return;
 }
 
-ArithmeticOp::ArithmeticOp (std::string s)
-  : op {s}{
-  return ;
-}
 
-std::string
-ArithmeticOp::get_op_char() {
-  return op;
-}
-
-ShiftOp::ShiftOp (std::string s)
-  : op {s}{
-  return ;
-}
-
-std::string
-ShiftOp::get_op_char() {
-  return op;
-}
-
-CompareExpression::CompareExpression (Item *first, Item *second, Item *op)
-  : f { first },
-    s { second },
-    o { op } {
-  return ;
-}
 
 std::string
 Instruction::get_name () {
@@ -122,12 +131,27 @@ Instruction::set_name (std::string instruction_name) {
   name = instruction_name;
 }
 
+void
+Instruction::set_string(std::string st){
+  s = st;
+}
+
+std::string
+Instruction::to_string(){
+  return s;
+}
+
+
 Instruction_ret::Instruction_ret () {
+  set_name("Instruction_ret");
+  set_string("retq");
   return;
 }
 
 FunctionName::FunctionName (std::string name)
   : n {name} {
+    set_name("FunctionName");
+    set_string(name);
     return;
 }
 
@@ -136,9 +160,14 @@ FunctionName::get_function_name(){
   return n;
 }
 
+
+
+
 Instruction_assignment::Instruction_assignment (Item *dst, Item *src)
   : s { src },
     d { dst } {
+  set_name("Instruction_assignment");
+  set_string("movq " + src->to_string() + ", " + dst->to_string());
   return ;
 }
 
@@ -151,12 +180,51 @@ Item*
 Instruction_assignment::get_dst(){
   return d;
 }
+
 Instruction_cmp_assignment::Instruction_cmp_assignment (Item *dst, Item *first, Item *second, Item *op)
   : d { dst },
     f { first },
     s { second },
     o { op } {
-  return ;
+  set_name("Instruction_cmp_assignment");
+  bool first_reg = first->get_name() == "Register";
+  bool second_reg = second->get_name() == "Register";
+  std::string instr = "";
+  if ((!first_reg) && (!second_reg)){
+    int64_t f_num = stoi(first->to_string().substr(1,first->to_string().size()-1));
+    int64_t s_num = stoi(second->to_string().substr(1,second->to_string().size()-1));
+    bool val;
+    if (op->to_string() == "<"){
+      val = f_num < s_num;
+    } else if (op->to_string() == "=") {
+      val = f_num == s_num;
+    } else {
+      val = f_num <= s_num;
+    }
+    instr += "movq $" + std::to_string(val) + ", " + dst->to_string() + "\n";
+  } else if (!first_reg){
+    instr+= "cmpq " + first->to_string() + ", " + second->to_string() + "\n";
+    if (op->to_string() == "<"){
+      instr += "setg " + map_reg(dst->to_string()) + "\n";
+    } else if (op->to_string() == "=") {
+      instr += "\tsete " + map_reg(dst->to_string()) + "\n";
+    } else {
+      instr += "\tsetge " + map_reg(dst->to_string()) + "\n";
+    }
+    instr += "\tmovzbq " + map_reg(dst->to_string()) + ", " + dst->to_string() + "\n";
+  } else {
+    instr += "\tcmpq " + second->to_string() + ", " + first->to_string() + "\n";
+    if (op->to_string() == "<"){
+      instr += "\tsetl " + map_reg(dst->to_string()) + "\n";   
+    } else if (op->to_string() == "=") {
+      instr += "\tsete " + map_reg(dst->to_string()) + "\n";
+    } else {
+      instr += "\tsetle " + map_reg(dst->to_string()) + "\n";
+    }
+    instr += "\tmovzbq " + map_reg(dst->to_string()) + ", " + dst->to_string() + "\n";
+  }
+  set_string(instr);
+  return;
 }
 
 Item*
@@ -179,6 +247,8 @@ Instruction_cmp_assignment::get_op(){
 Instruction_function_assignment::Instruction_function_assignment (Item *dst, Item *fn)
   : d { dst },
     fname { fn }{
+  set_name("Instruction_function_assignment");
+  set_string("movq " + fn->to_string() + ", " + dst->to_string());
   return ;
 }
 
@@ -196,6 +266,10 @@ Instruction_mem_load::Instruction_mem_load (Item *dst, Item *src, Item *num)
   : s { src },
     d { dst },
     n { num } {
+  set_name("Instruction_mem_load");
+  std::string numb = num->to_string();
+  numb = numb.substr(1,numb.size()-1);
+  set_string("\tmovq " + numb + "(" + src->to_string() + "), " + dst->to_string() + "\n");
   return ;
 }
 
@@ -219,6 +293,8 @@ Instruction_mem_op_load::Instruction_mem_op_load (Item *dst, Item *src, Item *nu
     d { dst },
     n { num },
     o { op } {
+  set_name("Instruction_mem_op_load");
+  set_string(dst->to_string() + " " + op->to_string() + " mem " + src->to_string() + " " +  num->to_string());
   return ;
 }
 
@@ -244,6 +320,8 @@ Instruction_mem_store::Instruction_mem_store (Item *src, Item *num, Item *x_regi
   : s { src },
     n { num },
     x { x_register } {
+  set_name("Instruction_mem_store");
+  set_string("mem " + x_register->to_string() + " " + num->to_string() + " <- " + src->to_string() );
   return ;
 }
 
@@ -265,7 +343,9 @@ Instruction_mem_op_store::Instruction_mem_op_store (Item *t_rule, Item *num, Ite
     n { num },
     x { x_register },
     o { op } {
-  return ;
+  set_name("Instruction_mem_op_store");
+  set_string("mem " + x_register->to_string() + " " + num->to_string() + " " + op->to_string() + " " + t_rule->to_string() );
+  return;
 }
 Item*
 Instruction_mem_op_store::get_x_reg(){
@@ -288,7 +368,9 @@ Instruction_aop::Instruction_aop (Item *t_rule, Item *op, Item *reg)
   : t { t_rule },
     o { op },
     r { reg } {
-  return ;
+  set_name("Instruction_aop");
+  set_string(reg->to_string() + " " + op->to_string() + " " + t_rule->to_string());
+  return;
 }
 
 Item*
@@ -310,7 +392,9 @@ Instruction_sop::Instruction_sop (Item *shift, Item *op, Item *reg)
   : s { shift },
     o { op },
     r { reg } {
-  return ;
+  set_name("Instruction_sop");
+  set_string(reg->to_string() + " " + op->to_string() + " " + shift->to_string());
+  return;
 }
 
 Item*
@@ -333,6 +417,8 @@ Instruction_cjump::Instruction_cjump (Item *t1, Item *op, Item *t2, Item *label)
     o { op },
     s { t2 },
     l {label} {
+  set_name("Instruction_cjump");
+  set_string("cjump " + t1->to_string() + " " + op->to_string() + " " + t2->to_string() + " " + label->to_string());
   return ;
 }
 
@@ -368,13 +454,18 @@ Instruction_goto::Instruction_goto (Item *l)
     return ;
   }
 
+
+
 Item* Instruction_goto::get_label(){
   return label;
 }
 
+
 Instruction_pp::Instruction_pp (Item *r)
   : reg { r } {
-  return ;
+    set_name("Instruction_pp");
+    set_string(r->to_string() + "++");
+  return;
 }
 
 Item*
@@ -386,6 +477,8 @@ Instruction_pp::get_reg(){
 
 Instruction_mm::Instruction_mm (Item *r)
   : reg { r } {
+    set_name("Instruction_mm");
+    set_string(r->to_string() + "--");
   return ;
 }
 
@@ -399,6 +492,8 @@ Instruction_at::Instruction_at (Item *r1, Item *r2, Item *r3, Item *n)
     reg2 { r2 },
     reg3 { r3 },
     num { n } {
+      set_name("Instruction_at");
+      set_string(r1->to_string() + " @ " + r2->to_string() + " " + r3->to_string() + " " + n->to_string());
   return ;
 }
 
@@ -421,7 +516,9 @@ Instruction_at::get_num(){
 Instruction_call_u::Instruction_call_u (Item *up, Item *n)
   : u { up },
     num { n }{
-  return ;
+  set_name("Instruction_call_u");
+  set_string("call " + up->to_string() + " " + n->to_string());
+  return;
 }
 
 Item*
@@ -470,6 +567,19 @@ Instruction_call_tensor_error::Instruction_call_tensor_error (Item *n)
 Item*
 Instruction_call_tensor_error::get_val(){
   return num;
+}
+
+std::string
+Function::to_string(){
+  auto instrs = instructions;
+  std::string ans = "(" + name + "\n";
+  ans += "\t";
+  ans += (std::to_string(arguments) + " " + std::to_string(locals) + "\n");
+  for(Instruction* instr : instrs){
+    ans += "\t" + instr->to_string() + "\n";
+  }
+  ans += ")\n";
+  return ans;
 }
 
 }

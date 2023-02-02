@@ -18,45 +18,20 @@ namespace L1{
 
   std::string convert_item_to_str(Item* i){
     if (i->get_name() == "Register"){
-      Register* it = (Register*) i;
-      return "%" + it->get_register_ID();
+      return "%" + i->to_string();
     } else if (i->get_name() == "InstructionLabel"){
-      InstructionLabel* it = (InstructionLabel*) i;
-      return "$" + convert_label_name(it->get_label_name());
+      return "$" + convert_label_name(i->to_string());
     } else if (i->get_name() == "InstructionNumber"){
-      auto it = (InstructionNumber*) i;
-      return "$" + it->get_val();
+      return "$" + i->to_string();
     } else if (i->get_name() == "ArithmeticOp"){
-      auto it = (ArithmeticOp*) i;
-      std::string op_char = it->get_op_char();
-      return op_char;
+      return i->to_string();
     } else if (i->get_name() == "ShiftOp"){
-      auto it = (ShiftOp*) i;
-      std::string op_char = it->get_op_char();
-      return op_char;
+      return i->to_string();
     }
     return "";
   }
 
-  std::string map_reg(std::string s){
-    if (s == "%rax"){
-      return R"(%al)";
-    } else if (s == R"(%rbp)"){
-      return R"(%bpl)";
-    } else if (s == R"(%rbx)"){
-      return R"(%bl)";
-    } else if (s == R"(%rcx)"){
-      return R"(%cl)";
-    } else if (s == R"(%rdi)"){
-      return R"(%dil)";
-    } else if ( s == R"(%rdx)"){
-      return R"(%dl)";
-    } else if ( s == R"(%rsi)"){
-      return R"(%sil)";
-    } else{
-      return s + "b";
-    }
-  }
+  
 
 
   void generate_code(Program p){
@@ -115,90 +90,19 @@ namespace L1{
           }
           sub_stack_num += (argument_multiplier * 8);
           outputFile << "\taddq $" << std::to_string(sub_stack_num) << ", %rsp\n";
-          outputFile << "\tretq\n";
+          outputFile << "\t" << i->to_string() << "\n";
         } else if(i->get_name() == "Instruction_assignment"){ //CHANGE BACK
-          Instruction_assignment* in = (Instruction_assignment *) i;
-          std::string src = convert_item_to_str(in->get_src());
-          std::string dst = convert_item_to_str(in->get_dst());
-          outputFile << "\tmovq " << src << ", " << dst << "\n";
+          outputFile << "\t" << i->to_string() << "\n";
 
         } else if (i->get_name() == "Instruction_function_assignment"){
-          Instruction_function_assignment* in = (Instruction_function_assignment*) i;
-          std::string dst = convert_item_to_str(in->get_dst());
-          FunctionName* fname = (FunctionName*) in->get_fname();
-          std::string name = fname->get_name();
-          name = "$_" + name.substr(1,name.size()-1);
-          outputFile << "\tmovq " << name << ", " << dst << "\n";
+          outputFile << "\t" << i->to_string() << "\n";
 
         }else if(i->get_name() == "Instruction_cmp_assignment"){
-          Instruction_cmp_assignment* in = (Instruction_cmp_assignment *) i;
-          std::string dst = convert_item_to_str(in->get_dst());
-          Item* first = in->get_first();
-          Item* second = in->get_second();
-          bool first_reg = first->get_name() == "Register";
-          bool second_reg = second->get_name() == "Register";
-          std::string f_val = convert_item_to_str(first);
-          std::string s_val = convert_item_to_str(second);
-          auto op = (CompareOp* ) in->get_op();
-          std::string cop = op->get_op_char();
-
-          if ((!first_reg) && (!second_reg)){
-            if (cop == "<"){
-              int64_t f_num = stoi(f_val.substr(1,f_val.size()-1));
-              int64_t s_num = stoi(s_val.substr(1,s_val.size()-1));
-              bool val = f_num < s_num;
-              outputFile << "\tmovq $" << val << ", " << dst << "\n";
-            } else if (cop == "=") {
-              int64_t f_num = stoi(f_val.substr(1,f_val.size()-1));
-              int64_t s_num = stoi(s_val.substr(1,s_val.size()-1));
-              bool val = f_num == s_num;
-              outputFile << "\tmovq $" << val << ", " << dst << "\n";
-            } else {
-              int64_t f_num = stoi(f_val.substr(1,f_val.size()-1));
-              int64_t s_num = stoi(s_val.substr(1,s_val.size()-1));
-              bool val = f_num <= s_num;
-              outputFile << "\tmovq $" << val << ", " << dst << "\n";
-            }
-          } else if (!first_reg){
-            if (cop == "<"){
-              outputFile << "\tcmpq " << f_val << ", " << s_val << "\n";
-              outputFile << "\tsetg " << map_reg(dst) << "\n";
-              outputFile << "\tmovzbq " << map_reg(dst) << ", " << dst << "\n";
-            } else if (cop == "=") {
-             
-              outputFile << "\tcmpq " << f_val << ", " << s_val << "\n";
-              outputFile << "\tsete " << map_reg(dst) << "\n";
-              outputFile << "\tmovzbq " << map_reg(dst) << ", " << dst << "\n";
-            } else {
-              outputFile << "\tcmpq " << f_val << ", " << s_val << "\n";
-              outputFile << "\tsetge " << map_reg(dst) << "\n";
-              outputFile << "\tmovzbq " << map_reg(dst) << ", " << dst << "\n";
-            }
-          } else {
-            if (cop == "<"){
-              outputFile << "\tcmpq " << s_val << ", " << f_val << "\n";
-              outputFile << "\tsetl " << map_reg(dst) << "\n";
-              outputFile << "\tmovzbq " << map_reg(dst) << ", " << dst << "\n";
-            } else if (cop == "=") {
-              outputFile << "\tcmpq " << s_val << ", " << f_val << "\n";
-              outputFile << "\tsete " << map_reg(dst) << "\n";
-              outputFile << "\tmovzbq " << map_reg(dst) << ", " << dst << "\n";
-            } else {
-              outputFile << "\tcmpq " << s_val << ", " << f_val << "\n";
-              outputFile << "\tsetle " << map_reg(dst) << "\n";
-              outputFile << "\tmovzbq " << map_reg(dst) << ", " << dst << "\n";
-            }
-          }
-
-
+          outputFile << "\t" << i->to_string() << "\n";
 
         } else if(i->get_name() == "Instruction_mem_load"){
-          Instruction_mem_load* in = (Instruction_mem_load*) i;
-          std::string src = convert_item_to_str(in->get_src());
-          std::string dst = convert_item_to_str(in->get_dst());
-          std::string num = convert_item_to_str(in->get_num());
-          num = num.substr(1,num.size()-1);
-          outputFile << "\tmovq " << num << "(" << src << "), " << dst << "\n";
+          outputFile << "\t" << i->to_string() << "\n";
+          
 
         } else if(i->get_name() == "Instruction_mem_op_load"){
           Instruction_mem_op_load* in = (Instruction_mem_op_load*) i;
@@ -207,7 +111,7 @@ namespace L1{
           std::string num = convert_item_to_str(in->get_num());
           num = num.substr(1,num.size()-1);
           auto op = (ArithmeticOp* ) in->get_op();
-          std::string aop = op->get_op_char();
+          std::string aop = op->to_string();
           if (aop == "+="){
             outputFile << "\taddq " << num << "(" << src << "), " << dst << "\n";
           } else{
@@ -230,7 +134,7 @@ namespace L1{
           std::string num = convert_item_to_str(in->get_num());
           num = num.substr(1,num.size()-1);
           auto op = (ArithmeticOp* ) in->get_op();
-          std::string aop = op->get_op_char();
+          std::string aop = op->to_string();
           if (aop == "+="){
             outputFile << "\taddq " << src << ", " << num << "(" << x_reg << ")\n";
           } else{
@@ -264,7 +168,7 @@ namespace L1{
           } else if (op_char == ">>="){
             assembly_instr = "sarq";
           }
-          if (src.substr(0,1) == "%") src = map_reg(src);
+          if (src.substr(0,1) == "%") src = L1::map_reg(src);
           outputFile << "\t" << assembly_instr << " " << src << ", " << dst << "\n";
         } else if(i->get_name() == "Instruction_cjump"){
           auto in = (Instruction_cjump*) i;
@@ -278,7 +182,7 @@ namespace L1{
           std::string f_val = convert_item_to_str(first);
           std::string s_val = convert_item_to_str(second);
           auto op = (CompareOp* ) in->get_op();
-          std::string cop = op->get_op_char();
+          std::string cop = op->to_string();
 
           if ((!first_reg) && (!second_reg)){
             if (cop == "<"){
