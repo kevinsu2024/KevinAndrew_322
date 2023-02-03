@@ -1,62 +1,199 @@
 #include <color_graph.h>
+#include <interference_generator.h>
+#include <spill_generator.h>
 #include <iostream>
 
 using namespace std;
 
 namespace L2{
-    std::tuple<int64_t, std::unordered_map<std::string,std::string>, std::set<std::string>>
-    assign_colors(std::unordered_map<std::string, std::set<std::string>> m, Function* f){
-        std::vector<std::string> gp_registers{"rdi", "rax", "rsi", "rdx", "rcx", "r8", "r9", "r10",
+    std::vector<std::string> ordered_gp_registers{"rdi", "rsi", "rax", "rdx", "rcx", "r8", "r9", "r10",
                                         "r11", "r12", "r13", "r14", "r15", "rbx", "rbp"};
-        std::set<std::string> reg_set(gp_registers.begin(),gp_registers.end());
-        std::unordered_map<std::string, std::string> mapping;
-        std::set<std::string> keys(gp_registers.begin(),gp_registers.end());
-        std::vector<std::string> node_stack;
-        std::set<std::string> uncolored;
-        // std::cout << m.size() << "\n";
-        for(auto ele : m){
-            if(reg_set.find(ele.first) != reg_set.end()) continue;
-            node_stack.push_back(ele.first);
-        }
-        // std::cout << m.size() << " " << node_stack.size() << "\n";
+
+    std::set<std::string> unordered_gp_registers{"rdi", "rsi", "rax", "rdx", "rcx", "r8", "r9", "r10",
+                                        "r11", "r12", "r13", "r14", "r15", "rbx", "rbp"};
 
 
-        //color registers as their own
-        for(std::string reg : gp_registers){
-            mapping[reg] = reg;
+    int64_t
+    check_degree(std::set<std::string> neighbors, std::set<std::string> nodes_in_graph){
+        int64_t ctr = 0;
+        for(auto neigh : neighbors){
+            if(unordered_gp_registers.find(neigh) != unordered_gp_registers.end()){
+                ctr++;
+            } else if (nodes_in_graph.find(neigh) != nodes_in_graph.end()){
+                ctr++;
+            }
         }
-        // std::cout << "\n" << mapping.size() << "\n";
-        while (node_stack.size() > 0){
-            std::string node = node_stack.back();
-            node_stack.pop_back();
-            std::set<std::string> unseen(gp_registers.begin(),gp_registers.end());
-            for(std::string neigh : m[node]){
-                if(mapping.find(neigh) != mapping.end() && unseen.find(mapping[neigh]) != unseen.end()){
-                    unseen.erase(mapping[neigh]);
+        return ctr;
+    }
+    
+    std::string
+    get_largest(std::set<std::string> nodes_in_graph, int64_t thresh, std::unordered_map<std::string, std::set<std::string>> int_graph){
+        
+        std::string largest = "";
+        int64_t max_degree = -1;
+        for(auto e : nodes_in_graph){
+            int64_t degree = check_degree(int_graph[e], nodes_in_graph);
+            if(degree > max_degree){
+                if(thresh == -1 || degree < thresh){
+                    max_degree = degree;
+                    largest = e;
                 }
             }
-            if(unseen.size() == 0){
-                uncolored.insert(node);
-                continue;
-            }
-            std::string chosen_reg = *unseen.begin();
-            mapping[node] = chosen_reg;
-
         }
-        // std::cout << "\ndonedone\n";
-        // std::cout << "num failed is " << uncolored.size() << "\n";
-        // for(auto p : mapping){
-        //     std::cout << p.first << " mapped with " << p.second << "\n";
-        // }
+        return largest;
+    }
 
-        std::tuple<int64_t, std::unordered_map<std::string, std::string>, std::set<std::string>> ans = make_tuple(uncolored.size(), mapping, uncolored);
-        return ans;
+
+    std::string
+    get_color(std::set<std::string> neighbors, std::set<std::string> nodes_in_graph, std::unordered_map<std::string, std::string> mapping){
+        // std::cout << "neighbors\n";
+        // for(auto n : neighbors){
+        //     std::cout << " " << n << " ";
+        // }
+        // std::cout << "\n";
+
+        // std::cout << "nodes in graph\n";
+        // for(auto n : nodes_in_graph){
+        //     std::cout << " " << n << " ";
+        // }
+        // std::cout << "\n";
+        
+        
+        std::set<std::string> taken;
+        for(auto neigh : neighbors){
+            // std::cout << "\n" << neigh << " is found in graph " << (nodes_in_graph.find(neigh) != nodes_in_graph.end()) << "\n";
+            if(nodes_in_graph.find(neigh) != nodes_in_graph.end()) {
+                // std::cout << mapping[neigh] << " is bein gput into taken \n";
+                taken.insert(mapping[neigh]);
+            }
+        }
+
+        // std::cout << "nodes in taken\n";
+        // for(auto n : taken){
+        //     std::cout << " " << n << " ";
+        // }
+        // std::cout << "\n";
+
+        
+        for(int64_t i = 0; i < ordered_gp_registers.size(); i++){
+            std::string reg = ordered_gp_registers[i];
+            if(taken.find(reg) == taken.end())return reg;
+        }
+        return "";
+    }
+
+    std::pair<std::unordered_map<std::string, std::string>, Function*>
+    generate_mapping(Function* f){
+        bool done = false;
+        std::unordered_map<std::string, std::string> mapping;
+        
+        Function* currentF = f;
+        while(!done)
+        {
+            for(auto reg : unordered_gp_registers){
+                mapping[reg] = reg;
+            }
+
+            std::cout << "\n\n current func is " << currentF->to_string();
+            std::set<std::string> nodes_in_graph;
+
+            //generate interference graph and add all non gp registers to nodes_in_graph set
+            auto int_graph = generate_interference(currentF,false);
+            for(auto p : int_graph){
+                if(unordered_gp_registers.find(p.first) != unordered_gp_registers.end()) continue;
+                nodes_in_graph.insert(p.first);
+            }
+
+            std::cout << "\n interference graph is : \n";
+            for (auto p : int_graph){
+                if(unordered_gp_registers.find(p.first) != unordered_gp_registers.end()) continue;
+                std::cout << p.first << ": ";
+                for (auto e : p.second){
+                    std::cout << e << " ";
+                }
+                std::cout << "\n";
+            }
+
+            std::vector<std::string> node_stack;
+
+            //removing nodes with less than 15 edges and adding to stack
+            while(get_largest(nodes_in_graph, 15, int_graph) != ""){
+                std::string next_node = get_largest(nodes_in_graph, 15, int_graph);
+                std::cout << "next node is " << next_node << "\n";
+                nodes_in_graph.erase(next_node);
+                node_stack.push_back(next_node);
+            }
+
+            //removing the rest of the nodes in descneding order
+            while(nodes_in_graph.size() > 0){
+                std::string largest = get_largest(nodes_in_graph, -1, int_graph);
+                nodes_in_graph.erase(largest);
+                node_stack.push_back(largest);
+            }
+
+
+            
+
+            std::cout << "nodes in stack are \n";
+            for(auto e : node_stack){
+                std::cout<< e << " ";
+            }
+            std::cout << "\n";
+
+            //start loading nodes into graph and assigning colors
+            std::set<std::string> failed_nodes;
+            for(auto reg : unordered_gp_registers){
+                nodes_in_graph.insert(reg);
+            }
+
+            std::cout << "nodes in graph are \n";
+            for(auto e : nodes_in_graph){
+                std::cout<< e << " ";
+            }
+            std::cout << "\n";
+
+
+            while(node_stack.size() > 0){
+                std::string node = node_stack.back();
+                node_stack.pop_back();
+                std::cout << "\n assigning color for " << node << "\n";
+                std::string color = get_color(int_graph[node], nodes_in_graph, mapping);
+                std::cout << "color is " << color << "\n";
+                if(color == ""){
+                    failed_nodes.insert(node);
+                } 
+                else{
+                    nodes_in_graph.insert(node);
+                    mapping[node] = color;
+                }
+
+            }
+            std::cout << "failed noes are \n";
+            for(auto reg : failed_nodes){
+                std::cout << reg << " ";
+            }
+            std::cout << "\n";
+            if(failed_nodes.size() == 0){
+                done = true;
+                return std::make_pair(mapping, currentF);
+            }
+            //if need to spill spill
+            for(auto reg : failed_nodes){
+                std::cout << "\nspilling reg " << reg << "\n";
+                currentF = generate_spill_code(currentF,reg, "%S");
+            }
+            mapping.clear();
+        }
+
+        return std::make_pair(mapping, currentF);
     }
 
 
     std::string
     translate_to_code(std::unordered_map<std::string, std::string> map, Function* f){
         //change stackarg instructions first
+        std::cout << "\n\nprint f to change\n";
+        std::cout << f->to_string();
         auto instructions = f->instructions;
         for(int64_t i = 0; i < instructions.size(); i++){
             if(instructions[i]->get_name() == ("Instruction_stackarg_assignment")){
@@ -69,6 +206,7 @@ namespace L2{
                 instructions.at(i) = new_in;
             }
         }
+        f->instructions = instructions;
         std::string func = f->to_string();
         // std::cout << "\n f for this func is \n";
         // std::cout << func << "\n";
