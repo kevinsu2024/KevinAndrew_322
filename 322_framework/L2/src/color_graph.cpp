@@ -245,8 +245,11 @@ namespace L2{
         // std::cout << func << "\n";
         for(auto p : map){
             if(p.first == p.second) continue;
-            while(func.find(p.first) != std::string::npos){
-                func.replace(func.find(p.first), p.first.size(), p.second);
+            while(func.find(p.first + " ") != std::string::npos || func.find(p.first + "\n") != std::string::npos || func.find(p.first + "++") != std::string::npos || func.find(p.first + "--") != std::string::npos){
+                if(func.find(p.first + " ") != std::string::npos) func.replace(func.find(p.first + " "), p.first.size() + 1 , p.second + " ");
+                if(func.find(p.first + "\n") != std::string::npos) func.replace(func.find(p.first + "\n"), p.first.size() + 1 , p.second + "\n");
+                if(func.find(p.first + "++") != std::string::npos) func.replace(func.find(p.first + "++"), p.first.size() + 2 , p.second + "++");
+                if(func.find(p.first + "--") != std::string::npos) func.replace(func.find(p.first + "--"), p.first.size() + 2 , p.second + "--");
             }
         }
 

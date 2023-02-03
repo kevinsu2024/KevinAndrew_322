@@ -1245,8 +1245,6 @@ namespace L2 {
        * Create the instruction.
        */ 
       auto i = new Instruction_cjump(t1, op, t2, label); 
-      i->set_name("Instruction_cjump");
-      i->set_string(in.string());
       /* 
        * Add the just-created instruction to the current function.
        */ 
