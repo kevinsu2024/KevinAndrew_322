@@ -82,6 +82,22 @@ namespace L2{
         return "";
     }
 
+    Function*
+    spill_all_vars(Function* f){
+        Function* currentF = f;
+        auto int_graph = generate_interference(currentF,false);
+        std::set<std::string> all_vars;
+        for(auto p : int_graph){
+            if(unordered_gp_registers.find(p.first) == unordered_gp_registers.end()){
+                all_vars.insert(p.first);
+            }
+        }
+        for(auto var : all_vars){
+            currentF = generate_spill_code(currentF,var,var+"_spilled_");
+        }
+        return currentF;
+    }
+
     std::pair<std::unordered_map<std::string, std::string>, Function*>
     generate_mapping(Function* f){
         bool done = false;
@@ -177,12 +193,29 @@ namespace L2{
                 done = true;
                 return std::make_pair(mapping, currentF);
             }
+
+
             //if need to spill spill
-            for(auto reg : failed_nodes){
-                std::cout << "\nspilling reg " << reg << "\n";
-                currentF = generate_spill_code(currentF,reg, "%S");
+            //first check if all already spilled
+            bool all_spilled = true;
+            for(auto var : failed_nodes){
+                if(var.find("_spilled_") == std::string::npos) all_spilled = false;
+            }
+            if(failed_nodes.size() > 0 && all_spilled){
+                std::cout << "spilling all\n";
+                currentF = spill_all_vars(f);
+                failed_nodes.clear();
+            }
+
+            for(auto var : failed_nodes){
+                if(var.find("_spilled_") != std::string::npos) continue;
+                std::cout << "\nspilling var " << var << "\n";
+                currentF = generate_spill_code(currentF,var, (var+ "_spilled_"));
+                std::cout << "finished spilling\n";
             }
             mapping.clear();
+
+            
         }
 
         return std::make_pair(mapping, currentF);

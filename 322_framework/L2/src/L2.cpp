@@ -187,7 +187,9 @@ Instruction_cmp_assignment::Instruction_cmp_assignment (Item *dst, Item *first, 
     f { first },
     s { second },
     o { op } {
-  return ;
+  set_name("Instruction_cmp_assignment");
+  set_string(dst->to_string() + " <- " + first->to_string() + " " + op->to_string() + " " + second->to_string());
+  return;
 }
 
 Item*

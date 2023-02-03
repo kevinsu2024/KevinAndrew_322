@@ -957,8 +957,6 @@ namespace L2 {
       parsed_items.pop_back();
 
       auto i = new Instruction_cmp_assignment(dst, first, second, op); 
-      i->set_name("Instruction_cmp_assignment");
-      i->set_string(in.string());
       /* 
        * Add the just-created instruction to the current function.
        */ 

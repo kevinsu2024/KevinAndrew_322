@@ -40,6 +40,7 @@ namespace L2{
 
 
         for(Instruction* instr : f->instructions){
+            // std::cout << "\nspilling instruction: \n" << instr->get_name() << "\n" << instr->to_string() << "\n";
             if(instr->to_string().find(v) == std::string::npos) {
                 new_func->instructions.push_back(instr);
                 continue;
@@ -84,11 +85,10 @@ namespace L2{
             }
             else if(instr_type == "Instruction_cmp_assignment"){
                 Instruction_cmp_assignment* i = (Instruction_cmp_assignment*) instr;
-                Item* first = first;
+                Item* first = i->get_first();
                 Item* second = i->get_second();
                 Item* dst = i->get_dst();
                 bool loaded = false;
-
                 if(first->get_name() == "Variable" && first->to_string() == v){
                     Instruction_mem_load* load = load_instr(ctr, local_num,new_v);
                     new_func->instructions.push_back(load);
@@ -231,7 +231,7 @@ namespace L2{
                     dst = temp_var;
                 }
 
-                Instruction_sop* new_i = new Instruction_sop(dst,i->get_op(),src);
+                Instruction_sop* new_i = new Instruction_sop(src,i->get_op(),dst);
                 new_func->instructions.push_back(new_i);
 
                 if(dst->get_name() == "Variable" && dst->to_string() == (new_v + std::to_string(ctr))){
