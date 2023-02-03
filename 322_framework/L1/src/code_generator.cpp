@@ -34,6 +34,11 @@ namespace L1{
       auto it = (ShiftOp*) i;
       std::string op_char = it->get_op_char();
       return op_char;
+    } else if (i->get_name() == "FunctionName"){
+      auto it = (FunctionName*) i;
+      std::string fname = it->get_function_name();
+      fname = "$_" + fname.substr(1,fname.size());
+      return fname;
     }
     return "";
   }

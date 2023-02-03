@@ -41,9 +41,6 @@ namespace L2{
                 }
             }
             for(std::string val : gp_registers){
-                if (adj_list.find(val) == adj_list.end()){
-                    adj_list[val] = {}; //initialize key in map but don't store any vals in it
-                }
                 for(std::string val2 : gp_registers){
                     if(val == val2) continue;
                     adj_list[val].insert(val2);
@@ -51,20 +48,7 @@ namespace L2{
                 }
             }
             for(std::string val : node->out){
-                if (adj_list.find(val) == adj_list.end()){
-                    adj_list[val] = {}; //initialize key in map but don't store any vals in it
-                }
                 for(std::string val2 : node->kill){
-                    if(val == val2) continue;
-                    adj_list[val].insert(val2);
-                    adj_list[val2].insert(val);
-                }
-            }
-            for(std::string val : node->kill){
-                if (adj_list.find(val) == adj_list.end()){
-                    adj_list[val] = {}; //initialize key in map but don't store any vals in it
-                }
-                for(std::string val2 : node->out){
                     if(val == val2) continue;
                     adj_list[val].insert(val2);
                     adj_list[val2].insert(val);

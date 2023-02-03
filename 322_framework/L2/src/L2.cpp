@@ -213,7 +213,7 @@ Instruction_function_assignment::Instruction_function_assignment (Item *dst, Ite
   : d { dst },
     fname { fn }{
   set_name("Instruction_function_assignment");
-  set_string(dst->to_string() + " -> " + fn->to_string());
+  set_string(dst->to_string() + " <- " + fn->to_string());
   return ;
 }
 
