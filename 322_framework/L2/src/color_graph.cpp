@@ -184,7 +184,7 @@ namespace L2{
                 }
 
             }
-            std::cout << "failed noes are \n";
+            std::cout << "failed nodes are \n";
             for(auto reg : failed_nodes){
                 std::cout << reg << " ";
             }

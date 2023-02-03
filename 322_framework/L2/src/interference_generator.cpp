@@ -7,7 +7,7 @@ namespace L2{
     generate_interference(Function* func, bool verbose){
         //Initialize nodes with liveness analysis generated
         std::unordered_map<std::string, std::set<std::string>> adj_list;
-        std::vector<Node*> nodes = L2::generate_liveness(func, false); //don't want to print here
+        std::vector<Node*> nodes = L2::generate_liveness(func, false); //don't want to print here CHANGE BACK
         std::vector<Instruction*> instructs = func->instructions;
         
         std::vector<std::string> gp_registers{"rdi", "rax", "rsi", "rdx", "rcx", "r8", "r9", "rbx", "rbp", "r10",
@@ -21,6 +21,9 @@ namespace L2{
             std::set<std::string> in_set = node->in;
             auto out_set = node->out;
             for(std::string val : in_set){
+                if (adj_list.find(val) == adj_list.end()){
+                    adj_list[val] = {}; //initialize key in map but don't store any vals in it
+                }
                 for(std::string val2 : in_set){
                     if(val == val2) continue;
                     adj_list[val].insert(val2);
@@ -28,6 +31,9 @@ namespace L2{
                 }
             }
             for(std::string val : out_set){
+                if (adj_list.find(val) == adj_list.end()){
+                    adj_list[val] = {}; //initialize key in map but don't store any vals in it
+                }
                 for(std::string val2 : out_set){
                     if(val == val2) continue;
                     adj_list[val].insert(val2);
@@ -35,6 +41,9 @@ namespace L2{
                 }
             }
             for(std::string val : gp_registers){
+                if (adj_list.find(val) == adj_list.end()){
+                    adj_list[val] = {}; //initialize key in map but don't store any vals in it
+                }
                 for(std::string val2 : gp_registers){
                     if(val == val2) continue;
                     adj_list[val].insert(val2);
@@ -42,7 +51,20 @@ namespace L2{
                 }
             }
             for(std::string val : node->out){
+                if (adj_list.find(val) == adj_list.end()){
+                    adj_list[val] = {}; //initialize key in map but don't store any vals in it
+                }
                 for(std::string val2 : node->kill){
+                    if(val == val2) continue;
+                    adj_list[val].insert(val2);
+                    adj_list[val2].insert(val);
+                }
+            }
+            for(std::string val : node->kill){
+                if (adj_list.find(val) == adj_list.end()){
+                    adj_list[val] = {}; //initialize key in map but don't store any vals in it
+                }
+                for(std::string val2 : node->out){
                     if(val == val2) continue;
                     adj_list[val].insert(val2);
                     adj_list[val2].insert(val);

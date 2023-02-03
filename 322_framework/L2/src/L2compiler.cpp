@@ -133,7 +133,7 @@ int main(
     L2::Function* func = p.functions.back();
         //CHANGE ME: GET INSTRUCTIONS FROM ALL FUNCTIONS
         // std::cerr << p.functions.size() << "\n";
-    //auto _ = L2::generate_liveness(func, true);
+    auto _ = L2::generate_liveness(func, true);
     return 0;
   }
 
