@@ -126,7 +126,7 @@ namespace L1{
           Instruction_function_assignment* in = (Instruction_function_assignment*) i;
           std::string dst = convert_item_to_str(in->get_dst());
           FunctionName* fname = (FunctionName*) in->get_fname();
-          std::string name = fname->get_name();
+          std::string name = fname->get_function_name();
           name = "$_" + name.substr(1,name.size()-1);
           outputFile << "\tmovq " << name << ", " << dst << "\n";
 
