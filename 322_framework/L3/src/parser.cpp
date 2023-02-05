@@ -185,13 +185,89 @@ namespace L3 {
         > {};
     
     
-    // struct Instruction
+    struct Instruction_label_rule:
+        pegtl::seq<
+            label_rule
+        > {};
+
+    struct Instruction_assignment_rule:
+        ptegtl::seq<
+            variable_rule,
+            seps,
+            str_arrow,
+            seps,
+            s_rule
+        > {};
+
+    
+
+
+
+    struct Instruction_rule:
+        pegtl::sor<
+            pegtl::seq< pegtl::at<Instruction_return_t_rule>             , Instruction_return_t_rule              >,
+            pegtl::seq< pegtl::at<Instruction_return_rule>             , Instruction_return_rule              >,
+            pegtl::seq< pegtl::at<Instruction_label_rule>             , Instruction_label_rule              >,
+
+
+
+
+        > {};
 
     /*
     * function/grammar rules
     */
 
 
+
+template<> struct action < Instruction_label_rule > {
+    template< typename Input >
+	  static void apply( const Input & in, Program & p){
+
+      /* 
+       * Fetch the current function.
+       */ 
+      auto currentF = p.functions.back();
+
+      /*
+       * Fetch the last two tokens parsed.
+       */
+      auto label = parsed_items.back();
+      parsed_items.pop_back();
+      
+      /* 
+       * Create the instruction.
+       */ 
+      auto i = new Instruction_label(label);     
+      /* 
+       * Add the just-created instruction to the current function.
+       */ 
+      currentF->instructions.push_back(i);
+    }
+  };
+
+  template<> struct action < Instruction_assignment_rule > {
+    template< typename Input >
+	  static void apply( const Input & in, Program & p){
+
+      auto src = parsed_items.back();
+      parsed_items.pop_back();
+      auto dst = parsed_items.back();
+      parsed_items.pop_back();
+
+      /* 
+       * Create the instruction.
+       */ 
+      auto i = new Instruction_assignment(dst, src); 
+      // i->instruction_name = ;
+
+      /* 
+       * Add the just-created instruction to the current function.
+       */ 
+      currentF->instructions.push_back(i);
+      auto stored_instr = currentF->instructions.back();
+    }
+  };
 
 
     
