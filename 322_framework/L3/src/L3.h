@@ -49,10 +49,6 @@ namespace L3{
     class FunctionName : public Item {
         public:
             FunctionName (std::string function_name);
-            std::string get_function_name();
-        
-        private:
-            std::string function;
     };
 
     class Callee : public Item {
@@ -133,7 +129,7 @@ namespace L3{
             Item* get_s();
         private:
             Item *var;
-            Item *var;
+            Item *s;
     };
     class Instruction_return : public Instruction{
         public:
