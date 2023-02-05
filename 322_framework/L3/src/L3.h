@@ -170,12 +170,12 @@ namespace L3{
     };
     class Instruction_call : public Instruction{
         public:
-            Instruction_call (Item *callee, std::vector<Item*> args);
+            Instruction_call (Item *callee, std::vector<Item*> *args);
             Item* get_callee();
-            std::vector<Item*> get_args();
+            std::vector<Item*>* get_args();
 
         private:
-            Item *label;
+            Item *callee;
             std::vector<Item*> *args;
     };
     class Instruction_store_call : public Instruction{
@@ -183,11 +183,11 @@ namespace L3{
             Instruction_store_call (Item* var, Item *callee, std::vector<Item*> *args);
             Item* get_var();
             Item* get_callee();
-            std::vector<Item*> get_args();
+            std::vector<Item*>* get_args();
 
         private:
             Item *var;
-            Item *label;
+            Item *callee;
             std::vector<Item*> *args;
     };
     /*

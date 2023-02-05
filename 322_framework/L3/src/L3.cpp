@@ -50,6 +50,7 @@ CompareOp::CompareOp(std::string c){
 Op::Op(std::string o){
     set_name("Op");
     set_string(o);
+    return;
 }
 
 FunctionName::FunctionName(std::string f){
@@ -61,6 +62,7 @@ FunctionName::FunctionName(std::string f){
 Callee::Callee(std::string c){
     set_name("Callee");
     set_string(c);
+    return;
 }
 
 
@@ -87,11 +89,11 @@ Instruction::to_string() {
 }
 
 
-Instruction_assignment::Instruction_assignment(Item* v, Item* s1){
+Instruction_assignment::Instruction_assignment(Item* var, Item* s){
     set_name("Instruction_assignment");
     set_string("TODO");
-    var = v;
-    s = s1;
+    this->var = var;
+    this->s = s;
     return;
 }
 
@@ -106,6 +108,212 @@ Instruction_assignment::get_var(){
 }
 
 
-Instruction_cmp(item* v, Item* t1)
+Instruction_cmp::Instruction_cmp(Item* var, Item* t1, Item* op, Item* t2){
+    set_name("Instruction_cmp");
+    set_string("TODO");
+    this->var = var;
+    this->t1 = t1;
+    this->op = op;
+    this->t2 = t2;
+    return;
+}
+Item*
+Instruction_cmp::get_var(){
+    return var;
+}
+
+Item*
+Instruction_cmp::get_t1(){
+    return t1;
+}
+
+Item*
+Instruction_cmp::get_op(){
+    return op;
+}
+
+Item*
+Instruction_cmp::get_t2(){
+    return t2;
+}
+
+Instruction_op::Instruction_op(Item* var, Item* t1, Item* op, Item* t2){
+    set_name("Instruction_op");
+    set_string("TODO");
+    this->var = var;
+    this->t1 = t1;
+    this->op = op;
+    this->t2 = t2;
+    return;
+}
+
+Item*
+Instruction_op::get_var(){
+    return var;
+}
+
+Item*
+Instruction_op::get_t1(){
+    return t1;
+}
+
+Item*
+Instruction_op::get_op(){
+    return op;
+}
+
+Item*
+Instruction_op::get_t2(){
+    return t2;
+}
+
+Instruction_load::Instruction_load(Item* var_dst, Item* var_src){
+    set_name("Instruction_load");
+    set_string("TODO");
+    this->var_dst = var_dst;
+    this->var_src = var_src;
+    return;
+}
+
+Item*
+Instruction_load::get_var_dst(){
+    return var_dst;
+}
+
+Item*
+Instruction_load::get_var_src(){
+    return var_src;
+}
+
+Instruction_store::Instruction_store(Item* var, Item* ){
+    set_name("Instruction_store");
+    set_string("TODO");
+    this->var = var;
+    this->s = s;
+    return;
+}
+
+Item*
+Instruction_store::get_var(){
+    return var;
+}
+
+Item*
+Instruction_store::get_s(){
+    return s;
+}
+
+Instruction_return::Instruction_return(){
+    set_name("Instruction_return");
+    set_string("TODO");
+    return;
+}
+
+Instruction_return_t::Instruction_return_t(Item* t){
+    set_name("Instruction_return_t");
+    set_string("TODO");
+    this->t = t;
+    return;
+}
+
+Item*
+Instruction_return_t::get_t(){
+    return t;
+}
+
+Instruction_label::Instruction_label(Item* l){
+    set_name("Instruction_label");
+    set_string("TODO");
+    this->label = l;
+    return;
+}
+
+Item*
+Instruction_label::get_label(){
+    return label;
+}
+
+Instruction_br::Instruction_br(Item* l){
+    set_name("Instruction_br");
+    set_string("TODO");
+    this->label = l;
+    return;
+}
+
+Item*
+Instruction_br::get_label(){
+    return label;
+}
+
+Instruction_br_t::Instruction_br_t(Item* t, Item* l){
+    set_name("Instruction_br_t");
+    set_string("TODO");
+    this->t = t;
+    this->label = l;
+}
+
+Item*
+Instruction_br_t::get_t(){
+    return t;
+}
+
+Item*
+Instruction_br_t::get_label(){
+    return label;
+}
+
+Instruction_call::Instruction_call(Item* callee, std::vector<Item*>*args){
+    set_name("Instruction_call");
+    set_string("TODO");
+    this->callee = callee;
+    this->args = args;
+}
+
+Item*
+Instruction_call::get_callee(){
+    return callee;
+}
+
+std::vector<Item*>*
+Instruction_call::get_args(){
+    return args;
+}
+
+Instruction_store_call::Instruction_store_call(Item* var, Item* callee, std::vector<Item*>* args){
+    set_name("Instruction_call");
+    set_string("TODO");
+    this->var = var;
+    this->callee = callee;
+    this->args = args;
+}
+
+Item*
+Instruction_store_call::get_var(){
+    return var;
+}
+
+Item*
+Instruction_store_call::get_callee(){
+    return callee;
+}
+
+std::vector<Item*>*
+Instruction_store_call::get_args(){
+    return args;
+}
+
+std::string
+Function::to_string(){
+    auto instrs = instructions;
+    std::string ans = "(" + name + "\n";
+    ans += "\t";
+    // L2 ONLY: CHANGE LATER
+    // ans += (std::to_string(arguments) + " " + std::to_string(locals) + "\n");
+    for(Instruction* instr : instrs){
+        ans += "\t" + instr->to_string() + "\n";
+    }
+    ans += ")\n";
+    return ans;
+}
 
 }
