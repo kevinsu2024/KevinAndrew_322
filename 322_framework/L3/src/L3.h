@@ -56,6 +56,23 @@ namespace L3{
             Callee (std::string calleee);
     };
 
+    class T_item : public Item {
+        public: 
+            T_item(Item* i);
+            Item* get_item();
+        private:
+            Item* item;
+    };
+
+    class Arguments : public Item {
+        public:
+            Arguments(std::vector<Item*> a);
+            std::vector<Item*> get_arguments();
+
+        private:
+            std::vector<Item*> args;
+    };
+
     /*
     * Instruction interface
     */
@@ -150,17 +167,17 @@ namespace L3{
         private:
             Item *label;
     };
-    class Instruction_br : public Instruction{
+    class Instruction_break : public Instruction{
         public:
-            Instruction_br (Item *l);
+            Instruction_break (Item *l);
             Item* get_label();
 
         private:
             Item *label;
     };
-    class Instruction_br_t : public Instruction{
+    class Instruction_break_t : public Instruction{
         public:
-            Instruction_br_t (Item *t, Item *l);
+            Instruction_break_t (Item *t, Item *l);
             Item* get_t();
             Item* get_label();
 
@@ -170,25 +187,25 @@ namespace L3{
     };
     class Instruction_call : public Instruction{
         public:
-            Instruction_call (Item *callee, std::vector<Item*> *args);
+            Instruction_call (Item *callee, Item *args);
             Item* get_callee();
-            std::vector<Item*>* get_args();
+            Item* get_args();
 
         private:
             Item *callee;
-            std::vector<Item*> *args;
+            Item *args;
     };
-    class Instruction_store_call : public Instruction{
+    class Instruction_call_assignment : public Instruction{
         public:
-            Instruction_store_call (Item* var, Item *callee, std::vector<Item*> *args);
+            Instruction_call_assignment (Item* var, Item *callee, Item *args);
             Item* get_var();
             Item* get_callee();
-            std::vector<Item*>* get_args();
+            Item* get_args();
 
         private:
             Item *var;
             Item *callee;
-            std::vector<Item*> *args;
+            Item *args;
     };
     /*
     *

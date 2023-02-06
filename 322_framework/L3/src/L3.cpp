@@ -65,6 +65,28 @@ Callee::Callee(std::string c){
     return;
 }
 
+T_item::T_item(Item* i){
+    item = i;
+    set_name("T_item");
+    set_string(i->to_string());
+}
+
+Item*
+T_item::get_item(){
+    return item;
+}
+
+
+Arguments::Arguments(std::vector<Item*> ars){
+    args = ars;
+    set_name("Arguments");
+    set_string("TODO");
+}
+
+std::vector<Item*>
+Arguments::get_arguments(){
+    return args;
+}
 
 
 //Instructions
@@ -233,36 +255,36 @@ Instruction_label::get_label(){
     return label;
 }
 
-Instruction_br::Instruction_br(Item* l){
-    set_name("Instruction_br");
+Instruction_break::Instruction_break(Item* l){
+    set_name("Instruction_break");
     set_string("TODO");
     this->label = l;
     return;
 }
 
 Item*
-Instruction_br::get_label(){
+Instruction_break::get_label(){
     return label;
 }
 
-Instruction_br_t::Instruction_br_t(Item* t, Item* l){
-    set_name("Instruction_br_t");
+Instruction_break_t::Instruction_break_t(Item* t, Item* l){
+    set_name("Instruction_break_t");
     set_string("TODO");
     this->t = t;
     this->label = l;
 }
 
 Item*
-Instruction_br_t::get_t(){
+Instruction_break_t::get_t(){
     return t;
 }
 
 Item*
-Instruction_br_t::get_label(){
+Instruction_break_t::get_label(){
     return label;
 }
 
-Instruction_call::Instruction_call(Item* callee, std::vector<Item*>*args){
+Instruction_call::Instruction_call(Item* callee, Item *args){
     set_name("Instruction_call");
     set_string("TODO");
     this->callee = callee;
@@ -274,13 +296,13 @@ Instruction_call::get_callee(){
     return callee;
 }
 
-std::vector<Item*>*
+Item*
 Instruction_call::get_args(){
     return args;
 }
 
-Instruction_store_call::Instruction_store_call(Item* var, Item* callee, std::vector<Item*>* args){
-    set_name("Instruction_call");
+Instruction_call_assignment::Instruction_call_assignment(Item* var, Item* callee, Item* args){
+    set_name("Instruction_call_assignment");
     set_string("TODO");
     this->var = var;
     this->callee = callee;
@@ -288,17 +310,17 @@ Instruction_store_call::Instruction_store_call(Item* var, Item* callee, std::vec
 }
 
 Item*
-Instruction_store_call::get_var(){
+Instruction_call_assignment::get_var(){
     return var;
 }
 
 Item*
-Instruction_store_call::get_callee(){
+Instruction_call_assignment::get_callee(){
     return callee;
 }
 
-std::vector<Item*>*
-Instruction_store_call::get_args(){
+Item*
+Instruction_call_assignment::get_args(){
     return args;
 }
 
