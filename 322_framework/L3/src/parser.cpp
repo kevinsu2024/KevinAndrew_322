@@ -70,8 +70,8 @@ namespace L3 {
     struct str_rshift: TAOCPP_PEGTL_STRING( ">>" ) {};
     struct str_lt : TAOCPP_PEGTL_STRING( "<" ) {};
     struct str_leq : TAOCPP_PEGTL_STRING( "<=" ) {};
-    struct str_gt : TAOCPP_PEGTL_STRING( "<" ) {};
-    struct str_geq : TAOCPP_PEGTL_STRING( "<=" ) {};
+    struct str_gt : TAOCPP_PEGTL_STRING( ">" ) {};
+    struct str_geq : TAOCPP_PEGTL_STRING( ">=" ) {};
     struct str_eq : TAOCPP_PEGTL_STRING( "=" ) {};
     struct str_at_main : TAOCPP_PEGTL_STRING( "@main" ) {};
 
@@ -133,21 +133,21 @@ namespace L3 {
 
     struct op_rule:
         pegtl::sor<
-            str_plus,
-            str_minus,
-            str_times,
-            str_and,
-            str_lshift,
-            str_rshift
+            pegtl::seq<pegtl::at<str_lshift>,str_lshift>,
+            pegtl::seq<pegtl::at<str_rshift>,str_rshift>,
+            pegtl::seq<pegtl::at<str_times>,str_times>,
+            pegtl::seq<pegtl::at<str_plus>,str_plus>,
+            pegtl::seq<pegtl::at<str_minus>,str_minus>,
+            pegtl::seq<pegtl::at<str_and>,str_and>
         > {};
     
     struct cmp_rule:
         pegtl::sor<
-            str_lt,
-            str_leq,
-            str_eq,
-            str_geq,
-            str_gt
+            pegtl::seq<pegtl::at<str_geq>,str_geq>,
+            pegtl::seq<pegtl::at<str_leq>,str_leq>,
+            pegtl::seq<pegtl::at<str_lt>,str_lt>,
+            pegtl::seq<pegtl::at<str_gt>,str_gt>,
+            pegtl::seq<pegtl::at<str_eq>,str_eq>
         > {};
 
     struct t_rule:
@@ -166,7 +166,7 @@ namespace L3 {
     struct u_rule:
         pegtl::sor<
             variable_rule,
-            label_rule
+            function_name_rule
         > {};
     
     struct arguments_rule:
@@ -287,19 +287,21 @@ namespace L3 {
 
     struct Instruction_call_rule:
         pegtl::seq<
+            seps,
             str_call,
             seps,
             callee_rule,
             seps,
             pegtl::one<'('>,
             seps,
-            arguments_rule,
+            pegtl::star<arguments_rule>,
             seps,
             pegtl::one<')'>
         > {};
 
     struct Instruction_call_assignment_rule:
         pegtl::seq<
+            seps,
             variable_rule,
             seps,
             str_arrow,
@@ -310,7 +312,7 @@ namespace L3 {
             seps,
             pegtl::one<'('>,
             seps,
-            arguments_rule,
+            pegtl::star<arguments_rule>,
             seps,
             pegtl::one<')'>
         > {};
@@ -319,16 +321,16 @@ namespace L3 {
         pegtl::sor<
             pegtl::seq< pegtl::at<Instruction_return_t_rule>        , Instruction_return_t_rule         >,
             pegtl::seq< pegtl::at<Instruction_return_rule>          , Instruction_return_rule           >,
-            pegtl::seq< pegtl::at<Instruction_label_rule>           , Instruction_label_rule            >,
             pegtl::seq< pegtl::at<Instruction_cmp_assignment_rule>  , Instruction_cmp_assignment_rule   >,
             pegtl::seq< pegtl::at<Instruction_op_assignment_rule>   , Instruction_op_assignment_rule    >,
             pegtl::seq< pegtl::at<Instruction_assignment_rule>      , Instruction_assignment_rule       >,
-            pegtl::seq< pegtl::at<Instruction_load_assignment_rule>      , Instruction_load_assignment_rule       >,
-            pegtl::seq< pegtl::at<Instruction_store_assignment_rule>      , Instruction_store_assignment_rule       >,
-            pegtl::seq< pegtl::at<Instruction_break_rule>      , Instruction_break_rule       >,
-            pegtl::seq< pegtl::at<Instruction_break_t_rule>      , Instruction_break_t_rule       >,
-            pegtl::seq< pegtl::at<Instruction_call_assignment_rule>      , Instruction_call_assignment_rule       >,
-            pegtl::seq< pegtl::at<Instruction_call_rule>      , Instruction_call_rule       >
+            pegtl::seq< pegtl::at<Instruction_load_assignment_rule> , Instruction_load_assignment_rule  >,
+            pegtl::seq< pegtl::at<Instruction_store_assignment_rule>, Instruction_store_assignment_rule >,
+            pegtl::seq< pegtl::at<Instruction_break_rule>           , Instruction_break_rule            >,
+            pegtl::seq< pegtl::at<Instruction_break_t_rule>         , Instruction_break_t_rule          >,
+            pegtl::seq< pegtl::at<Instruction_call_assignment_rule> , Instruction_call_assignment_rule  >,
+            pegtl::seq< pegtl::at<Instruction_call_rule>            , Instruction_call_rule             >,
+            pegtl::seq< pegtl::at<Instruction_label_rule>           , Instruction_label_rule            >
 
 
 
@@ -432,29 +434,6 @@ namespace L3 {
         }
     };
 
-    template<> struct action < t_rule > {
-        template< typename Input >
-        static void apply( const Input & in, Program & p){
-            Item* item = parsed_items.back();
-            parsed_items.pop_back();
-            Item* t = new T_item(item);
-            parsed_items.push_back(t);
-            
-        }
-    };
-
-    template<> struct action < arguments_rule > {
-        template< typename Input >
-        static void apply( const Input & in, Program & p){
-            std::vector<Item*>args;
-            while(parsed_items.back()->get_name() == "T_item"){
-                args.push_back(parsed_items.back());
-                parsed_items.pop_back();
-            }
-            Item* arguments = new Arguments(args);
-            parsed_items.push_back(arguments);
-        }
-    };
 
     template<> struct action < number_rule > {
         template< typename Input >
@@ -760,16 +739,19 @@ namespace L3 {
         template< typename Input >
         static void apply( const Input & in, Program & p){
             auto currentF = p.functions.back();
-
-            auto args = parsed_items.back();
-            parsed_items.pop_back();
+            std::vector<Item*> args;
+            while (parsed_items.size() > 1){ //in call rule, only last item is the callee
+                auto popped_item = parsed_items.back();
+                parsed_items.pop_back();
+                args.push_back(popped_item);
+            }
             auto callee = parsed_items.back();
             parsed_items.pop_back();
 
             /* 
             * Create the instruction.
             */ 
-            auto i = new Instruction_call(callee, args); 
+            auto i = new Instruction_call(callee, &args); 
 
             /* 
             * Add the just-created instruction to the current function.
@@ -783,8 +765,12 @@ namespace L3 {
         static void apply( const Input & in, Program & p){
             auto currentF = p.functions.back();
 
-            auto args = parsed_items.back();
-            parsed_items.pop_back();
+            std::vector<Item*> args;
+            while (parsed_items.size() > 2){ //in call assignment rule, last two items are var and callee. rest are args
+                auto popped_item = parsed_items.back();
+                parsed_items.pop_back();
+                args.push_back(popped_item);
+            }
             auto callee = parsed_items.back();
             parsed_items.pop_back();
             auto var = parsed_items.back();
@@ -793,7 +779,7 @@ namespace L3 {
             /* 
             * Create the instruction.
             */ 
-            auto i = new Instruction_call_assignment(var, callee, args); 
+            auto i = new Instruction_call_assignment(var, callee, &args); 
 
             /* 
             * Add the just-created instruction to the current function.

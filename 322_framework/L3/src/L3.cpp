@@ -59,35 +59,6 @@ FunctionName::FunctionName(std::string f){
     return;
 }
 
-Callee::Callee(std::string c){
-    set_name("Callee");
-    set_string(c);
-    return;
-}
-
-T_item::T_item(Item* i){
-    item = i;
-    set_name("T_item");
-    set_string(i->to_string());
-}
-
-Item*
-T_item::get_item(){
-    return item;
-}
-
-
-Arguments::Arguments(std::vector<Item*> ars){
-    args = ars;
-    set_name("Arguments");
-    set_string("TODO");
-}
-
-std::vector<Item*>
-Arguments::get_arguments(){
-    return args;
-}
-
 
 //Instructions
 void
@@ -284,7 +255,7 @@ Instruction_break_t::get_label(){
     return label;
 }
 
-Instruction_call::Instruction_call(Item* callee, Item *args){
+Instruction_call::Instruction_call(Item* callee, std::vector<Item*> *args){
     set_name("Instruction_call");
     set_string("TODO");
     this->callee = callee;
@@ -296,12 +267,12 @@ Instruction_call::get_callee(){
     return callee;
 }
 
-Item*
+std::vector<Item*>*
 Instruction_call::get_args(){
     return args;
 }
 
-Instruction_call_assignment::Instruction_call_assignment(Item* var, Item* callee, Item* args){
+Instruction_call_assignment::Instruction_call_assignment(Item* var, Item* callee, std::vector<Item*>* args){
     set_name("Instruction_call_assignment");
     set_string("TODO");
     this->var = var;
@@ -319,7 +290,7 @@ Instruction_call_assignment::get_callee(){
     return callee;
 }
 
-Item*
+std::vector<Item*>*
 Instruction_call_assignment::get_args(){
     return args;
 }

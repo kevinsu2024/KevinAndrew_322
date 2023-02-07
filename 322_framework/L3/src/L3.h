@@ -51,27 +51,6 @@ namespace L3{
             FunctionName (std::string function_name);
     };
 
-    class Callee : public Item {
-        public:
-            Callee (std::string calleee);
-    };
-
-    class T_item : public Item {
-        public: 
-            T_item(Item* i);
-            Item* get_item();
-        private:
-            Item* item;
-    };
-
-    class Arguments : public Item {
-        public:
-            Arguments(std::vector<Item*> a);
-            std::vector<Item*> get_arguments();
-
-        private:
-            std::vector<Item*> args;
-    };
 
     /*
     * Instruction interface
@@ -187,25 +166,25 @@ namespace L3{
     };
     class Instruction_call : public Instruction{
         public:
-            Instruction_call (Item *callee, Item *args);
+            Instruction_call (Item *callee, std::vector<Item*> *args);
             Item* get_callee();
-            Item* get_args();
+            std::vector<Item*>* get_args();
 
         private:
             Item *callee;
-            Item *args;
+            std::vector<Item*> *args;
     };
     class Instruction_call_assignment : public Instruction{
         public:
-            Instruction_call_assignment (Item* var, Item *callee, Item *args);
+            Instruction_call_assignment (Item* var, Item *callee, std::vector<Item*> *args);
             Item* get_var();
             Item* get_callee();
-            Item* get_args();
+            std::vector<Item*>* get_args();
 
         private:
             Item *var;
             Item *callee;
-            Item *args;
+            std::vector<Item*> *args;
     };
     /*
     *
