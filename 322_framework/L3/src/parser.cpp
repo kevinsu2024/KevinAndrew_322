@@ -498,7 +498,7 @@ namespace L3 {
         template< typename Input >
         static void apply( const Input & in, Program & p){
             std::string input_string = in.string();
-            std::cout << input_string << "\n";
+            // std::cout << input_string << "\n";
             Item* stl = new StandardLibrary(input_string);
             parsed_items.push_back(stl);
         }
