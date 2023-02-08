@@ -53,7 +53,7 @@ namespace L3 {
     */
     struct str_arrow : TAOCPP_PEGTL_STRING("<-") {};
     struct str_call : TAOCPP_PEGTL_STRING( "call" ) {};
-    struct str_break : TAOCPP_PEGTL_STRING( "br" ) {};
+    struct str_branch : TAOCPP_PEGTL_STRING( "br" ) {};
     struct str_define : TAOCPP_PEGTL_STRING( "define" ){};
     struct str_print : TAOCPP_PEGTL_STRING( "print" ) {};
     struct str_input : TAOCPP_PEGTL_STRING( "input" ) {};
@@ -274,16 +274,16 @@ namespace L3 {
             s_rule
         > {};
 
-    struct Instruction_break_rule:
+    struct Instruction_branch_rule:
         pegtl::seq<
-            str_break,
+            str_branch,
             seps,
             label_rule
         > {};
     
-    struct Instruction_break_t_rule:
+    struct Instruction_branch_t_rule:
         pegtl::seq<
-            str_break,
+            str_branch,
             seps,
             t_rule,
             seps,
@@ -331,8 +331,8 @@ namespace L3 {
             pegtl::seq< pegtl::at<Instruction_assignment_rule>      , Instruction_assignment_rule       >,
             pegtl::seq< pegtl::at<Instruction_load_assignment_rule> , Instruction_load_assignment_rule  >,
             pegtl::seq< pegtl::at<Instruction_store_assignment_rule>, Instruction_store_assignment_rule >,
-            pegtl::seq< pegtl::at<Instruction_break_rule>           , Instruction_break_rule            >,
-            pegtl::seq< pegtl::at<Instruction_break_t_rule>         , Instruction_break_t_rule          >,
+            pegtl::seq< pegtl::at<Instruction_branch_rule>           , Instruction_branch_rule            >,
+            pegtl::seq< pegtl::at<Instruction_branch_t_rule>         , Instruction_branch_t_rule          >,
             pegtl::seq< pegtl::at<Instruction_call_assignment_rule> , Instruction_call_assignment_rule  >,
             pegtl::seq< pegtl::at<Instruction_call_rule>            , Instruction_call_rule             >,
             pegtl::seq< pegtl::at<Instruction_label_rule>           , Instruction_label_rule            >
@@ -705,7 +705,7 @@ namespace L3 {
     };
 
 
-    template<> struct action < Instruction_break_rule > {
+    template<> struct action < Instruction_branch_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
             auto currentF = p.functions.back();
@@ -716,7 +716,7 @@ namespace L3 {
             /* 
             * Create the instruction.
             */ 
-            auto i = new Instruction_break(label); 
+            auto i = new Instruction_branch(label); 
 
             /* 
             * Add the just-created instruction to the current function.
@@ -726,7 +726,7 @@ namespace L3 {
     };
 
 
-    template<> struct action < Instruction_break_t_rule > {
+    template<> struct action < Instruction_branch_t_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
             auto currentF = p.functions.back();
@@ -739,7 +739,7 @@ namespace L3 {
             /* 
             * Create the instruction.
             */ 
-            auto i = new Instruction_break_t(t, label); 
+            auto i = new Instruction_branch_t(t, label); 
 
             /* 
             * Add the just-created instruction to the current function.

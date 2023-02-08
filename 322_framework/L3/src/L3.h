@@ -151,17 +151,17 @@ namespace L3{
         private:
             Item *label;
     };
-    class Instruction_break : public Instruction{
+    class Instruction_branch : public Instruction{
         public:
-            Instruction_break (Item *l);
+            Instruction_branch (Item *l);
             Item* get_label();
 
         private:
             Item *label;
     };
-    class Instruction_break_t : public Instruction{
+    class Instruction_branch_t : public Instruction{
         public:
-            Instruction_break_t (Item *t, Item *l);
+            Instruction_branch_t (Item *t, Item *l);
             Item* get_t();
             Item* get_label();
 

@@ -232,32 +232,32 @@ Instruction_label::get_label(){
     return label;
 }
 
-Instruction_break::Instruction_break(Item* l){
-    set_name("Instruction_break");
+Instruction_branch::Instruction_branch(Item* l){
+    set_name("Instruction_branch");
     set_string("TODO");
     this->label = l;
     return;
 }
 
 Item*
-Instruction_break::get_label(){
+Instruction_branch::get_label(){
     return label;
 }
 
-Instruction_break_t::Instruction_break_t(Item* t, Item* l){
-    set_name("Instruction_break_t");
+Instruction_branch_t::Instruction_branch_t(Item* t, Item* l){
+    set_name("Instruction_branch_t");
     set_string("TODO");
     this->t = t;
     this->label = l;
 }
 
 Item*
-Instruction_break_t::get_t(){
+Instruction_branch_t::get_t(){
     return t;
 }
 
 Item*
-Instruction_break_t::get_label(){
+Instruction_branch_t::get_label(){
     return label;
 }
 
