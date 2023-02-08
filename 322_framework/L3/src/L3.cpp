@@ -14,12 +14,12 @@ Item::to_string(){
 
 void
 Item::set_name(std::string s){
-    item_str = s;
+    item_name = s;
 }
 
 void
 Item::set_string(std::string s){
-    item_name = s;
+    item_str = s;
 }
 
 Variable::Variable(std::string v){

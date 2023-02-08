@@ -488,6 +488,7 @@ namespace L3 {
                     vars.push_back(popped_item);
                 }
             }
+            std::reverse(vars.begin(), vars.end());
             newF->name = function_name;
             newF->vars = vars;
             if (function_name == "@main"){
@@ -768,7 +769,7 @@ namespace L3 {
             }
             auto callee = parsed_items.back();
             parsed_items.pop_back();
-
+            std::reverse(args.begin(), args.end());
             /* 
             * Create the instruction.
             */ 
@@ -791,6 +792,7 @@ namespace L3 {
                 parsed_items.pop_back();
                 args.push_back(popped_item);
             }
+            std::reverse(args.begin(), args.end());
             auto callee = parsed_items.back();
             parsed_items.pop_back();
             auto var = parsed_items.back();

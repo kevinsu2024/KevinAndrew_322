@@ -87,8 +87,7 @@ namespace L3{
     void
     generate_call(Instruction* instr, std::ofstream& out){
         Instruction_call* i = (Instruction_call*) instr;
-        std::cout << i->get_args()->size() << "\n";
-        std::vector<Item*> args = *(i->get_args());
+        std::vector<Item*> args = i->get_args();
         std::string callee = i->get_callee()->to_string();
         std::string return_label = "";
         
@@ -128,7 +127,7 @@ namespace L3{
     void
     generate_call_assignment(Instruction* instr, std::ofstream& out){
         Instruction_call_assignment* i = (Instruction_call_assignment*) instr;
-        std::vector<Item*> args = *(i->get_args());
+        std::vector<Item*> args = i->get_args();
         std::string callee = i->get_callee()->to_string();
         std::string return_label = "";
         std::string var = i->get_var()->to_string();
@@ -180,7 +179,7 @@ namespace L3{
         
         outputFile.open("prog.L2");
         //maintained invariant that main is always first function
-        outputFile << "(@main\n\t(@main\n\t0";
+        outputFile << "(@main\n\t(@main\n\t0\n";
         //generates other code
         
         for (auto f : p.functions){
@@ -201,11 +200,8 @@ namespace L3{
             for (auto i : f->instructions){
                 //Assume we only handle calls and labels without instruction selection
                 if (i->get_name() == "Instruction_call"){
-                    std::cout << "in call\n";
                     Instruction_call* instr = (Instruction_call*) i;
-                    std::cout << instr->get_args()->size() << "\n";
                     generate_call(i, outputFile);
-                    std::cout << "passed call\n";
                 } else if (i->get_name() == "Instruction_call_assignment"){
                     generate_call_assignment(i, outputFile);
                 } 
