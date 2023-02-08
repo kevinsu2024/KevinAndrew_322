@@ -491,12 +491,7 @@ namespace L3 {
             std::reverse(vars.begin(), vars.end());
             newF->name = function_name;
             newF->vars = vars;
-            if (function_name == "@main"){
-                //invariant: main is always the first function in p.functions
-                p.functions.insert(p.functions.begin(),newF);
-            } else {
-                p.functions.push_back(newF);
-            }
+            p.functions.push_back(newF);
             
         }
     };
