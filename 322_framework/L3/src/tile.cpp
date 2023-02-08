@@ -368,43 +368,49 @@ namespace L3{
             Node* dest = tree->neighbors[0];
             Node* val1 = tree->neighbors[1]->neighbors[0];
             Node* val2 = tree->neighbors[1]->neighbors[1];
-            code += (dest->node_val + " <- " + val1->node_val + "\n");
-            code += (dest->node_val + " += " + val2->node_val + "\n");
+            code += (dest->node_val+"_holder_ <- " + val1->node_val + "\n");
+            code += (dest->node_val+"_holder_ += " + val2->node_val + "\n");
+            code += (dest->node_val + " <- " + dest->node_val+"_holder_" + "\n");
         }
         else if(tile_id == "3"){
             Node* dest = tree->neighbors[0];
             Node* val1 = tree->neighbors[1]->neighbors[0];
             Node* val2 = tree->neighbors[1]->neighbors[1];
-            code += (dest->node_val + " <- " + val1->node_val + "\n");
-            code += (dest->node_val + " -= " + val2->node_val + "\n");
+            code += (dest->node_val+"_holder_ <- " + val1->node_val + "\n");
+            code += (dest->node_val+"_holder_ -= " + val2->node_val + "\n");
+            code += (dest->node_val + " <- " + dest->node_val+"_holder_" + "\n");
         }
         else if(tile_id == "4"){
             Node* dest = tree->neighbors[0];
             Node* val1 = tree->neighbors[1]->neighbors[0];
             Node* val2 = tree->neighbors[1]->neighbors[1];
-            code += (dest->node_val + " <- " + val1->node_val + "\n");
-            code += (dest->node_val + " *= " + val2->node_val + "\n");
+            code += (dest->node_val+"_holder_ <- " + val1->node_val + "\n");
+            code += (dest->node_val+"_holder_ *= " + val2->node_val + "\n");
+            code += (dest->node_val + " <- " + dest->node_val+"_holder_" + "\n");
         }
         else if(tile_id == "5"){
             Node* dest = tree->neighbors[0];
             Node* val1 = tree->neighbors[1]->neighbors[0];
             Node* val2 = tree->neighbors[1]->neighbors[1];
-            code += (dest->node_val + " <- " + val1->node_val + "\n");
-            code += (dest->node_val + " &= " + val2->node_val + "\n");
+            code += (dest->node_val+"_holder_ <- " + val1->node_val + "\n");
+            code += (dest->node_val+"_holder_ &= " + val2->node_val + "\n");
+            code += (dest->node_val + " <- " + dest->node_val+"_holder_" + "\n");
         }
         else if(tile_id == "6"){
             Node* dest = tree->neighbors[0];
             Node* val1 = tree->neighbors[1]->neighbors[0];
             Node* val2 = tree->neighbors[1]->neighbors[1];
-            code += (dest->node_val + " <- " + val1->node_val + "\n");
-            code += (dest->node_val + " <<= " + val2->node_val + "\n");
+            code += (dest->node_val+"_holder_ <- " + val1->node_val + "\n");
+            code += (dest->node_val+"_holder_ <<= " + val2->node_val + "\n");
+            code += (dest->node_val + " <- " + dest->node_val+"_holder_" + "\n");
         }
         else if(tile_id == "7"){
             Node* dest = tree->neighbors[0];
             Node* val1 = tree->neighbors[1]->neighbors[0];
             Node* val2 = tree->neighbors[1]->neighbors[1];
-            code += (dest->node_val + " <- " + val1->node_val + "\n");
-            code += (dest->node_val + " >>= " + val2->node_val + "\n");
+            code += (dest->node_val+"_holder_ <- " + val1->node_val + "\n");
+            code += (dest->node_val+"_holder_ >>= " + val2->node_val + "\n");
+            code += (dest->node_val + " <- " + dest->node_val+"_holder_" + "\n");
         }
 
         else if(tile_id == "8"){
