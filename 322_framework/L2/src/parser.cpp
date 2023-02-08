@@ -104,7 +104,8 @@ namespace L2 {
   struct str_print : TAOCPP_PEGTL_STRING( "print" ) {};
   struct str_input : TAOCPP_PEGTL_STRING( "input" ) {};
   struct str_allocate : TAOCPP_PEGTL_STRING( "allocate" ) {};
-  struct str_tensor_error : TAOCPP_PEGTL_STRING( "tensor-error" ) {};
+  struct str_tensor_error : TAOCPP_PEGTL_STRING( "tensor-error" ){};
+  
 
 
   struct label:

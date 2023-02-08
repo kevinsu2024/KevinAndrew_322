@@ -1,5 +1,5 @@
 #include <code_generator.h>
-
+#include <unordered_map>
 
 namespace L3{
 
@@ -40,6 +40,7 @@ namespace L3{
     convert_all_labels(Program p, std::string longest_label){
         int64_t ctr = 0;
         //look through all instructions
+        std::unordered_map<std::string, std::string> label_mapping;
         for (auto f : p.functions){
             for (int i = 0; i < f->instructions.size(); i++){
                 // only instructions with label or s rule
@@ -47,8 +48,13 @@ namespace L3{
                 if (f->instructions[i]->get_name() == "Instruction_assignment"){
                     Instruction_assignment* instr = (Instruction_assignment*) f->instructions[i];
                     if (instr->get_s()->get_name() == "InstructionLabel"){
+                        std::string old_lab = instr->get_s()->to_string();
+                        if (label_mapping.find(old_lab) == label_mapping.end()){
+                            label_mapping[old_lab] = new_label;
+                            ctr++;
+                        }
                         f->instructions.erase(f->instructions.begin() + i);
-                        InstructionLabel* lab = new InstructionLabel(new_label);
+                        InstructionLabel* lab = new InstructionLabel(label_mapping[old_lab]);
                         Instruction_assignment* new_instr = new Instruction_assignment(instr->get_var(), lab);
                         f->instructions.insert(f->instructions.begin() + i,new_instr);
                         
@@ -56,30 +62,52 @@ namespace L3{
                 } else if (f->instructions[i]->get_name() == "Instruction_store"){
                     Instruction_store* instr = (Instruction_store*) f->instructions[i];
                     if (instr->get_s()->get_name() == "InstructionLabel"){
+                        std::string old_lab = instr->get_s()->to_string();
+                        if (label_mapping.find(old_lab) == label_mapping.end()){
+                            label_mapping[old_lab] = new_label;
+                            ctr++;
+                        }
                         f->instructions.erase(f->instructions.begin() + i);
-                        InstructionLabel* lab = new InstructionLabel(new_label);
+                        InstructionLabel* lab = new InstructionLabel(label_mapping[old_lab]);
                         Instruction_store* new_instr = new Instruction_store(instr->get_var(), lab);
                         f->instructions.insert(f->instructions.begin() + i,new_instr);
                     }
                 } else if (f->instructions[i]->get_name() == "Instruction_label"){
+                    Instruction_label* instr = (Instruction_label*) f->instructions[i];
+                    std::string old_lab = instr->get_label()->to_string();
+                    if (label_mapping.find(old_lab) == label_mapping.end()){
+                        label_mapping[old_lab] = new_label;
+                        ctr++;
+                    }
                     f->instructions.erase(f->instructions.begin() + i);
-                    InstructionLabel* lab = new InstructionLabel(new_label);
+                    InstructionLabel* lab = new InstructionLabel(label_mapping[old_lab]);
                     Instruction_label* new_instr = new Instruction_label(lab);
                     f->instructions.insert(f->instructions.begin() + i, new_instr);
                 } else if (f->instructions[i]->get_name() == "Instruction_branch"){
+                    Instruction_branch* instr = (Instruction_branch*) f->instructions[i];
+                    std::string old_lab = instr->get_label()->to_string();
+                    if (label_mapping.find(old_lab) == label_mapping.end()){
+                        label_mapping[old_lab] = new_label;
+                        ctr++;
+                    }
                     f->instructions.erase(f->instructions.begin() + i);
-                    InstructionLabel* lab = new InstructionLabel(new_label);
+                    InstructionLabel* lab = new InstructionLabel(label_mapping[old_lab]);
                     Instruction_branch* new_instr = new Instruction_branch(lab);
                     f->instructions.insert(f->instructions.begin() + i, new_instr);
                 } else if (f->instructions[i]->get_name() == "Instruction_branch_t"){
                     Instruction_branch_t* instr = (Instruction_branch_t*) f->instructions[i];
+                    std::string old_lab = instr->get_label()->to_string();
+                    if (label_mapping.find(old_lab) == label_mapping.end()){
+                        label_mapping[old_lab] = new_label;
+                        ctr++;
+                    }
                     f->instructions.erase(f->instructions.begin() + i);
-                    InstructionLabel* lab = new InstructionLabel(new_label);
+                    InstructionLabel* lab = new InstructionLabel(label_mapping[old_lab]);
                     Instruction_branch_t* new_instr = new Instruction_branch_t(instr->get_t(),lab);
                     f->instructions.insert(f->instructions.begin() + i, new_instr);
                 }
 
-                ctr++;
+                // ctr++;
             }   
         }
         return p;
