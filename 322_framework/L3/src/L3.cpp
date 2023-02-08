@@ -59,6 +59,12 @@ FunctionName::FunctionName(std::string f){
     return;
 }
 
+StandardLibrary::StandardLibrary(std::string stl){
+    set_name("StandardLibrar");
+    set_string(stl);
+    return;
+}
+
 
 //Instructions
 void

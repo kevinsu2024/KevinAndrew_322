@@ -51,6 +51,11 @@ namespace L3{
             FunctionName (std::string function_name);
     };
 
+    class StandardLibrary : public Item{
+        public:
+            StandardLibrary(std::string standard_library_function_name);
+    };
+
 
     /*
     * Instruction interface

@@ -180,13 +180,18 @@ namespace L3 {
             >
         > {};
 
-    struct callee_rule:
+    struct standard_library_rule:
         pegtl::sor<
-            u_rule,
             str_print,
             str_allocate,
             str_input,
             str_tensor_error
+        > {};
+
+    struct callee_rule:
+        pegtl::sor<
+            u_rule,
+            standard_library_rule
         > {};
     
     
@@ -486,6 +491,16 @@ namespace L3 {
             newF->name = function_name;
             newF->vars = vars;
             p.functions.push_back(newF);
+        }
+    };
+
+    template<> struct action < standard_library_rule > {
+        template< typename Input >
+        static void apply( const Input & in, Program & p){
+            std::string input_string = in.string();
+            std::cout << input_string << "\n";
+            Item* stl = new StandardLibrary(input_string);
+            parsed_items.push_back(stl);
         }
     };
 
