@@ -490,7 +490,13 @@ namespace L3 {
             }
             newF->name = function_name;
             newF->vars = vars;
-            p.functions.push_back(newF);
+            if (function_name == "@main"){
+                //invariant: main is always the first function in p.functions
+                p.functions.insert(p.functions.begin(),newF);
+            } else {
+                p.functions.push_back(newF);
+            }
+            
         }
     };
 

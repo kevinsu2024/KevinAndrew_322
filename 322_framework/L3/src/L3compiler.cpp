@@ -13,7 +13,8 @@
 #include <iostream>
 #include <assert.h>
 #include <parser.h>
-// #include <code_generator.h>
+#include <L3.h>
+#include <code_generator.h>
 
 
 void print_help (char *progName){
@@ -76,10 +77,10 @@ int main(
   }
 
   /*
-   * Generate x86_64 assembly.
+   * Generate L2.
    */
   if (enable_code_generator){
-    // L1::generate_code(p);
+      L3::generate_code(p);
   }
 
   return 0;

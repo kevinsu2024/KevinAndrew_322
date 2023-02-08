@@ -90,7 +90,7 @@ Instruction::to_string() {
 
 Instruction_assignment::Instruction_assignment(Item* var, Item* s){
     set_name("Instruction_assignment");
-    set_string("TODO");
+    set_string(var->to_string() + " <- " + s->to_string());
     this->var = var;
     this->s = s;
     return;
@@ -109,7 +109,7 @@ Instruction_assignment::get_var(){
 
 Instruction_cmp::Instruction_cmp(Item* var, Item* t1, Item* op, Item* t2){
     set_name("Instruction_cmp");
-    set_string("TODO");
+    set_string(var->to_string() + " <- " + t1->to_string() + " " + op->to_string() + " " + t2->to_string());
     this->var = var;
     this->t1 = t1;
     this->op = op;
@@ -138,7 +138,7 @@ Instruction_cmp::get_t2(){
 
 Instruction_op::Instruction_op(Item* var, Item* t1, Item* op, Item* t2){
     set_name("Instruction_op");
-    set_string("TODO");
+    set_string(var->to_string() + " <- " + t1->to_string() + " " + op->to_string() + " " + t2->to_string());
     this->var = var;
     this->t1 = t1;
     this->op = op;
@@ -168,7 +168,7 @@ Instruction_op::get_t2(){
 
 Instruction_load::Instruction_load(Item* var_dst, Item* var_src){
     set_name("Instruction_load");
-    set_string("TODO");
+    set_string(var_dst->to_string() + " <- load " + var_src->to_string());
     this->var_dst = var_dst;
     this->var_src = var_src;
     return;
@@ -184,9 +184,9 @@ Instruction_load::get_var_src(){
     return var_src;
 }
 
-Instruction_store::Instruction_store(Item* var, Item* ){
+Instruction_store::Instruction_store(Item* var, Item* s){
     set_name("Instruction_store");
-    set_string("TODO");
+    set_string("store " + var->to_string() + " <- " + s->to_string());
     this->var = var;
     this->s = s;
     return;
@@ -204,13 +204,13 @@ Instruction_store::get_s(){
 
 Instruction_return::Instruction_return(){
     set_name("Instruction_return");
-    set_string("TODO");
+    set_string("return");
     return;
 }
 
 Instruction_return_t::Instruction_return_t(Item* t){
     set_name("Instruction_return_t");
-    set_string("TODO");
+    set_string("return " + t->to_string());
     this->t = t;
     return;
 }
@@ -222,7 +222,7 @@ Instruction_return_t::get_t(){
 
 Instruction_label::Instruction_label(Item* l){
     set_name("Instruction_label");
-    set_string("TODO");
+    set_string(l->to_string());
     this->label = l;
     return;
 }
@@ -234,7 +234,7 @@ Instruction_label::get_label(){
 
 Instruction_branch::Instruction_branch(Item* l){
     set_name("Instruction_branch");
-    set_string("TODO");
+    set_string("br " + l->to_string());
     this->label = l;
     return;
 }
@@ -246,7 +246,7 @@ Instruction_branch::get_label(){
 
 Instruction_branch_t::Instruction_branch_t(Item* t, Item* l){
     set_name("Instruction_branch_t");
-    set_string("TODO");
+    set_string("br " + t->to_string() + " " + l->to_string());
     this->t = t;
     this->label = l;
 }
@@ -263,7 +263,15 @@ Instruction_branch_t::get_label(){
 
 Instruction_call::Instruction_call(Item* callee, std::vector<Item*> *args){
     set_name("Instruction_call");
-    set_string("TODO");
+    std::string L3_string = "call " + callee->to_string() + "(";
+    for (int i = 0; i < args->size(); i++){
+        L3_string += (*args)[i]->to_string();
+        if (i < args->size() - 1){
+            L3_string += ", ";
+        }
+        L3_string += ")";
+    }
+    set_string(L3_string);
     this->callee = callee;
     this->args = args;
 }
@@ -280,7 +288,15 @@ Instruction_call::get_args(){
 
 Instruction_call_assignment::Instruction_call_assignment(Item* var, Item* callee, std::vector<Item*>* args){
     set_name("Instruction_call_assignment");
-    set_string("TODO");
+    std::string L3_string = var->to_string() + " <- call " + callee->to_string() + "(";
+    for (int i = 0; i < args->size(); i++){
+        L3_string += (*args)[i]->to_string();
+        if (i < args->size() - 1){
+            L3_string += ", ";
+        }
+        L3_string += ")";
+    }
+    set_string(L3_string);
     this->var = var;
     this->callee = callee;
     this->args = args;
