@@ -87,13 +87,16 @@ namespace L3{
     void
     generate_call(Instruction* instr, std::ofstream& out){
         Instruction_call* i = (Instruction_call*) instr;
-        std::vector<Item*> args = *i->get_args();
+        std::cout << i->get_args()->size() << "\n";
+        std::vector<Item*> args = *(i->get_args());
         std::string callee = i->get_callee()->to_string();
         std::string return_label = "";
+        
         //if current instruction is not standard library function, then need to store arguments, etc.
         if (callee.at(0) == '@' && callee.at(0) == '%'){ 
             return_label = ":" + callee + "_ret";
             out << "\t\tmem rsp -8 <- :" <<  return_label << "\n"; // create ret label
+            
             for (int i = 0; i < args.size(); i++){
                 if (i < 6){
                     out << arg_registers[i] << " <- " << args[i] <<"\n";
@@ -105,7 +108,9 @@ namespace L3{
         } 
         
         //the actual call line
+        
         out << "\t\tcall " << callee << "(";
+        
         for (int i = 0; i < args.size(); i++){
             out << args[i]->to_string();
             if (i < args.size() - 1){
@@ -117,19 +122,22 @@ namespace L3{
         if (callee.at(0) == '@' && callee.at(0) == '%'){
             out << "\t\t" << return_label << "\n";
         }
+        
     }
 
     void
     generate_call_assignment(Instruction* instr, std::ofstream& out){
         Instruction_call_assignment* i = (Instruction_call_assignment*) instr;
-        std::vector<Item*> args = *i->get_args();
+        std::vector<Item*> args = *(i->get_args());
         std::string callee = i->get_callee()->to_string();
-        std::string var = i->get_var()->to_string();
         std::string return_label = "";
+        std::string var = i->get_var()->to_string();
+        
         //if current instruction is not standard library function, then need to store arguments, etc.
         if (callee.at(0) == '@' && callee.at(0) == '%'){ 
             return_label = ":" + callee + "_ret";
             out << "\t\tmem rsp -8 <- :" <<  return_label << "\n"; // create ret label
+            
             for (int i = 0; i < args.size(); i++){
                 if (i < 6){
                     out << arg_registers[i] << " <- " << args[i] <<"\n";
@@ -141,6 +149,7 @@ namespace L3{
         } 
         
         //the actual call line
+        
         out << "\t\tcall " << callee << "(";
         for (int i = 0; i < args.size(); i++){
             out << args[i]->to_string();
@@ -165,9 +174,10 @@ namespace L3{
     void
     generate_code(Program p){
         std::string global_label = generate_global_label(p);
-
+        
         std::ofstream outputFile;
         p = convert_all_labels(p, global_label);
+        
         outputFile.open("prog.L2");
         //maintained invariant that main is always first function
         outputFile << "(@main\n\t(@main\n\t0";
@@ -191,7 +201,11 @@ namespace L3{
             for (auto i : f->instructions){
                 //Assume we only handle calls and labels without instruction selection
                 if (i->get_name() == "Instruction_call"){
+                    std::cout << "in call\n";
+                    Instruction_call* instr = (Instruction_call*) i;
+                    std::cout << instr->get_args()->size() << "\n";
                     generate_call(i, outputFile);
+                    std::cout << "passed call\n";
                 } else if (i->get_name() == "Instruction_call_assignment"){
                     generate_call_assignment(i, outputFile);
                 } 

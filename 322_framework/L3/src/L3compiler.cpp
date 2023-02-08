@@ -62,7 +62,6 @@ int main(
    * Parse the input file.
    */
   auto p = L3::parse_file(argv[optind]);
-
   /*
    * Code optimizations (optional)
    */
@@ -79,8 +78,9 @@ int main(
   /*
    * Generate L2.
    */
+  // L3::generate_code(p);
   if (enable_code_generator){
-      L3::generate_code(p);
+      
   }
 
   return 0;

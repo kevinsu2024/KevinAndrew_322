@@ -171,25 +171,25 @@ namespace L3{
     };
     class Instruction_call : public Instruction{
         public:
-            Instruction_call (Item *callee, std::vector<Item*> *args);
+            Instruction_call (Item *callee, std::vector<Item*> args);
             Item* get_callee();
-            std::vector<Item*>* get_args();
+            std::vector<Item*> get_args();
 
         private:
             Item *callee;
-            std::vector<Item*> *args;
+            std::vector<Item*> args;
     };
     class Instruction_call_assignment : public Instruction{
         public:
-            Instruction_call_assignment (Item* var, Item *callee, std::vector<Item*> *args);
+            Instruction_call_assignment (Item* var, Item *callee, std::vector<Item*> args);
             Item* get_var();
             Item* get_callee();
-            std::vector<Item*>* get_args();
+            std::vector<Item*> get_args();
 
         private:
             Item *var;
             Item *callee;
-            std::vector<Item*> *args;
+            std::vector<Item*> args;
     };
     /*
     *

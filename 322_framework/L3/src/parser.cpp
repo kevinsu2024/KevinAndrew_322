@@ -772,8 +772,7 @@ namespace L3 {
             /* 
             * Create the instruction.
             */ 
-            auto i = new Instruction_call(callee, &args); 
-
+            auto i = new Instruction_call(callee, args); 
             /* 
             * Add the just-created instruction to the current function.
             */ 
@@ -800,7 +799,7 @@ namespace L3 {
             /* 
             * Create the instruction.
             */ 
-            auto i = new Instruction_call_assignment(var, callee, &args); 
+            auto i = new Instruction_call_assignment(var, callee, args); 
 
             /* 
             * Add the just-created instruction to the current function.

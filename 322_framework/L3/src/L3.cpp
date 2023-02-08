@@ -60,7 +60,7 @@ FunctionName::FunctionName(std::string f){
 }
 
 StandardLibrary::StandardLibrary(std::string stl){
-    set_name("StandardLibrar");
+    set_name("StandardLibrary");
     set_string(stl);
     return;
 }
@@ -261,12 +261,12 @@ Instruction_branch_t::get_label(){
     return label;
 }
 
-Instruction_call::Instruction_call(Item* callee, std::vector<Item*> *args){
+Instruction_call::Instruction_call(Item* callee, std::vector<Item*> args){
     set_name("Instruction_call");
     std::string L3_string = "call " + callee->to_string() + "(";
-    for (int i = 0; i < args->size(); i++){
-        L3_string += (*args)[i]->to_string();
-        if (i < args->size() - 1){
+    for (int i = 0; i < args.size(); i++){
+        L3_string += args[i]->to_string();
+        if (i < args.size() - 1){
             L3_string += ", ";
         }
         L3_string += ")";
@@ -281,17 +281,17 @@ Instruction_call::get_callee(){
     return callee;
 }
 
-std::vector<Item*>*
+std::vector<Item*>
 Instruction_call::get_args(){
     return args;
 }
 
-Instruction_call_assignment::Instruction_call_assignment(Item* var, Item* callee, std::vector<Item*>* args){
+Instruction_call_assignment::Instruction_call_assignment(Item* var, Item* callee, std::vector<Item*> args){
     set_name("Instruction_call_assignment");
     std::string L3_string = var->to_string() + " <- call " + callee->to_string() + "(";
-    for (int i = 0; i < args->size(); i++){
-        L3_string += (*args)[i]->to_string();
-        if (i < args->size() - 1){
+    for (int i = 0; i < args.size(); i++){
+        L3_string += args[i]->to_string();
+        if (i < args.size() - 1){
             L3_string += ", ";
         }
         L3_string += ")";
@@ -312,7 +312,7 @@ Instruction_call_assignment::get_callee(){
     return callee;
 }
 
-std::vector<Item*>*
+std::vector<Item*>
 Instruction_call_assignment::get_args(){
     return args;
 }
