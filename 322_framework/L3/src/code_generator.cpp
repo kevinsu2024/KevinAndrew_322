@@ -42,6 +42,7 @@ namespace L3{
         //look through all instructions
         std::unordered_map<std::string, std::string> label_mapping;
         for (auto f : p.functions){
+            label_mapping.clear();
             for (int i = 0; i < f->instructions.size(); i++){
                 // only instructions with label or s rule
                 std::string new_label = longest_label + std::to_string(ctr);
@@ -124,16 +125,18 @@ namespace L3{
         if (callee.at(0) == '@' && callee.at(0) == '%'){ 
             return_label = ":" + callee + "_ret";
             out << "\t\tmem rsp -8 <- :" <<  return_label << "\n"; // create ret label
-            
-            for (int i = 0; i < args.size(); i++){
-                if (i < 6){
-                    out << arg_registers[i] << " <- " << args[i] <<"\n";
-                } else {
-                    //start at -16 because -8 is for ret addr
-                    out << "\t\tmem rsp -" << std::to_string((i-6)*8 + 16) << " <- " << args[i]->to_string() <<"\n";
-                }
-            }
         } 
+
+        //store inputs
+        std::cout << args.size() << "\n";
+        for (int i = 0; i < args.size(); i++){
+            if (i < 6){
+                out << arg_registers[i] << " <- " << args[i]->to_string() <<"\n";
+            } else {
+                //start at -16 because -8 is for ret addr
+                out << "\t\tmem rsp -" << std::to_string((i-6)*8 + 16) << " <- " << args[i]->to_string() <<"\n";
+            }
+        }
         
         //the actual call line
         
@@ -164,20 +167,23 @@ namespace L3{
         if (callee.at(0) == '@' && callee.at(0) == '%'){ 
             return_label = ":" + callee + "_ret";
             out << "\t\tmem rsp -8 <- :" <<  return_label << "\n"; // create ret label
-            
-            for (int i = 0; i < args.size(); i++){
-                if (i < 6){
-                    out << arg_registers[i] << " <- " << args[i] <<"\n";
-                } else {
-                    //start at -16 because -8 is for ret addr
-                    out << "\t\tmem rsp -" << std::to_string((i-6)*8 + 16) << " <- " << args[i]->to_string() <<"\n";
-                }
-            }
         } 
+
+        //store inputs
+        std::cout << args.size() << "\n";
+        for (int i = 0; i < args.size(); i++){
+            if (i < 6){
+                out << arg_registers[i] << " <- " << args[i]->to_string() <<"\n";
+            } else {
+                //start at -16 because -8 is for ret addr
+                out << "\t\tmem rsp -" << std::to_string((i-6)*8 + 16) << " <- " << args[i]->to_string() <<"\n";
+            }
+        }
         
         //the actual call line
         
         out << "\t\tcall " << callee << " " << args.size() << "\n";
+        
         // for (int i = 0; i < args.size(); i++){
         //     out << args[i]->to_string();
         //     if (i < args.size() - 1){
@@ -258,9 +264,10 @@ namespace L3{
                 }
                 index++;
             }
+            outputFile << "\t)\n";
 
         }
-        outputFile << "\t)\n)";
+        outputFile << "\n)";
         outputFile.close();   
     }
 
