@@ -268,7 +268,7 @@ namespace L3{
         instruction = new Node{"<-"};
         instruction->neighbors.push_back(c);
         instruction->neighbors.push_back(a);
-        instruction->neighbors.push_back(c);
+        instruction->neighbors.push_back(b);
         tiles.push_back(new Tile(instruction, 0, "14")); //TODO
 
         instruction = new Node{"Return"};

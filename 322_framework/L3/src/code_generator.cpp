@@ -115,20 +115,20 @@ namespace L3{
     }
 
     void
-    generate_call(Instruction* instr, std::ofstream& out){
+    generate_call(Instruction* instr, std::ofstream& out, std::string call_label, int64_t num){
         Instruction_call* i = (Instruction_call*) instr;
+        std::string label = call_label + std::to_string(num);
         std::vector<Item*> args = i->get_args();
         std::string callee = i->get_callee()->to_string();
         std::string return_label = "";
         
         //if current instruction is not standard library function, then need to store arguments, etc.
-        if (callee.at(0) == '@' && callee.at(0) == '%'){ 
-            return_label = ":" + callee + "_ret";
-            out << "\t\tmem rsp -8 <- :" <<  return_label << "\n"; // create ret label
+        if (callee.at(0) == '@' || callee.at(0) == '%'){ 
+            out << "\t\tmem rsp -8 <- " <<  label << "\n"; // create ret label
         } 
 
         //store inputs
-        std::cout << args.size() << "\n";
+        // std::cout << args.size() << "\n";
         for (int i = 0; i < args.size(); i++){
             if (i < 6){
                 out << arg_registers[i] << " <- " << args[i]->to_string() <<"\n";
@@ -149,28 +149,28 @@ namespace L3{
         //     }
         // }
         //return label if we're not standard library
-        if (callee.at(0) == '@' && callee.at(0) == '%'){
-            out << "\t\t" << return_label << "\n";
+        if (callee.at(0) == '@' || callee.at(0) == '%'){
+            out << "\t\t" << label << "\n";
         }
         
     }
 
     void
-    generate_call_assignment(Instruction* instr, std::ofstream& out){
+    generate_call_assignment(Instruction* instr, std::ofstream& out, std::string call_label, int64_t num){
         Instruction_call_assignment* i = (Instruction_call_assignment*) instr;
+        std::string label = call_label + std::to_string(num);
         std::vector<Item*> args = i->get_args();
         std::string callee = i->get_callee()->to_string();
         std::string return_label = "";
         std::string var = i->get_var()->to_string();
         
         //if current instruction is not standard library function, then need to store arguments, etc.
-        if (callee.at(0) == '@' && callee.at(0) == '%'){ 
-            return_label = ":" + callee + "_ret";
-            out << "\t\tmem rsp -8 <- :" <<  return_label << "\n"; // create ret label
+        if (callee.at(0) == '@' || callee.at(0) == '%'){ 
+            out << "\t\tmem rsp -8 <- " <<  label << "\n"; 
         } 
 
         //store inputs
-        std::cout << args.size() << "\n";
+        // std::cout << args.size() << "\n";
         for (int i = 0; i < args.size(); i++){
             if (i < 6){
                 out << arg_registers[i] << " <- " << args[i]->to_string() <<"\n";
@@ -191,8 +191,8 @@ namespace L3{
         //     }
         // }
         //return label if we're not standard library
-        if (callee.at(0) == '@' && callee.at(0) == '%'){
-            out << "\t\t" << return_label << "\n";
+        if (callee.at(0) == '@' || callee.at(0) == '%'){
+            out << "\t\t" << label << "\n";
         }
         //extra step for assignment
         out << "\t\t" << var << " <- rax\n";
@@ -220,6 +220,8 @@ namespace L3{
         //generates other code
         
         for (auto f : p.functions){
+            std::string call_label_name = ":" + f->name.substr(1,f->name.size()-1);
+            int label_num = 0;
             outputFile << "\t(" << f->name << "\n";
             //callee function start convention
             auto var_no = f->vars.size();
@@ -229,7 +231,7 @@ namespace L3{
                 if (i < 6){
                     outputFile << "\t\t" << var_str << " <- " << arg_registers[i] << "\n";
                 } else {
-                    int stack_addr = 8 * (var_no-i);
+                    int stack_addr = 8 * (var_no - i - 1);
                     outputFile << "\t\t" << var_str << " <- " << "stack-arg " << std::to_string(stack_addr) << "\n";
                 }
             }
@@ -253,9 +255,11 @@ namespace L3{
                 else{
                     auto i = context->instructions[0];
                     if (i->get_name() == "Instruction_call"){
-                        generate_call(i, outputFile);
+                        generate_call(i, outputFile, call_label_name, label_num);
+                        label_num++;
                     } else if (i->get_name() == "Instruction_call_assignment"){
-                        generate_call_assignment(i, outputFile);
+                        generate_call_assignment(i, outputFile, call_label_name, label_num);
+                        label_num++;
                     } else if (i->get_name() == "Instruction_label"){
                         Instruction_label* instr = (Instruction_label*) i;
                         outputFile << "\t" << instr->to_string() <<"\n";
