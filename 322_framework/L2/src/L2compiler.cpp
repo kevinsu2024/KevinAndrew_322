@@ -159,9 +159,9 @@ int main(
     auto res = L2::generate_mapping(f);
     auto mapping = res.first;
     auto new_f = res.second;
-    for(auto p : mapping){
-      std::cout << p.first << " mapped to " << p.second << "\n";
-    }
+    // for(auto p : mapping){
+    //   std::cout << p.first << " mapped to " << p.second << "\n";
+    // }
     outputFile << "\t" << L2::translate_to_code(mapping, new_f);
   }
   outputFile << ")\n";

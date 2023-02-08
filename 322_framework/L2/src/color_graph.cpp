@@ -110,7 +110,7 @@ namespace L2{
                 mapping[reg] = reg;
             }
 
-            std::cout << "\n\n current func is " << currentF->to_string();
+            // std::cout << "\n\n current func is " << currentF->to_string();
             std::set<std::string> nodes_in_graph;
 
             //generate interference graph and add all non gp registers to nodes_in_graph set
@@ -120,22 +120,22 @@ namespace L2{
                 nodes_in_graph.insert(p.first);
             }
 
-            std::cout << "\n interference graph is : \n";
-            for (auto p : int_graph){
-                if(unordered_gp_registers.find(p.first) != unordered_gp_registers.end()) continue;
-                std::cout << p.first << ": ";
-                for (auto e : p.second){
-                    std::cout << e << " ";
-                }
-                std::cout << "\n";
-            }
+            // std::cout << "\n interference graph is : \n";
+            // for (auto p : int_graph){
+            //     if(unordered_gp_registers.find(p.first) != unordered_gp_registers.end()) continue;
+            //     std::cout << p.first << ": ";
+            //     for (auto e : p.second){
+            //         std::cout << e << " ";
+            //     }
+            //     std::cout << "\n";
+            // }
 
             std::vector<std::string> node_stack;
 
             //removing nodes with less than 15 edges and adding to stack
             while(get_largest(nodes_in_graph, 15, int_graph) != ""){
                 std::string next_node = get_largest(nodes_in_graph, 15, int_graph);
-                std::cout << "next node is " << next_node << "\n";
+                // std::cout << "next node is " << next_node << "\n";
                 nodes_in_graph.erase(next_node);
                 node_stack.push_back(next_node);
             }
@@ -150,11 +150,11 @@ namespace L2{
 
             
 
-            std::cout << "nodes in stack are \n";
-            for(auto e : node_stack){
-                std::cout<< e << " ";
-            }
-            std::cout << "\n";
+            // std::cout << "nodes in stack are \n";
+            // for(auto e : node_stack){
+            //     std::cout<< e << " ";
+            // }
+            // std::cout << "\n";
 
             //start loading nodes into graph and assigning colors
             std::set<std::string> failed_nodes;
@@ -162,19 +162,19 @@ namespace L2{
                 nodes_in_graph.insert(reg);
             }
 
-            std::cout << "nodes in graph are \n";
-            for(auto e : nodes_in_graph){
-                std::cout<< e << " ";
-            }
-            std::cout << "\n";
+            // std::cout << "nodes in graph are \n";
+            // for(auto e : nodes_in_graph){
+            //     std::cout<< e << " ";
+            // }
+            // std::cout << "\n";
 
 
             while(node_stack.size() > 0){
                 std::string node = node_stack.back();
                 node_stack.pop_back();
-                std::cout << "\n assigning color for " << node << "\n";
+                // std::cout << "\n assigning color for " << node << "\n";
                 std::string color = get_color(int_graph[node], nodes_in_graph, mapping);
-                std::cout << "color is " << color << "\n";
+                // std::cout << "color is " << color << "\n";
                 if(color == ""){
                     failed_nodes.insert(node);
                 } 
@@ -184,11 +184,11 @@ namespace L2{
                 }
 
             }
-            std::cout << "failed nodes are \n";
-            for(auto reg : failed_nodes){
-                std::cout << reg << " ";
-            }
-            std::cout << "\n";
+            // std::cout << "failed nodes are \n";
+            // for(auto reg : failed_nodes){
+            //     std::cout << reg << " ";
+            // }
+            // std::cout << "\n";
             if(failed_nodes.size() == 0){
                 done = true;
                 return std::make_pair(mapping, currentF);
@@ -202,16 +202,16 @@ namespace L2{
                 if(var.find("_spilled_") == std::string::npos) all_spilled = false;
             }
             if(failed_nodes.size() > 0 && all_spilled){
-                std::cout << "spilling all\n";
+                // std::cout << "spilling all\n";
                 currentF = spill_all_vars(f);
                 failed_nodes.clear();
             }
 
             for(auto var : failed_nodes){
                 if(var.find("_spilled_") != std::string::npos) continue;
-                std::cout << "\nspilling var " << var << "\n";
+                // std::cout << "\nspilling var " << var << "\n";
                 currentF = generate_spill_code(currentF,var, (var+ "_spilled_"));
-                std::cout << "finished spilling\n";
+                // std::cout << "finished spilling\n";
             }
             mapping.clear();
 
@@ -225,8 +225,8 @@ namespace L2{
     std::string
     translate_to_code(std::unordered_map<std::string, std::string> map, Function* f){
         //change stackarg instructions first
-        std::cout << "\n\nprint f to change\n";
-        std::cout << f->to_string();
+        // std::cout << "\n\nprint f to change\n";
+        // std::cout << f->to_string();
         auto instructions = f->instructions;
         for(int64_t i = 0; i < instructions.size(); i++){
             if(instructions[i]->get_name() == ("Instruction_stackarg_assignment")){
