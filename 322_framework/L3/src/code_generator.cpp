@@ -1,5 +1,6 @@
 #include <code_generator.h>
 
+
 namespace L3{
 
     std::vector<std::string> arg_registers {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
@@ -108,15 +109,14 @@ namespace L3{
         
         //the actual call line
         
-        out << "\t\tcall " << callee << "(";
+        out << "\t\tcall " << callee << " " << args.size() << "\n";
         
-        for (int i = 0; i < args.size(); i++){
-            out << args[i]->to_string();
-            if (i < args.size() - 1){
-                out << ", ";
-            }
-        }
-        out << ")\n";
+        // for (int i = 0; i < args.size(); i++){
+        //     out << args[i]->to_string();
+        //     if (i < args.size() - 1){
+        //         out << ", ";
+        //     }
+        // }
         //return label if we're not standard library
         if (callee.at(0) == '@' && callee.at(0) == '%'){
             out << "\t\t" << return_label << "\n";
@@ -149,14 +149,13 @@ namespace L3{
         
         //the actual call line
         
-        out << "\t\tcall " << callee << "(";
-        for (int i = 0; i < args.size(); i++){
-            out << args[i]->to_string();
-            if (i < args.size() - 1){
-                out << ", ";
-            }
-        }
-        out << ")\n";
+        out << "\t\tcall " << callee << " " << args.size() << "\n";
+        // for (int i = 0; i < args.size(); i++){
+        //     out << args[i]->to_string();
+        //     if (i < args.size() - 1){
+        //         out << ", ";
+        //     }
+        // }
         //return label if we're not standard library
         if (callee.at(0) == '@' && callee.at(0) == '%'){
             out << "\t\t" << return_label << "\n";
@@ -172,40 +171,66 @@ namespace L3{
 
     void
     generate_code(Program p){
+        create_tiles();
         std::string global_label = generate_global_label(p);
         
         std::ofstream outputFile;
         p = convert_all_labels(p, global_label);
+        auto contexts = generate_contexts(p);
+        // std::cout << "\ncontexts has size " << contexts.size() << "\n";
+        int64_t index = 0;
         
         outputFile.open("prog.L2");
         //maintained invariant that main is always first function
-        outputFile << "(@main\n\t(@main\n\t0\n";
+        outputFile << "(@main\n";
         //generates other code
         
         for (auto f : p.functions){
-            if (f->name != "@main"){
-                //callee function start convention
-                auto var_no = f->vars.size();
-                outputFile << "\t\t" << std::to_string(var_no) << "\n";
-                for (int i = 0; i < var_no; i++){
-                    std::string var_str = f->vars[i]->to_string();
-                    if (i < 6){
-                        outputFile << "\t\t" << var_str << " <- " << arg_registers[i] << "\n";
-                    } else {
-                        int stack_addr = 8 * (var_no-i);
-                        outputFile << "\t\t" << var_str << " <- " << "stack-arg " << std::to_string(stack_addr) << "\n";
-                    }
+            outputFile << "\t(" << f->name << "\n";
+            //callee function start convention
+            auto var_no = f->vars.size();
+            outputFile << "\t\t" << std::to_string(var_no) << "\n";
+            for (int i = 0; i < var_no; i++){
+                std::string var_str = f->vars[i]->to_string();
+                if (i < 6){
+                    outputFile << "\t\t" << var_str << " <- " << arg_registers[i] << "\n";
+                } else {
+                    int stack_addr = 8 * (var_no-i);
+                    outputFile << "\t\t" << var_str << " <- " << "stack-arg " << std::to_string(stack_addr) << "\n";
                 }
             }
-            for (auto i : f->instructions){
-                //Assume we only handle calls and labels without instruction selection
-                if (i->get_name() == "Instruction_call"){
-                    Instruction_call* instr = (Instruction_call*) i;
-                    generate_call(i, outputFile);
-                } else if (i->get_name() == "Instruction_call_assignment"){
-                    generate_call_assignment(i, outputFile);
-                } 
+            while(index < contexts.size() && contexts[index]->func_name == f->name){
+                auto context = contexts[index];
+                auto instructions = context->instructions;
+                std::vector<Node*> trees;
+                if(context->isContext){
+                    for(auto inst : instructions){
+                        Node* tree = instruction_to_graph(inst);
+                        trees.push_back(tree);
+                    }
+                    //merging here
+                    for(auto tree : trees){
+                        auto tile = get_matching_tile(tree);
+                        std::string converted = convert_to_instructions(tree,tile);
+                        // std::cout << "converted is : \n" << converted << "\n";
+                        outputFile << converted;
+                    }
+                }
+                else{
+                    auto i = context->instructions[0];
+                    if (i->get_name() == "Instruction_call"){
+                        generate_call(i, outputFile);
+                    } else if (i->get_name() == "Instruction_call_assignment"){
+                        generate_call_assignment(i, outputFile);
+                    } else if (i->get_name() == "Instruction_label"){
+                        Instruction_label* instr = (Instruction_label*) i;
+                        outputFile << "\t" << instr->to_string() <<"\n";
+                    }
+
+                }
+                index++;
             }
+
         }
         outputFile << "\t)\n)";
         outputFile.close();   

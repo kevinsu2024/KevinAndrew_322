@@ -4,6 +4,7 @@
 #include <tile.h>
 
 namespace L3{
+    
     Node*
     instruction_to_graph(Instruction* i){
         if(i->get_name() == "Instruction_assignment"){
@@ -271,7 +272,7 @@ namespace L3{
         tiles.push_back(new Tile(instruction, 0, "14")); //TODO
 
         instruction = new Node{"Return"};
-        tiles.push_back(new Tile(instruction, 0, "15")); //TODO
+        tiles.push_back(new Tile(instruction, 1, "15")); //TODO
 
         instruction = new Node{"Return"};
         a = new Node{"T"};
@@ -331,10 +332,21 @@ namespace L3{
         return true;
     }
 
+    void
+    print_tree(Node* tree){
+        std::cout << tree->node_type << " " << tree->node_val << "\n";
+        for(auto neigh : tree->neighbors){
+            print_tree(neigh);
+        };
+        return;
+    }
+
 
 
     Tile*
     get_matching_tile(Node* tree){
+        // std::cout<< "\n\nprinting tree\n";
+        // print_tree(tree);
         for(Tile* t : tiles){
             if(check_tile(tree,t->get_root())) return t;
         }

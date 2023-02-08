@@ -5,6 +5,8 @@
 namespace L3{
     class Context{
         public:
+        bool isContext;
+        std::string func_name;
         std::vector<Instruction*> instructions;
     };
     bool not_label_call(Instruction* i);

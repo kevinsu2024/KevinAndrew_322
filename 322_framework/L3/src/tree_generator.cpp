@@ -23,19 +23,37 @@ namespace L3{
     generate_contexts(Program p){
         std::vector<Function*> functions = p.functions;
         std::vector<Context*> contexts;
-        Context* ctx = new Context();
+        
         //make new contexts
         for (auto f : functions){
+            Context* ctx = new Context();
+            ctx->func_name = f->name;
+            ctx->isContext = true;
             for (auto instr : f->instructions){
                 if(instr == nullptr){
                     break;
                 }
                 if (!is_label_call(instr)){
                     ctx->instructions.push_back(instr);
-                }
-                if (is_label_call(instr) && is_branch_return(instr)){
+                } else{
                     contexts.push_back(ctx);
+
+                    Context* con = new Context();
+                    con->isContext = false;
+                    con->func_name = f->name;
+                    con->instructions.push_back(instr);
+                    contexts.push_back(con);
+
                     ctx = new Context();
+                    ctx->func_name = f->name;
+                    ctx->isContext = true;
+                }
+                if (is_branch_return(instr)){
+                    contexts.push_back(ctx);
+                    
+                    ctx = new Context();
+                    ctx->isContext = true;
+                    ctx->func_name = f->name;
                 }
             }
         }

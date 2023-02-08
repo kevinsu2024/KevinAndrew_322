@@ -11,6 +11,7 @@ namespace L3{
         std::string node_val;
         std::vector<Node*>  neighbors;
     };
+    
 
     class Tile{
         public:
@@ -24,6 +25,16 @@ namespace L3{
             std::string id;
     };
 
-    std::vector<Tile*> tiles;
+    static std::vector<Tile*> tiles;
+
+    Node* create_tiles();
+    
+    std::string convert_to_instructions(Node* tree, Tile* tile);
+    Node* instruction_to_graph(Instruction* i);
+    Tile* get_matching_tile(Node* tree);
+
+    
+
+    
 
 }

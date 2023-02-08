@@ -4,6 +4,7 @@
 #include <tree_generator.h>
 #include <iostream>
 #include <fstream>
+#include <tile.h>
 
 namespace L3{
     void generate_code(Program p);
