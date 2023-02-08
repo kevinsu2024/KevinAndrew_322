@@ -1,26 +1,119 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <tile.h>
 
-    struct Node{
-        std::string node_type;
-        std::string node_val;
-        std::vector<Node*>  neighbors;
-    };
-
-    class Tile{
-        public:
-            Tile(Node* root, int64_t instr, std::string i);
-            int64_t get_num_instructions();
-            Node* get_root();
-            std::string get_id();
-        private:
-            int64_t num_instructions;
-            Node* root;
-            std::string id;
-    };
-
-    std::vector<Tile*> tiles;
+namespace L3{
+    Node*
+    instruction_to_graph(Instruction* i){
+        if(i->get_name() == "Instruction_assignment"){
+            Instruction_assignment* in = (Instruction_assignment*) i;
+            std::string dest = in->get_var()->to_string();
+            std::string s = in->get_s()->to_string();
+            Node* root = new Node{"<-"};
+            Node* dst = new Node{"Variable",dest};
+            Node* s_node = new Node{"S", s};
+            root->neighbors.push_back(dst);
+            root->neighbors.push_back(s_node);
+            return root;
+        }
+        else if (i->get_name() == "Instruction_cmp"){
+            Instruction_cmp* in = (Instruction_cmp*) i;
+            std::string dest = in->get_var()->to_string();
+            std::string t1 = in->get_t1()->to_string();
+            std::string t2 = in->get_t2()->to_string();
+            std::string op = in->get_op()->to_string();
+            Node* root = new Node{"<-"};
+            Node* dst = new Node{"Variable",dest};
+            Node* val = new Node{"T", t1};
+            Node* val2 = new Node{"T", t2};
+            Node* oper = new Node{op};
+            root->neighbors.push_back(dst);
+            root->neighbors.push_back(oper);
+            oper->neighbors.push_back(val);
+            oper->neighbors.push_back(val2);
+            return root;
+        }
+        else if (i->get_name() == "Instruction_op"){
+            Instruction_op* in = (Instruction_op*) i;
+            std::string dest = in->get_var()->to_string();
+            std::string t1 = in->get_t1()->to_string();
+            std::string t2 = in->get_t2()->to_string();
+            std::string op = in->get_op()->to_string();
+            Node* root = new Node{"<-"};
+            Node* dst = new Node{"Variable",dest};
+            Node* val = new Node{"T", t1};
+            Node* val2 = new Node{"T", t2};
+            Node* oper = new Node{op};
+            root->neighbors.push_back(dst);
+            root->neighbors.push_back(oper);
+            oper->neighbors.push_back(val);
+            oper->neighbors.push_back(val2);
+            return root;
+        }
+        else if (i->get_name() == "Instruction_load"){
+            Instruction_load* in = (Instruction_load*) i;
+            std::string dest = in->get_var_dst()->to_string();
+            std::string src = in->get_var_src()->to_string();
+            Node* root = new Node{"<-"};
+            Node* dst = new Node{"Variable",dest};
+            Node* load = new Node{"Load"};
+            Node* src_node = new Node{"Variable", src};
+            root->neighbors.push_back(dst);
+            root->neighbors.push_back(load);
+            root->neighbors.push_back(src_node);
+            return root;
+        }
+        else if (i->get_name() == "Instruction_store"){
+            Instruction_store* in = (Instruction_store*) i;
+            std::string var = in->get_var()->to_string();
+            std::string s = in->get_s()->to_string();
+            Node* root = new Node{"<-"};
+            Node* store = new Node{"Store"};
+            Node* var_node = new Node{"Variable", var};
+            Node* s_node = new Node{"S", s};
+            root->neighbors.push_back(store);
+            root->neighbors.push_back(var_node);
+            root->neighbors.push_back(s_node);
+            return root;
+        }
+        else if (i->get_name() == "Instruction_return"){
+            Node* root = new Node{"Return"};
+            return root;
+        }
+        else if (i->get_name() == "Instruction_return_t"){
+            Instruction_return_t* in = (Instruction_return_t*) i;
+            std::string t_val = in->get_t()->to_string();
+            Node* root = new Node{"Return"};
+            Node* t = new Node{"T",t_val};
+            root->neighbors.push_back(t);
+            return root;
+        }
+        else if (i->get_name() == "Instruction_branch"){
+            Instruction_branch* in = (Instruction_branch*) i;
+            std::string label = in->get_label()->to_string();
+            Node* root = new Node{"Branch"};
+            Node* l_node = new Node{"Label",label};
+            root->neighbors.push_back(l_node);
+            return root;
+        }
+        else if (i->get_name() == "Instruction_branch_t"){
+            Instruction_branch_t* in = (Instruction_branch_t*) i;
+            std::string label = in->get_label()->to_string();
+            std::string t = in->get_t()->to_string();
+            Node* root = new Node{"Branch"};
+            Node* l_node = new Node{"Label",label};
+            Node* t_node = new Node{"T",t};
+            root->neighbors.push_back(t_node);
+            root->neighbors.push_back(l_node);
+            return root;
+        }
+        else{
+            std::cerr << "\nFAILED TO FIND MATCH\n";
+            return new Node{};
+        }
+        return new Node{};
+    }
 
     Node*
     create_tiles(){
@@ -367,28 +460,7 @@
 
         return code;
     }
-
-
-    int
-    main(){
-        std::cout<<"\n\nxdlmao\n\n";
-        auto node = create_tiles();
-        std::cout << tiles.size();
-
-        Node* instruction = new Node{"<-"};
-        Node* dest = new Node{"Variable"};
-        dest->node_val = "%%xdlmao";
-        Node* op = new Node{"+"};
-        Node* arg = new Node{"T"};
-        arg->node_val = "awfejoiwaefweo";
-        Node* arg2 = new Node{"T"};
-        arg2->node_val = "boom";
-        instruction->neighbors.push_back(dest);
-        instruction->neighbors.push_back(op);
-        op->neighbors.push_back(arg);
-        op->neighbors.push_back(arg2);
-        std::cout <<"\n\n" << convert_to_instructions(instruction, tiles[1]) << "\n\n";
-    }
+}
 
 
 

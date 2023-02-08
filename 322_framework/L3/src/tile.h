@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <L3.h>
 
 namespace L3{
     struct Node{
@@ -13,12 +14,14 @@ namespace L3{
 
     class Tile{
         public:
-            Tile(Node* root, int64_t instr);
+            Tile(Node* root, int64_t instr, std::string i);
             int64_t get_num_instructions();
             Node* get_root();
+            std::string get_id();
         private:
             int64_t num_instructions;
             Node* root;
+            std::string id;
     };
 
     std::vector<Tile*> tiles;
