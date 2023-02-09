@@ -56,6 +56,7 @@ int64 %len_track1
 int64 %len_track2
 int64 %s
 int64 %sum
+%sum <- 0
 %sum1 <- 0
 br :entrance2
 :entrance2

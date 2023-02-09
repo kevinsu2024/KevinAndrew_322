@@ -124,6 +124,7 @@ define void @main() {
     int64[][][] %ptr
     int64 %enci
     int64[][][] %data
+    %j <- 0
 
     br :B1
 :B1

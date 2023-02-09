@@ -100,10 +100,12 @@ void main() {
     int64 N
     int64[][] mat
     tuple vec
+    int64 j
     tuple printing_buf
     printing_buf <- new Tuple(2)
     vec <- vec_ctor()
     i <- 0
+    j <- 0
     N <- 300000000
     mat <- new Array(2, 2)
     initmat(mat)
@@ -114,7 +116,6 @@ void main() {
     icmp <- 1 - icmp
     br icmp :B3 :B6
 :B3
-    int64 j
     int64 resid
     int64 notresid
     icmp <- i <= 10
