@@ -5,6 +5,9 @@
 #include <iostream>
 #include <fstream>
 #include <tile.h>
+#include <stack>
+#include <liveness_generator.h>
+#include <algorithm>
 
 namespace L3{
     void generate_code(Program p);

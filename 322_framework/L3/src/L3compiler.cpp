@@ -61,6 +61,7 @@ int main(
   /*
    * Parse the input file.
    */
+  
   auto p = L3::parse_file(argv[optind]);
   /*
    * Code optimizations (optional)

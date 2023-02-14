@@ -29,6 +29,8 @@ namespace L3{
             Context* ctx = new Context();
             ctx->func_name = f->name;
             ctx->isContext = true;
+            ctx->start_num = 0;
+            int64_t ctr = 0;
             for (auto instr : f->instructions){
                 if(instr == nullptr){
                     break;
@@ -42,9 +44,11 @@ namespace L3{
                     con->isContext = false;
                     con->func_name = f->name;
                     con->instructions.push_back(instr);
+                    ctx->start_num = ctr;
                     contexts.push_back(con);
 
                     ctx = new Context();
+                    ctx->start_num = ctr+1;
                     ctx->func_name = f->name;
                     ctx->isContext = true;
                 }
@@ -52,10 +56,12 @@ namespace L3{
                     contexts.push_back(ctx);
                     
                     ctx = new Context();
+                    ctx->start_num = ctr+1;
                     ctx->isContext = true;
                     ctx->func_name = f->name;
                 }
             }
+            ctr++;
         }
         //delete empty contexts
         for (int64_t i = 0; i < contexts.size(); i++){

@@ -8,6 +8,7 @@ namespace L3{
         bool isContext;
         std::string func_name;
         std::vector<Instruction*> instructions;
+        int64_t start_num;
     };
     bool not_label_call(Instruction* i);
     std::vector<Context*> generate_contexts(Program p);

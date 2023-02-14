@@ -198,9 +198,78 @@ namespace L3{
         out << "\t\t" << var << " <- rax\n";
     }
 
-    void
-    generate_label(Instruction* instr, std::ofstream& out){
+    std::vector<Node*>
+    get_leaves(Node* root){
+        std::vector<Node*> leaves;
+        std::stack<Node*> nodes;
+        nodes.push(root);
+        while(!nodes.empty()){
+            Node* node = nodes.top();
+            nodes.pop();
+            if(node->neighbors.size() == 0) leaves.push_back(node);
+            else{
+                for(Node* neigh : node->neighbors){
+                    nodes.push(neigh);
+                }
+            }
+        }
 
+        return leaves;
+    }
+
+
+
+    std::vector<Node*>
+    check_conditions(std::vector<Node*> leaves, Node* tree, std::vector<Liveness_Node*> liveness_nodes, int64_t index_first, int64_t index_second){
+        std::vector<Node*> matching;
+        for(Node* leaf : leaves){
+            if(leaf->node_type != tree->node_type || leaf->node_val != tree->node_val) continue;
+            std::string var = tree->node_val;
+            //check that not alive after second instr
+            if(liveness_nodes[index_second]->out.find(var) != liveness_nodes[index_second]->out.end()) continue;
+
+            //check that no use of v between two instructions
+            bool works = true;
+            for(int64_t i = index_first; i < index_second; i++){
+                if(i == index_first){
+                    if(liveness_nodes[i]->gen.find(var) != liveness_nodes[i]->gen.end()) works = false;
+                }
+                else{
+                    if((liveness_nodes[i]->gen.find(var) != liveness_nodes[i]->gen.end()) || (liveness_nodes[i]->kill.find(var) != liveness_nodes[i]->kill.end())) works = false;
+                }
+            }
+
+            if(!works) continue;
+
+            // get list of vars in first isntruction and make sure no writes of others
+            for(int64_t i = index_first + 1; i < index_second; i++){
+                for(std::string var : liveness_nodes[index_first]->gen){
+                    if(liveness_nodes[i]->kill.find(var) != liveness_nodes[i]->kill.end()) works = false;
+                }
+            }
+            if(!works) continue;
+            matching.push_back(leaf);
+        }
+        return matching;
+    }
+
+    Node* 
+    find_node(Node* root, Node* node){
+        if(root->node_type == node->node_type && root->node_val == node->node_val) return root;
+        if(root->neighbors.size() == 0) return NULL;
+        for(Node* neigh : root->neighbors){
+            if(find_node(neigh, node) != NULL) {
+                return find_node(neigh, node);
+            }
+        }
+        return NULL;
+    }
+
+    void
+    merge(Node* tree, Node* t){
+        Node* node = find_node(tree,t);
+        node->neighbors = t->neighbors;
+        return;
     }
 
     void
@@ -220,6 +289,7 @@ namespace L3{
         //generates other code
         
         for (auto f : p.functions){
+            std::vector<Liveness_Node*> liveness_nodes = generate_liveness(f);
             std::string call_label_name = ":" + f->name.substr(1,f->name.size()-1);
             int label_num = 0;
             outputFile << "\t(" << f->name << "\n";
@@ -244,7 +314,36 @@ namespace L3{
                         Node* tree = instruction_to_graph(inst);
                         trees.push_back(tree);
                     }
+
+
                     //merging here
+                    std::vector<int64_t> removed;
+                    for(int64_t i = 1; i < trees.size(); i++){
+                        //get list of leaves
+                        //for every tree prior check conditions if so merge
+                        //kee[ track of which indices to remove]
+                        std::vector<Node*> leaves = get_leaves(trees[i]);
+
+                        for(int64_t j = 0; j < i; j++){
+                            if(std::find(removed.begin(), removed.end(),j) != removed.end()) continue;
+                            std::vector<Node*> matching = check_conditions(leaves,trees[j],liveness_nodes, context->start_num + j, context->start_num + i);
+                            for(Node* match : matching){
+                                merge(match, trees[j]);
+                            }
+                            removed.push_back(j);
+                        }
+                    }
+
+                    //remove merged trees
+                    for(auto i = removed.size()-1; i > -1; i--){
+                        trees.erase(trees.begin() + removed[i]);
+                    }
+
+
+
+
+
+                    //tiling starts here
                     for(auto tree : trees){
                         auto tile = get_matching_tile(tree);
                         std::string converted = convert_to_instructions(tree,tile);
