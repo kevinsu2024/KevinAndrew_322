@@ -279,28 +279,40 @@ namespace L3{
     }
 
 
-
+    //return: a sequence of subtrees and their corresponding tiles
     std::vector<std::tuple<Node*, Tile*>>
     maximal_munch(Node* tree){
         // std::cout<< "\n\nprinting tree\n";
         // print_tree(tree);
 
+        
+        std::vector<std::tuple<Node*, Tile*>> ret_sequence;
+        //if tree completely munched, return
+        if (tree == nullptr){
+            return ret_sequence;
+        }
         //sort tile by no. of nodes, then by cost
         std::sort(tiles.begin(), tiles.end(), [](const Tile& lhs, const Tile& rhs){
             return  lhs.num_nodes < rhs.num_nodes || 
                     (lhs.num_nodes == rhs.num_nodes && lhs.num_instructions < rhs.num_instructions);
         });
 
-
+        //check in order of the tiles array, the first tile that is able to match with tree.
+        //then, take out subtree that is 
         for(Tile* t : tiles){
             std::tuple<Node*, Tile*> tup (nullptr, nullptr);
             if(check_tile(tree,t->root)){
                 tup[1] = t;
-                tup[0] = 
-            } return t;
+                tup[0] = tree;
+                ret_sequence.push_back(tup);
+                auto new_tree = remove_munched_portion(tree);
+                auto sub_munch = maximal_munch(new_tree);
+                for (std::tuple<Node*, Tile*> tuple : sub_munch){
+                    ret_sequence.push_back(tuple);
+                }
+            } 
         }
-        std::cerr << "\nfailed to match uh oh";
-        return tiles[0];
+        return ret_sequence;
     }
 
 
