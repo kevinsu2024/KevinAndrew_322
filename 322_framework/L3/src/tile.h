@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream>
 #include <L3.h>
-
+#include <algorithm>
 namespace L3{
     struct Node{
         std::string node_type;
@@ -26,7 +26,7 @@ namespace L3{
     
     std::string convert_to_instructions(Node* tree, Tile* tile);
     Node* instruction_to_graph(Instruction* i);
-    Tile* get_matching_tile(Node* tree);
+    std::vector<std::tuple<Node*, Tile*>> maximal_munch(Node* tree);
 
     
 

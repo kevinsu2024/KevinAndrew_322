@@ -345,10 +345,16 @@ namespace L3{
 
                     //tiling starts here
                     for(auto tree : trees){
-                        auto tile = get_matching_tile(tree);
-                        std::string converted = convert_to_instructions(tree,tile);
-                        // std::cout << "converted is : \n" << converted << "\n";
-                        outputFile << converted;
+                        
+                        auto tree_tile_tuples = maximal_munch(tree);
+                        for (auto tuple : tree_tile_tuples){
+                            auto subtree = tuple[0];
+                            auto tile = tuple[1];
+                            std::string converted = convert_to_instructions(subtree,tile);
+                            // std::cout << "converted is : \n" << converted << "\n";
+                            outputFile << converted;
+                        }
+                        
                     }
                 }
                 else{

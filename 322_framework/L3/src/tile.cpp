@@ -253,6 +253,7 @@ namespace L3{
         instruction->neighbors.push_back(a);
         tiles.push_back(new Tile{instruction, 3, 1, "18"}); 
         
+
     }
 
     bool
@@ -279,12 +280,24 @@ namespace L3{
 
 
 
-    Tile*
-    get_matching_tile(Node* tree){
+    std::vector<std::tuple<Node*, Tile*>>
+    maximal_munch(Node* tree){
         // std::cout<< "\n\nprinting tree\n";
         // print_tree(tree);
+
+        //sort tile by no. of nodes, then by cost
+        std::sort(tiles.begin(), tiles.end(), [](const Tile& lhs, const Tile& rhs){
+            return  lhs.num_nodes < rhs.num_nodes || 
+                    (lhs.num_nodes == rhs.num_nodes && lhs.num_instructions < rhs.num_instructions);
+        });
+
+
         for(Tile* t : tiles){
-            if(check_tile(tree,t->root)) return t;
+            std::tuple<Node*, Tile*> tup (nullptr, nullptr);
+            if(check_tile(tree,t->root)){
+                tup[1] = t;
+                tup[0] = 
+            } return t;
         }
         std::cerr << "\nfailed to match uh oh";
         return tiles[0];
