@@ -79,7 +79,7 @@ int main(
   /*
    * Generate L2.
    */
-  L3::generate_code(p);
+  L3::generate_code(p, true);
   
   if (enable_code_generator){
       

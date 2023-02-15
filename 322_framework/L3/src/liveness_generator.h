@@ -18,5 +18,5 @@ namespace L3{
         std::set<std::string> out;
     };
 
-    std::vector<Liveness_Node*> generate_liveness(Function* func);
+    std::vector<Liveness_Node*> generate_liveness(Function* func, bool verbose);
 }

@@ -19,9 +19,14 @@ namespace L3{
     void
     gen_kill(Liveness_Node* ln){
         Instruction* in = ln->instr;
+
         if(in->get_name() == "Instruction_assignment"){
-            Instruction_assignment* instr = (Instruction_assignment*) instr;
-            if(instr->get_s()->get_name() == "Variable") ln->gen.insert(instr->get_s()->to_string());
+            Instruction_assignment* instr = (Instruction_assignment*) in;
+            
+
+            if(instr->get_s()->get_name() == "Variable"){
+                ln->gen.insert(instr->get_s()->to_string());
+            }
             ln->kill.insert(instr->get_var()->to_string());
         }
         else if(in->get_name() == "Instruction_cmp"){
@@ -116,19 +121,20 @@ namespace L3{
 
 
     std::vector<Liveness_Node*>
-    generate_liveness(Function* func){
+    generate_liveness(Function* func, bool verbose){
+        if(verbose) std::cerr << "starting liveness\n";
         std::vector<Instruction*> instructs = func->instructions;
         std::vector<Liveness_Node*> nodes (instructs.size());
 
         for(int64_t i = 0; i < instructs.size(); i++){
             nodes[i] = new Liveness_Node{instructs[i]};
         }
+        if(verbose) std::cerr <<"num of liveness nodes are " << nodes.size() << "\n";;
 
 
         //do succs and preds
         for(int64_t i = 0; i < instructs.size(); i++){
             Instruction* in = instructs[i];
-            
 
             if(in->get_name() == "Instruction_return_t" || in->get_name() == "Instruction_return"){
                 continue;
@@ -177,13 +183,57 @@ namespace L3{
                 nodes[i+1]->preds.insert(i);
             }
         }
+        if(verbose){
+            for(auto ln : nodes){
+                std::cerr << "preds are: \n";
+                for(auto p : ln->preds){
+                    std::cerr << p << " ";
+                }
+                std::cerr << "\n";
+                std::cerr << "succs are: \n";
+                for(auto s : ln->succs){
+                    std::cerr << s << " ";
+                }
+                std::cerr << "\n";
+            }
+        }
+        
 
         for(Liveness_Node* ln : nodes){
             gen_kill(ln);
         }
+        if(verbose){
+            for(auto ln : nodes){
+                std::cerr << "gens are: \n";
+                for(auto p : ln->gen){
+                    std::cerr << p << " ";
+                }
+                std::cerr << "\n";
+                std::cerr << "kills are: \n";
+                for(auto s : ln->kill){
+                    std::cerr << s << " ";
+                }
+                std::cerr << "\n";
+            }
+        }
 
 
         in_out(&nodes);
+
+        if(verbose){
+            for(auto ln : nodes){
+                std::cerr << "ins are: \n";
+                for(auto p : ln->in){
+                    std::cerr << p << " ";
+                }
+                std::cerr << "\n";
+                std::cerr << "outs are: \n";
+                for(auto s : ln->out){
+                    std::cerr << s << " ";
+                }
+                std::cerr << "\n";
+                }   
+        }
 
 
 

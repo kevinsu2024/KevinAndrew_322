@@ -30,38 +30,46 @@ namespace L3{
             ctx->func_name = f->name;
             ctx->isContext = true;
             ctx->start_num = 0;
+            contexts.push_back(ctx);
             int64_t ctr = 0;
+            // std::cerr << "\nhererere\n";
             for (auto instr : f->instructions){
+                // std::cerr << "\nisntruction is: " << instr->to_string() << "\n";
+                // std::cerr << "ctr is " << ctr << "\n";
                 if(instr == nullptr){
                     break;
                 }
                 if (!is_label_call(instr)){
-                    ctx->instructions.push_back(instr);
+                    // std::cerr <<"herere 1 \n";
+                    contexts.back()->instructions.push_back(instr);
+                    if (is_branch_return(instr)){
+                        // std::cerr <<"herere 2 \n";
+                        contexts.push_back(new Context());
+                        contexts.back()->start_num = ctr+1;
+                        contexts.back()->isContext = true;
+                        contexts.back()->func_name = f->name;
+                }
                 } else{
-                    contexts.push_back(ctx);
+                    // std::cerr <<"herere 3 \n";
+                    contexts.push_back(new Context());
+                    contexts.back()->start_num = ctr;
+                    contexts.back()->isContext = false;
+                    contexts.back()->func_name = f->name;
+                    contexts.back()->instructions.push_back(instr);
 
-                    Context* con = new Context();
-                    con->isContext = false;
-                    con->func_name = f->name;
-                    con->instructions.push_back(instr);
-                    ctx->start_num = ctr;
-                    contexts.push_back(con);
+                    contexts.push_back(new Context());
+                    contexts.back()->start_num = ctr+1;
+                    contexts.back()->isContext = true;
+                    contexts.back()->func_name = f->name;
 
-                    ctx = new Context();
-                    ctx->start_num = ctr+1;
-                    ctx->func_name = f->name;
-                    ctx->isContext = true;
-                }
-                if (is_branch_return(instr)){
-                    contexts.push_back(ctx);
                     
-                    ctx = new Context();
-                    ctx->start_num = ctr+1;
-                    ctx->isContext = true;
-                    ctx->func_name = f->name;
+
+                    
                 }
+                
+                ctr++;
             }
-            ctr++;
+            
         }
         //delete empty contexts
         for (int64_t i = 0; i < contexts.size(); i++){

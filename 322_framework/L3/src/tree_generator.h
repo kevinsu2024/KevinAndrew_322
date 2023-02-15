@@ -1,6 +1,7 @@
 #pragma once
 
 #include <L3.h>
+#include <iostream>
 
 namespace L3{
     class Context{

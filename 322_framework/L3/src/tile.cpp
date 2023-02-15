@@ -4,7 +4,20 @@
 #include <tile.h>
 
 namespace L3{
-    
+    std::string
+    get_s_type(std::string s){
+        if(s.substr(0,1) == "%") return "Variable";
+        else if(s.substr(0,1) == ":") return "Label";
+        else if(s.substr(0,1) == "@") return "FunctionName";
+        else return "Number";
+    }
+
+    std::string
+    get_t_type(std::string t){
+        if(t.substr(0,1) == "%") return "Variable";
+        return "Number";
+    }
+
     Node*
     instruction_to_graph(Instruction* i){
         if(i->get_name() == "Instruction_assignment"){
@@ -12,7 +25,7 @@ namespace L3{
             std::string dest = in->get_var()->to_string();
             std::string s = in->get_s()->to_string();
             Node* dst = new Node{"Variable",dest};
-            Node* s_node = new Node{"S", s};
+            Node* s_node = new Node{get_s_type(s), s};
             dst->neighbors.push_back(s_node);
             return dst;
         }
@@ -23,8 +36,8 @@ namespace L3{
             std::string t2 = in->get_t2()->to_string();
             std::string op = in->get_op()->to_string();
             Node* dst = new Node{"Variable",dest};
-            Node* val = new Node{"T", t1};
-            Node* val2 = new Node{"T", t2};
+            Node* val = new Node{get_t_type(t1), t1};
+            Node* val2 = new Node{get_t_type(t2), t2};
             Node* oper = new Node{op};
             dst->neighbors.push_back(oper);
             oper->neighbors.push_back(val);
@@ -38,8 +51,8 @@ namespace L3{
             std::string t2 = in->get_t2()->to_string();
             std::string op = in->get_op()->to_string();
             Node* dst = new Node{"Variable",dest};
-            Node* val = new Node{"T", t1};
-            Node* val2 = new Node{"T", t2};
+            Node* val = new Node{get_t_type(t1), t1};
+            Node* val2 = new Node{get_t_type(t2), t2};
             Node* oper = new Node{op};
             dst->neighbors.push_back(oper);
             oper->neighbors.push_back(val);
@@ -63,7 +76,7 @@ namespace L3{
             std::string s = in->get_s()->to_string();
             Node* store = new Node{"Store"};
             Node* var_node = new Node{"Variable", var};
-            Node* s_node = new Node{"S", s};
+            Node* s_node = new Node{get_s_type(s), s};
             store->neighbors.push_back(var_node);
             var_node->neighbors.push_back(s_node);
             return store;
@@ -76,7 +89,7 @@ namespace L3{
             Instruction_return_t* in = (Instruction_return_t*) i;
             std::string t_val = in->get_t()->to_string();
             Node* root = new Node{"Return"};
-            Node* t = new Node{"T",t_val};
+            Node* t = new Node{get_t_type(t_val),t_val};
             root->neighbors.push_back(t);
             return root;
         }
@@ -94,7 +107,7 @@ namespace L3{
             std::string t = in->get_t()->to_string();
             Node* root = new Node{"Branch"};
             Node* l_node = new Node{"Label",label};
-            Node* t_node = new Node{"T",t};
+            Node* t_node = new Node{get_t_type(t),t};
             root->neighbors.push_back(t_node);
             root->neighbors.push_back(l_node);
             return root;

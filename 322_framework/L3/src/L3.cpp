@@ -103,7 +103,7 @@ Instruction_assignment::get_s(){
 
 Item*
 Instruction_assignment::get_var(){
-    return var;
+    return this->var;
 }
 
 

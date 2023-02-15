@@ -218,15 +218,57 @@ namespace L3{
     }
 
 
+    void
+    print_tree_(Node* n){
+        std::cerr << "Node has node type " << n->node_type << " and node_val " << n->node_val << "\n";
+        std::cerr <<"neighbors are: ";
+        for(auto neigh : n->neighbors){
+            std::cerr << "(" << neigh->node_type << ", " <<  neigh->node_val << ") ";
+        }
+        std::cerr << "\n";
+        for (auto neigh : n->neighbors){
+            print_tree_(neigh);
+        }
+    }
+
+    void
+    print_node_(Node* n){
+        std::cerr << "Node has node type " << n->node_type << " and node_val " << n->node_val << "\n";
+        std::cerr <<"neighbors are: ";
+        for(auto neigh : n->neighbors){
+            std::cerr << "(" << neigh->node_type << ", " <<  neigh->node_val << ") ";
+        }
+        std::cerr << "\n";
+        return;
+    }
+
 
     std::vector<Node*>
-    check_conditions(std::vector<Node*> leaves, Node* tree, std::vector<Liveness_Node*> liveness_nodes, int64_t index_first, int64_t index_second){
+    check_conditions(std::vector<Node*> leaves, Node* tree, std::vector<Liveness_Node*> liveness_nodes, int64_t index_first, int64_t index_second, bool verbose){
+        if(verbose){
+            std::cerr << "\nchecking conditions\n";
+            std::cerr << "printing leaves\n";
+            for(auto leaf : leaves){
+                print_node_(leaf);
+                std::cerr << "\n";
+            }
+
+            std::cerr << "first tree to check has root\n";
+            print_node_(tree);
+            std::cerr << "index first is " << index_first << " second is " << index_second << "\n";
+        }
         std::vector<Node*> matching;
         for(Node* leaf : leaves){
+            if(verbose){
+                std::cerr << "\ncurrent leaf is \n";
+                print_node_(leaf);
+            }
             if(leaf->node_type != tree->node_type || leaf->node_val != tree->node_val) continue;
+            if(verbose) std::cerr << "root matches leaf\n";
             std::string var = tree->node_val;
             //check that not alive after second instr
             if(liveness_nodes[index_second]->out.find(var) != liveness_nodes[index_second]->out.end()) continue;
+            if(verbose) std::cerr << "leaf not alive after second isntr\n";
 
             //check that no use of v between two instructions
             bool works = true;
@@ -238,7 +280,7 @@ namespace L3{
                     if((liveness_nodes[i]->gen.find(var) != liveness_nodes[i]->gen.end()) || (liveness_nodes[i]->kill.find(var) != liveness_nodes[i]->kill.end())) works = false;
                 }
             }
-
+            if(verbose) std::cerr<< "no use of v between the two instr is " << works << "\n";
             if(!works) continue;
 
             // get list of vars in first isntruction and make sure no writes of others
@@ -248,8 +290,11 @@ namespace L3{
                 }
             }
             if(!works) continue;
+
+            if(verbose) std::cerr<< "no writes of leaves of second instr is " << works << "\n";
             matching.push_back(leaf);
         }
+        if(verbose) std::cerr << "final matching has size " << matching.size() << "\n";
         return matching;
     }
 
@@ -272,14 +317,25 @@ namespace L3{
         return;
     }
 
+    
+
     void
-    generate_code(Program p){
+    generate_code(Program p, bool verbose){
         create_tiles();
         std::string global_label = generate_global_label(p);
         
         std::ofstream outputFile;
         p = convert_all_labels(p, global_label);
         auto contexts = generate_contexts(p);
+        if(verbose){
+            for(auto context : contexts){
+                std::cerr << "\nis context: " << context->isContext << " start num " << context->start_num << "\n";
+                std::cerr << "instructions are \n";
+                for(auto in : context->instructions){
+                    std::cerr << in->to_string() << "\n";
+                }
+            }
+        }
         // std::cout << "\ncontexts has size " << contexts.size() << "\n";
         int64_t index = 0;
         
@@ -289,7 +345,8 @@ namespace L3{
         //generates other code
         
         for (auto f : p.functions){
-            std::vector<Liveness_Node*> liveness_nodes = generate_liveness(f);
+            if(verbose) std::cerr<< "working on function: \n" << f->to_string() << "\n";
+            
             std::string call_label_name = ":" + f->name.substr(1,f->name.size()-1);
             int label_num = 0;
             outputFile << "\t(" << f->name << "\n";
@@ -305,45 +362,88 @@ namespace L3{
                     outputFile << "\t\t" << var_str << " <- " << "stack-arg " << std::to_string(stack_addr) << "\n";
                 }
             }
+            std::vector<Liveness_Node*> liveness_nodes = generate_liveness(f, false);
+            if (verbose) std::cerr<< "working on function b4 contexts: \n" << f->to_string() << "\n";
             while(index < contexts.size() && contexts[index]->func_name == f->name){
                 auto context = contexts[index];
                 auto instructions = context->instructions;
+                if (verbose) std::cerr << "\ncurrent context starts on line " << context->start_num << "\n";
                 std::vector<Node*> trees;
                 if(context->isContext){
                     for(auto inst : instructions){
                         Node* tree = instruction_to_graph(inst);
                         trees.push_back(tree);
                     }
+                    if(verbose){
+                        for(auto tree : trees){
+                            print_tree_(tree);
+                            std::cerr << "\n\n";
+                        }
+                        
+                    }
+                    
 
 
                     //merging here
+                    if (verbose) std::cerr << "\nmerging now\n";
                     std::vector<int64_t> removed;
                     for(int64_t i = 1; i < trees.size(); i++){
+                        if (verbose) std::cerr << "\n working with tree at index " << i << "\n";
                         //get list of leaves
                         //for every tree prior check conditions if so merge
                         //kee[ track of which indices to remove]
                         std::vector<Node*> leaves = get_leaves(trees[i]);
+                        if(verbose){
+                            std::cerr<< "leaves are\n";
+                            for (auto leaf : leaves){
+                                print_node_(leaf);
+                                std::cerr << "\n";
+                            }
+                        }
 
                         for(int64_t j = 0; j < i; j++){
+                            if(verbose) std::cerr << "\nchecking index " << j << "\n";
                             if(std::find(removed.begin(), removed.end(),j) != removed.end()) continue;
-                            std::vector<Node*> matching = check_conditions(leaves,trees[j],liveness_nodes, context->start_num + j, context->start_num + i);
+                            std::vector<Node*> matching = check_conditions(leaves,trees[j],liveness_nodes, context->start_num + j, context->start_num + i, false);
+                            if(verbose) std::cerr << "\n size of matching is " << matching.size() << "\n";
                             for(Node* match : matching){
-                                merge(match, trees[j]);
+                                if (verbose) std::cerr << "merging tree with root node \n(";
+                                merge(match, trees[i]);
                             }
                             removed.push_back(j);
                         }
                     }
 
-                    //remove merged trees
+                    if (verbose){
+                        std::cerr << "removed trees due to merging are \n";
+                        for(auto r : removed){
+                            std::cerr << r << " ";
+                        }
+                        std::cerr << "\n\n";
+                    }
+
+                    // remove merged trees
                     for(auto i = removed.size()-1; i > -1; i--){
                         trees.erase(trees.begin() + removed[i]);
                     }
 
+                    if(verbose){
+                        std::cerr << "trees after merging\n";
+                        for(auto tree : trees){
+                            print_tree_(tree);
+                            std::cerr << "\n\n";
+                        }
+                    }
+                    
+
+                    
 
 
 
-                    std::cerr << "at tiling\n";
-                    //tiling starts here
+                    
+                    if(verbose) std::cerr << "at tiling\n";
+                    // tiling starts here
+
                     for(auto tree : trees){
                         
                         auto tree_tile_tuples = maximal_munch(tree);
