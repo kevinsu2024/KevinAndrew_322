@@ -342,14 +342,14 @@ namespace L3{
 
 
 
-
+                    std::cerr << "at tiling\n";
                     //tiling starts here
                     for(auto tree : trees){
                         
                         auto tree_tile_tuples = maximal_munch(tree);
                         for (auto tuple : tree_tile_tuples){
-                            auto subtree = tuple[0];
-                            auto tile = tuple[1];
+                            auto subtree = std::get<0>(tuple);
+                            auto tile = std::get<1>(tuple);
                             std::string converted = convert_to_instructions(subtree,tile);
                             // std::cout << "converted is : \n" << converted << "\n";
                             outputFile << converted;

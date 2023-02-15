@@ -253,6 +253,11 @@ namespace L3{
         instruction->neighbors.push_back(a);
         tiles.push_back(new Tile{instruction, 3, 1, "18"}); 
         
+        // sort tiles for maximal munch: first by highest num of nodes, then break ties with lowest num instructions.
+        std::sort(tiles.begin(), tiles.end(), [](const Tile* lhs, const Tile* rhs){
+            return  lhs->num_nodes > rhs->num_nodes || 
+                    (lhs->num_nodes == rhs->num_nodes && lhs->num_instructions < rhs->num_instructions);
+        });
 
     }
 
@@ -278,6 +283,31 @@ namespace L3{
         return;
     }
 
+    Node*
+    remove_munched_portion(Node* tree, Node* t, std::set<Node*> visited){
+        if((!tree) && (!t)) return nullptr;
+        if(!tree) return nullptr;
+        if(!t) return nullptr;
+        if(tree->node_type != t->node_type) return nullptr;
+        if(tree->neighbors.size() != t->neighbors.size()) return tree;
+        for(int64_t i = 0; i < tree->neighbors.size(); i++){
+            for(int64_t j = 0; j < t->neighbors.size(); j++){
+                if (std::find(visited.begin(), visited.end(), tree->neighbors[i]) != visited.end() &&
+                    std::find(visited.begin(), visited.end(), t->neighbors[j]) != visited.end()){
+                    return nullptr;
+                } else {
+                    visited.insert(tree->neighbors[i]);
+                    visited.insert(t->neighbors[j]);
+                    Node* new_munch = remove_munched_portion(tree->neighbors[i], t->neighbors[j], visited);
+                    if(new_munch != nullptr){
+                        return new_munch;
+                    }
+                }   
+            }
+        }
+        // std::cerr << "failed to munch uh oh\n";
+        return nullptr;
+    }
 
     //return: a sequence of subtrees and their corresponding tiles
     std::vector<std::tuple<Node*, Tile*>>
@@ -292,25 +322,25 @@ namespace L3{
             return ret_sequence;
         }
         //sort tile by no. of nodes, then by cost
-        std::sort(tiles.begin(), tiles.end(), [](const Tile& lhs, const Tile& rhs){
-            return  lhs.num_nodes < rhs.num_nodes || 
-                    (lhs.num_nodes == rhs.num_nodes && lhs.num_instructions < rhs.num_instructions);
-        });
 
         //check in order of the tiles array, the first tile that is able to match with tree.
-        //then, take out subtree that is 
+        //then, take out subtree after munch and munch it
         for(Tile* t : tiles){
             std::tuple<Node*, Tile*> tup (nullptr, nullptr);
+            std::set<Node*> visited;
             if(check_tile(tree,t->root)){
-                tup[1] = t;
-                tup[0] = tree;
+                std::get<1>(tup) = t;
+                std::get<0>(tup) = tree;
                 ret_sequence.push_back(tup);
-                auto new_tree = remove_munched_portion(tree);
+                auto new_tree = remove_munched_portion(tree,t->root, visited);
                 auto sub_munch = maximal_munch(new_tree);
                 for (std::tuple<Node*, Tile*> tuple : sub_munch){
                     ret_sequence.push_back(tuple);
                 }
             } 
+        }
+        if (ret_sequence.size() == 0){
+            std::cerr << "failed to find tile uh oh\n";
         }
         return ret_sequence;
     }
