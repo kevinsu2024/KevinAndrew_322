@@ -25,11 +25,13 @@ namespace L3{
     static std::vector<Tile*> tiles;
 
     void create_tiles();
+    void print_tree_(Node* tree);
+    void print_node_(Node* node);
     
     std::string convert_to_instructions(Node* tree, Tile* tile);
     Node* instruction_to_graph(Instruction* i);
-    std::vector<std::tuple<Node*, Tile*>> maximal_munch(Node* tree);
-    Node* remove_munched_portion(Node* tree, Node* tile_root, std::set<Node*> visited);
+    std::vector<std::tuple<Node*, Tile*>> maximal_munch(Node* tree, bool verbose);
+    std::vector<Node*> remove_munched_portion(Node* tree, Node* tile_root, std::set<Node*> visited);
 
     
 

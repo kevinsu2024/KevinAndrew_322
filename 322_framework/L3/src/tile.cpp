@@ -17,6 +17,29 @@ namespace L3{
         if(t.substr(0,1) == "%") return "Variable";
         return "Number";
     }
+    void
+    print_tree_(Node* n){
+        std::cerr << "Node has node type " << n->node_type << " and node_val " << n->node_val << "\n";
+        std::cerr <<"neighbors are: ";
+        for(auto neigh : n->neighbors){
+            std::cerr << "(" << neigh->node_type << ", " <<  neigh->node_val << ") ";
+        }
+        std::cerr << "\n";
+        for (auto neigh : n->neighbors){
+            print_tree_(neigh);
+        }
+    }
+
+    void
+    print_node_(Node* n){
+        std::cerr << "Node has node type " << n->node_type << " and node_val " << n->node_val << "\n";
+        std::cerr <<"neighbors are: ";
+        for(auto neigh : n->neighbors){
+            std::cerr << "(" << neigh->node_type << ", " <<  neigh->node_val << ") ";
+        }
+        std::cerr << "\n";
+        return;
+    }
 
     Node*
     instruction_to_graph(Instruction* i){
@@ -284,15 +307,49 @@ namespace L3{
     }
 
     bool
-    check_tile(Node* tree, Node* t){
+    check_tile(Node* tree, Node* t, bool verbose){
         if((!tree) && (!t)) return true;
-        if(!tree) return false;
-        if(!t) return false;
-        if(!check_node_types(tree->node_type, t->node_type)) return false;
-        if(tree->neighbors.size() != t->neighbors.size()) return false;
+        if(!tree){
+            if (verbose){
+                std::cerr << "does not match reason: input tree is null\n";
+            }
+            return false;
+        } 
+        if(tree && !t) return true;
+        if(!check_node_types(tree->node_type, t->node_type)){
+            if (verbose){
+                std::cerr << "does not match reason: node type" << tree->node_type << " does not match" << t->node_type << "\n";
+            }
+            return false;
+        } 
+        if(t->neighbors.size() > tree->neighbors.size()){
+            if (verbose){
+                std::cerr << "does not match reason: tile has neighbor size" << t->neighbors.size() << " versus tree's neighbor size" << tree->neighbors.size() << "\n";
+            }
+            return false;
+        } 
+        bool has_match = false;
         for(int64_t i = 0; i < tree->neighbors.size(); i++){
-            if(!check_tile(tree->neighbors[i], t->neighbors[i])) return false;
+            for (int64_t j = 0; j < t->neighbors.size(); j++){
+                if(check_tile(tree->neighbors[i], t->neighbors[j], verbose)){
+                    if (verbose){
+                        std::cerr << "neighbor of tree: " << tree->neighbors[i]->node_type << " matches neighbor of tile: " << t->neighbors[j]->node_type;
+                    }
+                    has_match = true;
+                } else {
+                    if (verbose){
+                        std::cerr << "neighbor of tree: " << tree->neighbors[i]->node_type << " does not match neighbor of tile: " << t->neighbors[j]->node_type;
+                    }
+                }
+            }
+            if (!has_match && t->neighbors.size() != 0){
+                if (verbose){
+                    std::cerr << "none of tree: " << tree->node_type << "'s neighbors match with that of tile: " << t->node_type;
+                }
+                return false;
+            }
         }
+        
         return true;
     }
 
@@ -305,35 +362,40 @@ namespace L3{
         return;
     }
 
-    Node*
+    std::vector<Node*>
     remove_munched_portion(Node* tree, Node* t, std::set<Node*> visited){
-        if((!tree) && (!t)) return nullptr;
-        if(!tree) return nullptr;
-        if(!t) return nullptr;
-        if(tree->node_type != t->node_type) return nullptr;
-        if(tree->neighbors.size() != t->neighbors.size()) return tree;
+        std::vector<Node*> subtrees;
+        if((!tree) && (!t)) return subtrees;
+        if(!tree) return subtrees;
+        if(!t) return subtrees;
+        if(tree->node_type != t->node_type) return subtrees;
+        if(tree->neighbors.size() != t->neighbors.size()){
+            subtrees.push_back(tree);
+            return subtrees;
+        }
         for(int64_t i = 0; i < tree->neighbors.size(); i++){
             for(int64_t j = 0; j < t->neighbors.size(); j++){
                 if (std::find(visited.begin(), visited.end(), tree->neighbors[i]) != visited.end() &&
                     std::find(visited.begin(), visited.end(), t->neighbors[j]) != visited.end()){
-                    return nullptr;
+                    return subtrees;
                 } else {
                     visited.insert(tree->neighbors[i]);
                     visited.insert(t->neighbors[j]);
-                    Node* new_munch = remove_munched_portion(tree->neighbors[i], t->neighbors[j], visited);
-                    if(new_munch != nullptr){
-                        return new_munch;
+                    std::vector<Node*> new_munch = remove_munched_portion(tree->neighbors[i], t->neighbors[j], visited);
+                    for (auto subt : new_munch){
+                        subtrees.push_back(subt);
                     }
                 }   
             }
         }
         // std::cerr << "failed to munch uh oh\n";
-        return nullptr;
+        return subtrees;
     }
+    
 
     //return: a sequence of subtrees and their corresponding tiles
     std::vector<std::tuple<Node*, Tile*>>
-    maximal_munch(Node* tree){
+    maximal_munch(Node* tree, bool verbose){
         // std::cout<< "\n\nprinting tree\n";
         // print_tree(tree);
 
@@ -347,18 +409,41 @@ namespace L3{
 
         //check in order of the tiles array, the first tile that is able to match with tree.
         //then, take out subtree after munch and munch it
+        if (verbose){
+            std::cerr << "for tree: \n";
+            print_tree_(tree);
+            std::cerr << "\n\n";
+        }
+        
         for(Tile* t : tiles){
             std::tuple<Node*, Tile*> tup (nullptr, nullptr);
             std::set<Node*> visited;
-            if(check_tile(tree,t->root)){
+            if (verbose){
+                std::cerr << "checking tile: \n" ;
+                print_node_(t->root);
+                std::cerr << "\n\n";
+            }
+            if (!check_tile(tree,t->root, verbose)){
+                if (verbose){
+                    std::cerr << "tile does not match.\n";
+                }
+            } else {
+                if (verbose){
+                    std::cerr << "tile matches!\n";
+                }
+                
                 std::get<1>(tup) = t;
                 std::get<0>(tup) = tree;
                 ret_sequence.push_back(tup);
-                auto new_tree = remove_munched_portion(tree,t->root, visited);
-                auto sub_munch = maximal_munch(new_tree);
-                for (std::tuple<Node*, Tile*> tuple : sub_munch){
-                    ret_sequence.push_back(tuple);
+                auto list_of_new_trees = remove_munched_portion(tree,t->root, visited);
+                for (auto new_tree : list_of_new_trees){
+                    auto sub_munch = maximal_munch(new_tree, verbose);
+                    for (std::tuple<Node*, Tile*> tuple : sub_munch){
+                        ret_sequence.push_back(tuple);
+                    }
                 }
+                return ret_sequence;
+                
             } 
         }
         if (ret_sequence.size() == 0){

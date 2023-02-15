@@ -218,29 +218,29 @@ namespace L3{
     }
 
 
-    void
-    print_tree_(Node* n){
-        std::cerr << "Node has node type " << n->node_type << " and node_val " << n->node_val << "\n";
-        std::cerr <<"neighbors are: ";
-        for(auto neigh : n->neighbors){
-            std::cerr << "(" << neigh->node_type << ", " <<  neigh->node_val << ") ";
-        }
-        std::cerr << "\n";
-        for (auto neigh : n->neighbors){
-            print_tree_(neigh);
-        }
-    }
+    // void
+    // print_tree_(Node* n){
+    //     std::cerr << "Node has node type " << n->node_type << " and node_val " << n->node_val << "\n";
+    //     std::cerr <<"neighbors are: ";
+    //     for(auto neigh : n->neighbors){
+    //         std::cerr << "(" << neigh->node_type << ", " <<  neigh->node_val << ") ";
+    //     }
+    //     std::cerr << "\n";
+    //     for (auto neigh : n->neighbors){
+    //         print_tree_(neigh);
+    //     }
+    // }
 
-    void
-    print_node_(Node* n){
-        std::cerr << "Node has node type " << n->node_type << " and node_val " << n->node_val << "\n";
-        std::cerr <<"neighbors are: ";
-        for(auto neigh : n->neighbors){
-            std::cerr << "(" << neigh->node_type << ", " <<  neigh->node_val << ") ";
-        }
-        std::cerr << "\n";
-        return;
-    }
+    // void
+    // print_node_(Node* n){
+    //     std::cerr << "Node has node type " << n->node_type << " and node_val " << n->node_val << "\n";
+    //     std::cerr <<"neighbors are: ";
+    //     for(auto neigh : n->neighbors){
+    //         std::cerr << "(" << neigh->node_type << ", " <<  neigh->node_val << ") ";
+    //     }
+    //     std::cerr << "\n";
+    //     return;
+    // }
 
 
     std::vector<Node*>
@@ -367,7 +367,10 @@ namespace L3{
             while(index < contexts.size() && contexts[index]->func_name == f->name){
                 auto context = contexts[index];
                 auto instructions = context->instructions;
-                if (verbose) std::cerr << "\ncurrent context starts on line " << context->start_num << "\n";
+                if (verbose) {
+                    std::cerr << "\ncurrent context starts on line " << context->start_num << "\n";
+                    std::cerr << "with number of instructions: " << context->instructions.size() << "\n";
+                }
                 std::vector<Node*> trees;
                 if(context->isContext){
                     for(auto inst : instructions){
@@ -456,9 +459,9 @@ namespace L3{
                     if(verbose) std::cerr << "at tiling\n";
                     // tiling starts here
 
-                    for(auto tree : final_trees){
+                    for(auto tree : trees){
                         
-                        auto tree_tile_tuples = maximal_munch(tree);
+                        auto tree_tile_tuples = maximal_munch(tree, verbose);
                         for (auto tuple : tree_tile_tuples){
                             auto subtree = std::get<0>(tuple);
                             auto tile = std::get<1>(tuple);
