@@ -274,12 +274,21 @@ namespace L3{
 
     }
 
+
+    bool
+    check_node_types(std::string t1, std::string tile){
+        if(t1 == tile) return true;
+        if(tile == "T" && (t1 == "Variable" || t1 == "Number")) return true;
+        if(tile == "S" && (t1 == "Variable" || t1 == "Number" || t1 == "T" || t1 == "Label" || t1 == "FunctionName")) return true;
+        return false;
+    }
+
     bool
     check_tile(Node* tree, Node* t){
         if((!tree) && (!t)) return true;
         if(!tree) return false;
         if(!t) return false;
-        if(tree->node_type != t->node_type) return false;
+        if(!check_node_types(tree->node_type, t->node_type)) return false;
         if(tree->neighbors.size() != t->neighbors.size()) return false;
         for(int64_t i = 0; i < tree->neighbors.size(); i++){
             if(!check_tile(tree->neighbors[i], t->neighbors[i])) return false;
