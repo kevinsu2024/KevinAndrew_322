@@ -386,31 +386,40 @@ namespace L3{
 
                     //merging here
                     if (verbose) std::cerr << "\nmerging now\n";
-                    std::vector<int64_t> removed;
+                    std::set<int64_t> removed;
                     for(int64_t i = 1; i < trees.size(); i++){
-                        if (verbose) std::cerr << "\n working with tree at index " << i << "\n";
+                        // if (verbose) std::cerr << "\n working with tree at index " << i << "\n";
                         //get list of leaves
                         //for every tree prior check conditions if so merge
                         //kee[ track of which indices to remove]
                         std::vector<Node*> leaves = get_leaves(trees[i]);
-                        if(verbose){
-                            std::cerr<< "leaves are\n";
-                            for (auto leaf : leaves){
-                                print_node_(leaf);
-                                std::cerr << "\n";
-                            }
-                        }
+                        // if(verbose){
+                        //     std::cerr<< "leaves are\n";
+                        //     for (auto leaf : leaves){
+                        //         print_node_(leaf);
+                        //         std::cerr << "\n";
+                        //     }
+                        // }
 
                         for(int64_t j = 0; j < i; j++){
-                            if(verbose) std::cerr << "\nchecking index " << j << "\n";
-                            if(std::find(removed.begin(), removed.end(),j) != removed.end()) continue;
+                            // if(verbose) std::cerr << "\nchecking index " << j << "\n";
+                            if(removed.find(j) != removed.end()) continue;
                             std::vector<Node*> matching = check_conditions(leaves,trees[j],liveness_nodes, context->start_num + j, context->start_num + i, false);
-                            if(verbose) std::cerr << "\n size of matching is " << matching.size() << "\n";
+                            // if(verbose) std::cerr << "\n size of matching is " << matching.size() << "\n";
                             for(Node* match : matching){
-                                if (verbose) std::cerr << "merging tree with root node \n(";
-                                merge(match, trees[i]);
+                                if (verbose) {
+                                    std::cerr << "merging leaf: \n";
+                                    print_node_(match);
+                                    std::cerr << "\n";
+                                    std::cerr << "with tree that starts with node \n";
+                                    print_node_(trees[j]) ;
+                                    std::cerr << "\n";
+                                }
+                                merge(match, trees[j]);
+                                removed.insert(j);
+                                if (verbose) std::cerr << "finished merging\n";
                             }
-                            removed.push_back(j);
+                            
                         }
                     }
 
@@ -422,14 +431,17 @@ namespace L3{
                         std::cerr << "\n\n";
                     }
 
-                    // remove merged trees
-                    for(auto i = removed.size()-1; i > -1; i--){
-                        trees.erase(trees.begin() + removed[i]);
+                    std::vector<Node*> final_trees;
+                    for(int64_t i = 0; i < trees.size(); i ++){
+                        if(removed.find(i) != removed.end()) continue;
+                        final_trees.push_back(trees[i]);
                     }
+
+                    
 
                     if(verbose){
                         std::cerr << "trees after merging\n";
-                        for(auto tree : trees){
+                        for(auto tree : final_trees){
                             print_tree_(tree);
                             std::cerr << "\n\n";
                         }
@@ -444,7 +456,7 @@ namespace L3{
                     if(verbose) std::cerr << "at tiling\n";
                     // tiling starts here
 
-                    for(auto tree : trees){
+                    for(auto tree : final_trees){
                         
                         auto tree_tile_tuples = maximal_munch(tree);
                         for (auto tuple : tree_tile_tuples){
