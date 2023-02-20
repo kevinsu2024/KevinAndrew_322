@@ -304,6 +304,7 @@ namespace IR {
             str_arrow,
             seps,
             variable_rule,
+            seps,
             pegtl::plus<
                 instruction_bracket_rule
             >
@@ -312,6 +313,7 @@ namespace IR {
     struct Instruction_store_assignment_rule:
         pegtl::seq<
             variable_rule,
+            seps,
             pegtl::plus<
                 instruction_bracket_rule
             >,
@@ -386,6 +388,7 @@ namespace IR {
             str_new,
             seps,
             str_array,
+            seps,
             pegtl::one<'('>,
             arguments_rule,
             pegtl::one<')'>
@@ -400,6 +403,7 @@ namespace IR {
             str_new,
             seps,
             str_Tuple,
+            seps,
             pegtl::one<'('>,
             t_rule,
             pegtl::one<')'>
@@ -407,17 +411,18 @@ namespace IR {
 
     struct Instruction_rule:
         pegtl::sor<
+            pegtl::seq< pegtl::at<Instruction_declaration_rule>  , Instruction_declaration_rule   >,
+            pegtl::seq< pegtl::at<Instruction_load_assignment_rule> , Instruction_load_assignment_rule  >,
             pegtl::seq< pegtl::at<Instruction_cmp_assignment_rule>  , Instruction_cmp_assignment_rule   >,
             pegtl::seq< pegtl::at<Instruction_op_assignment_rule>   , Instruction_op_assignment_rule    >,
             pegtl::seq< pegtl::at<Instruction_assignment_rule>      , Instruction_assignment_rule       >,
-            pegtl::seq< pegtl::at<Instruction_load_assignment_rule> , Instruction_load_assignment_rule  >,
             pegtl::seq< pegtl::at<Instruction_store_assignment_rule>, Instruction_store_assignment_rule >,
-            pegtl::seq< pegtl::at<Instruction_array_length_rule>            , Instruction_call_rule             >,
-            pegtl::seq< pegtl::at<Instruction_tuple_length_rule>            , Instruction_call_rule             >,
+            pegtl::seq< pegtl::at<Instruction_array_length_rule>            , Instruction_array_length_rule             >,
+            pegtl::seq< pegtl::at<Instruction_tuple_length_rule>            , Instruction_tuple_length_rule             >,
             pegtl::seq< pegtl::at<Instruction_call_assignment_rule> , Instruction_call_assignment_rule  >,
             pegtl::seq< pegtl::at<Instruction_call_rule>            , Instruction_call_rule             >,
-            pegtl::seq< pegtl::at<Instruction_create_array_rule>            , Instruction_call_rule             >,
-            pegtl::seq< pegtl::at<Instruction_create_tuple_rule>            , Instruction_call_rule             >
+            pegtl::seq< pegtl::at<Instruction_create_array_rule>            , Instruction_create_array_rule             >,
+            pegtl::seq< pegtl::at<Instruction_create_tuple_rule>            , Instruction_create_tuple_rule             >
         > {};
     
     struct Instructions_rule:
@@ -464,8 +469,8 @@ namespace IR {
 
     struct End_Instructions_rule:
         pegtl::sor<
-            pegtl::seq< pegtl::at<Instruction_branch_rule>           , Instruction_branch_rule            >,
             pegtl::seq< pegtl::at<Instruction_branch_t_rule>         , Instruction_branch_t_rule          >,
+            pegtl::seq< pegtl::at<Instruction_branch_rule>           , Instruction_branch_rule            >,
             pegtl::seq< pegtl::at<Instruction_return_t_rule>        , Instruction_return_t_rule         >,
             pegtl::seq< pegtl::at<Instruction_return_rule>          , Instruction_return_rule           >
         > {};
@@ -497,7 +502,7 @@ namespace IR {
 
     struct basic_block_rule:
         pegtl::seq<
-            label_rule,
+            Instruction_label_rule,
             seps,
             Instructions_rule,
             seps,
@@ -511,7 +516,11 @@ namespace IR {
             pegtl::one<'{'>,
             seps,
             pegtl::plus<
-                basic_block_rule
+                pegtl::seq<
+                    seps,
+                    basic_block_rule,
+                    seps
+                >
             >,
             seps,
             pegtl::one<'}'>
@@ -648,6 +657,7 @@ namespace IR {
     template<> struct action < Instruction_label_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
+            std::cerr << "\nherererer\n";
             auto currentF = p.functions.back();
             auto label = parsed_items.back();
             parsed_items.pop_back();
@@ -684,6 +694,23 @@ namespace IR {
     /*
     * Instruction actions
     */
+    template<> struct action < Instruction_declaration_rule > {
+        template< typename Input >
+        static void apply( const Input & in, Program & p){
+            auto currentF = p.functions.back();
+            auto currentB = currentF->basic_blocks.back();
+
+            Item*  var = parsed_items.back();
+            parsed_items.pop_back();
+
+            Item* type = parsed_items.back();
+            parsed_items.pop_back();
+
+            auto i = new Instruction_declaration(type,var);
+
+            currentB->instructions.push_back(i);
+        }
+    };
 
 
     template<> struct action < Instruction_cmp_assignment_rule > {
@@ -766,11 +793,12 @@ namespace IR {
     template<> struct action < Instruction_load_assignment_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
+
             auto currentF = p.functions.back();
             auto currentB = currentF->basic_blocks.back();
 
             std::vector<Item*> indices;
-            while (parsed_items.size() > 0 && (parsed_items.back()->to_string() == "Instruction_bracket")){
+            while (parsed_items.size() > 0 && (parsed_items.back()->get_name() == "Instruction_bracket")){
                 Instruction_bracket* index = (Instruction_bracket*) parsed_items.back();
                 parsed_items.pop_back();
                 indices.push_back(index->get_index());
@@ -804,7 +832,7 @@ namespace IR {
             parsed_items.pop_back();
 
             std::vector<Item*> indices;
-            while (parsed_items.size() > 0 && (parsed_items.back()->to_string() == "Instruction_bracket")){
+            while (parsed_items.size() > 0 && (parsed_items.back()->get_name() == "Instruction_bracket")){
                 Instruction_bracket* index = (Instruction_bracket*) parsed_items.back();
                 parsed_items.pop_back();
                 indices.push_back(index->get_index());
@@ -1040,7 +1068,7 @@ namespace IR {
     template<> struct action < Instruction_return_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
-
+        std::cerr << "\nherererer2\n";
         /* 
         * Fetch the current function.
         */ 

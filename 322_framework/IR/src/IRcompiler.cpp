@@ -62,6 +62,9 @@ int main(
    */
   
   auto p = IR::parse_file(argv[optind]);
+  for (auto f : p.functions){
+    std::cerr << f->to_string();
+  }
   /*
    * Code optimizations (optional)
    */

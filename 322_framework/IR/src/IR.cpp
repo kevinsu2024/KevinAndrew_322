@@ -100,6 +100,24 @@ Instruction::to_string() {
     return instr;
 }
 
+Instruction_declaration::Instruction_declaration(Item* t, Item* v){
+    set_name("Instruction_declaration");
+    set_string(t->to_string() + " " + v->to_string());
+    var_type = t;
+    var = v;
+}
+
+Item*
+Instruction_declaration::get_var_type(){
+    return var_type;
+}
+
+Item*
+Instruction_declaration::get_var(){
+    return var;
+}
+
+
 
 Instruction_assignment::Instruction_assignment(Item* var, Item* s){
     set_name("Instruction_assignment");
@@ -192,7 +210,7 @@ Instruction_bracket::get_index(){
 
 Instruction_load::Instruction_load(Item* d, Item* s, std::vector<Item*> i){
     set_name("Instruction_load");
-    std::string st = (var_dst->to_string() + " <- " + var_src->to_string());
+    std::string st = (d->to_string() + " <- " + s->to_string());
     for(Item* ele : i){
         st += ("[" + ele->to_string() + "]");
     }
@@ -450,19 +468,30 @@ Instruction_branch_t::get_label2(){
     return label2;
 }
 
-
+std::string
+BasicBlock::to_string(){
+    auto instrs = instructions;
+    std::string ans = ("\t" + label->to_string() + "\n");
+    for(auto instr : instrs){
+        ans += "\t" + instr->to_string() + "\n";
+    }
+    ans += "\t" + end->to_string() + "\n";
+    return ans;
+}
 
 std::string
 Function::to_string(){
-    auto instrs = basic_blocks.back()->instructions;//FIX THIS
-    std::string ans = "(" + name + "\n";
-    ans += "\t";
-    // L2 ONLY: CHANGE LATER
-    // ans += (std::to_string(arguments) + " " + std::to_string(locals) + "\n");
-    for(Instruction* instr : instrs){
-        ans += "\t" + instr->to_string() + "\n";
+    auto blocks = basic_blocks;
+    std::string ans = "define " + return_type + " " + name + "(";
+    for(int64_t i = 0; i < types.size(); i++){
+        ans += (types[i]->to_string() + " " + vars[i]->to_string() + ", ");
     }
-    ans += ")\n";
+    if(types.size() > 0) ans = ans.substr(0,ans.size()-2);
+    ans += "){\n";
+    for(auto block : blocks){
+        ans += block->to_string();
+    }
+    ans += "}\n";
     return ans;
 }
 

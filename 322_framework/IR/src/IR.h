@@ -90,6 +90,16 @@ namespace IR{
     /*
     * Instructions
     */
+    class Instruction_declaration : public Instruction{
+        public:
+            Instruction_declaration(Item* t, Item* v);
+            Item* get_var_type();
+            Item* get_var();
+        private:
+            Item* var_type;
+            Item* var;
+    };
+    
     class Instruction_assignment : public Instruction{
         public:
             Instruction_assignment (Item *var, Item *s);
@@ -272,6 +282,7 @@ namespace IR{
             Item* label;
             std::vector<Instruction*> instructions;
             Instruction* end;
+            std::string to_string();
     };
 
     class Function{
