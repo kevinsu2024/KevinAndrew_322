@@ -657,7 +657,7 @@ namespace IR {
     template<> struct action < Instruction_label_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
-            std::cerr << "\nherererer\n";
+            // std::cerr << "\nherererer\n";
             auto currentF = p.functions.back();
             auto label = parsed_items.back();
             parsed_items.pop_back();
@@ -1068,7 +1068,7 @@ namespace IR {
     template<> struct action < Instruction_return_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
-        std::cerr << "\nherererer2\n";
+        // std::cerr << "\nherererer2\n";
         /* 
         * Fetch the current function.
         */ 
