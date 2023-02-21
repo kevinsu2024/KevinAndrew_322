@@ -4,6 +4,7 @@
 #include <trace.h>
 #include <iostream>
 #include <fstream>
+#include <multidim_array.h>
 // #include <tile.h>
 #include <stack>
 #include<set>
