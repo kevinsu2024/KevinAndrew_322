@@ -38,12 +38,16 @@ namespace IR {
 
         std::ofstream outputFile;
         if (verbose){
-            std::cerr << "printing now; testing to_string \n";
-            
+            std::cerr << "printing now; \n";
+            std::cerr << "no of functions: " << p.functions.size() << "\n";
         }
         
         for (auto f : p.functions){
-            auto traces = get_traces(f->basic_blocks);
+            std::cerr << "no of basic blocks: " << f->basic_blocks.size() << "\n";
+            auto traces = get_traces(f->basic_blocks, verbose);
+            if (verbose){
+                std::cerr << "traces has length " << traces.size() <<"\n";
+            }
             for (auto trace: traces){
                 for (auto bb : trace->blocks){
                     for (auto i : bb->instructions){

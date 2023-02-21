@@ -1,6 +1,17 @@
 #include <trace.h>
-
+#include <iostream>
 namespace IR{
+    void
+    print_trace_(std::vector<Trace*> traces){
+        for (auto trace: traces){
+            for (auto bb: trace->blocks){
+                std::cerr << bb->label->to_string() << "\n";
+                for (auto i: bb->instructions){
+                    std::cerr << i->to_string() << "\n";
+                }
+            }
+        }
+    }
     BasicBlock*
     fetch_and_remove(std::vector<BasicBlock*>* blocks){ // pass pointer since we modify original list
         BasicBlock* return_block = blocks->back();
@@ -47,14 +58,20 @@ namespace IR{
     //might need a function that checks how many branches/conditional jumps in each basic block
 
     std::vector<Trace*>
-    get_traces(std::vector<BasicBlock*> b){
+    get_traces(std::vector<BasicBlock*> b, bool verbose){
         std::vector<BasicBlock*> blocks = b;
         std::vector<Trace*> traces;
-        std::set<BasicBlock*> placed_blocks;
+        std::unordered_set<BasicBlock*> placed_blocks;
         while (blocks.size() > 0){
+            if (verbose) {
+                std::cerr << "blocks is nonempty \n";
+            }
             Trace* newTrace = new Trace{};
             BasicBlock* bb = fetch_and_remove(&blocks);
-            while(placed_blocks.find(bb) != placed_blocks.end()){
+            while(placed_blocks.find(bb) == placed_blocks.end()){
+                if (verbose){
+                    std::cerr << "do not see current block in placed_blocks; perform trace action\n";
+                }
                 placed_blocks.insert(bb);
                 newTrace->blocks.push_back(bb);
                 std::vector<BasicBlock*> succs = get_succ(bb, blocks);
@@ -64,9 +81,14 @@ namespace IR{
                     }
                 }
             }
+            if (newTrace->blocks.size() > 0){
+                traces.push_back(newTrace);
+            }
         }
         
-
+        if (verbose){
+            print_trace_(traces);
+        }
         return traces;
     }
     

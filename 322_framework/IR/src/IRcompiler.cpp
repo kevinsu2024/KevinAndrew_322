@@ -82,7 +82,7 @@ int main(
 //   /*
 //    * Generate IR.
 //    */
-   IR::generate_code(p, false);
+   IR::generate_code(p, true);
   
 //   if (enable_code_generator){
       
