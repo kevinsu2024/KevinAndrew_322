@@ -288,6 +288,21 @@ namespace L3{
         instruction->neighbors.push_back(b);
         instruction->neighbors.push_back(a);
         tiles.push_back(new Tile{instruction, 3, 1, "18"}); 
+
+        
+        //start of complex tiles
+        // instruction = new Node{"Variable"};
+        // Node* add_op = new Node{"+"};
+        // a = new Node{"T"};
+        // b = new Node{"T"};
+        // instruction->neighbors.push_back(add_op);
+        // add_op->neighbors.push_back(a);
+        // add_op->neighbors.push_back(b);
+        // Node* times_op = new Node{"*"};
+        // b->neighbors.push_back(times_op);
+        // c = new Node{"T"};
+        // Node* d = new Node{""}
+
         
         // sort tiles for maximal munch: first by highest num of nodes, then break ties with lowest num instructions.
         std::sort(tiles.begin(), tiles.end(), [](const Tile* lhs, const Tile* rhs){
@@ -303,6 +318,7 @@ namespace L3{
         if(t1 == tile) return true;
         if(tile == "T" && (t1 == "Variable" || t1 == "Number")) return true;
         if(tile == "S" && (t1 == "Variable" || t1 == "Number" || t1 == "T" || t1 == "Label" || t1 == "FunctionName")) return true;
+        if(tile == "SameVariable" && t1 == "Variable") return true;
         return false;
     }
 
@@ -353,6 +369,22 @@ namespace L3{
         return true;
     }
 
+    // bool
+    // check_special(Node* tree, Tile* t, bool verbose){
+    //     //w aop t
+    //     if (t->id == "19" || t->id == "20" || t->id == "21" || t->id == "22"){
+    //         Node* op = tree->neighbors[0];
+    //         std::vector<Node*> children = op->neighbors;
+    //         if (children.size() != 2) return false;
+    //         for (int i = 0; i < 2; i++){
+    //             if (children[i]->node_type == "Variable" && children[(i-1) % 2]->node_type == "Number"){
+    //                 if (children[i]->node_val != tree->node_val) return false;
+    //             }
+    //         }
+    //         return true;
+    //     }
+    //     return false;
+    // }
     void
     print_tree(Node* tree){
         std::cout << tree->node_type << " " << tree->node_val << "\n";

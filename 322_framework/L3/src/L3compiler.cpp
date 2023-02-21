@@ -77,7 +77,7 @@ int main(
   }
 
   /*
-   * Generate L2.
+   * Generate L3.
    */
   L3::generate_code(p, false);
   

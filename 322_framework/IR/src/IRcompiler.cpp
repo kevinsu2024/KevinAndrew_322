@@ -14,6 +14,7 @@
 #include <assert.h>
 #include <IR.h>
 #include <parser.h>
+#include <code_generator.h>
 
 
 void print_help (char *progName){
@@ -79,9 +80,9 @@ int main(
 //   }
 
 //   /*
-//    * Generate L2.
+//    * Generate IR.
 //    */
-//   L3::generate_code(p, false);
+   IR::generate_code(p, false);
   
 //   if (enable_code_generator){
       

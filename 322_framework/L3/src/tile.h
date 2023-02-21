@@ -32,6 +32,8 @@ namespace L3{
     Node* instruction_to_graph(Instruction* i);
     std::vector<std::tuple<Node*, Tile*>> maximal_munch(Node* tree, bool verbose);
     std::vector<Node*> remove_munched_portion(Node* tree, Node* tile_root, std::set<Node*> visited);
+    bool check_tile(Node* tree, Node* tile, bool verbose);
+    bool check_special(Node* tree, Node* tile, bool verbose);
 
     
 
