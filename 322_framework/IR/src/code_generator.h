@@ -5,6 +5,8 @@
 #include <iostream>
 #include <fstream>
 #include <multidim_array.h>
+#include <unordered_map>
+#include <algorithm>
 // #include <tile.h>
 #include <stack>
 #include<set>
@@ -12,6 +14,12 @@
 // #include <algorithm>
 
 namespace IR{
+    struct Data_holder{
+        int64_t num_dimensions;
+    };
+
+    typedef std::unordered_map<std::string, Data_holder*> var_map;
+
     void generate_code(Program p, bool verbose);
     // void generate_call(Instruction* instr, std::ofstream& out);
     // void generate_call_assignment(Instruction* instr, std::ofstream& out);

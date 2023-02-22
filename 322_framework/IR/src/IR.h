@@ -193,6 +193,17 @@ namespace IR{
     };
 
 
+
+    class Instruction_label : public Instruction{
+        public:
+            Instruction_label (Item *l);
+            Item* get_label();
+
+        private:
+            Item *label;
+    };
+
+
     class Instruction_return : public Instruction{
         public:
             Instruction_return();

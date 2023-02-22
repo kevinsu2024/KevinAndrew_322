@@ -318,8 +318,9 @@ Instruction_call::Instruction_call(Item* callee, std::vector<Item*> args){
         if (i < args.size() - 1){
             IR_string += ", ";
         }
-        IR_string += ")";
+        
     }
+    IR_string += ")";
     set_string(IR_string);
     this->callee = callee;
     this->args = args;
@@ -345,8 +346,8 @@ Instruction_call_assignment::Instruction_call_assignment(Item* var, Item* callee
         if (i < args.size() - 1){
             IR_string += ", ";
         }
-        IR_string += ")";
     }
+    IR_string += ")";
     set_string(IR_string);
     this->var = var;
     this->callee = callee;
@@ -411,6 +412,20 @@ Instruction_create_tuple::get_dst_var(){
 Item*
 Instruction_create_tuple::get_size(){
     return size;
+}
+
+
+
+Instruction_label::Instruction_label(Item* l){
+    set_name("Instruction_label");
+    set_string(l->to_string());
+    this->label = l;
+    return;
+}
+
+Item*
+Instruction_label::get_label(){
+    return label;
 }
 
 

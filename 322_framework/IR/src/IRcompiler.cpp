@@ -63,9 +63,9 @@ int main(
    */
   
   auto p = IR::parse_file(argv[optind]);
-  for (auto f : p.functions){
-    std::cerr << f->to_string();
-  }
+  // for (auto f : p.functions){
+  //   std::cerr << f->to_string();
+  // }
   /*
    * Code optimizations (optional)
    */
@@ -82,7 +82,7 @@ int main(
 //   /*
 //    * Generate IR.
 //    */
-   IR::generate_code(p, true);
+   IR::generate_code(p, false);
   
 //   if (enable_code_generator){
       
