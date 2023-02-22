@@ -1,5 +1,6 @@
 #include <IR.h>
 #include <unordered_set>
+#include <algorithm>
 
 namespace IR{
     struct Trace{

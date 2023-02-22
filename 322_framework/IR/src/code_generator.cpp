@@ -185,16 +185,6 @@ namespace IR {
             return res;
         }
         else{
-            std::cerr << "NO MATCHING INSTRUCTION\n";
-            std::cerr << "NO MATCHING INSTRUCTION\n";
-            std::cerr << "NO MATCHING INSTRUCTION\n";
-            std::cerr << "NO MATCHING INSTRUCTION\n";
-            std::cerr << "NO MATCHING INSTRUCTION\n";
-            std::cerr << "NO MATCHING INSTRUCTION\n";
-            std::cerr << "NO MATCHING INSTRUCTION\n";
-            std::cerr << "NO MATCHING INSTRUCTION\n";
-            std::cerr << "NO MATCHING INSTRUCTION\n";
-            std::cerr << "NO MATCHING INSTRUCTION\n";
             return "\t" + in->to_string();
         }
     }
@@ -213,14 +203,11 @@ namespace IR {
 
         
         for (auto f : p.functions){
-            std::cerr << "wroking on function " << f->name << "\n";
-            std::cerr << f->to_string();
             outputFile << "define " << f->name << " (";
             for(int64_t i = 0; i < f->vars.size(); i++){
                 outputFile << f->vars[i]->to_string();
                 if(i != f->vars.size()-1) outputFile << ", ";
             }
-            std::cerr << "got past func declaration \n";
             outputFile << "){\n";
 
             std::string func_string = "";
@@ -232,25 +219,16 @@ namespace IR {
             }
             auto traces = get_traces(f->basic_blocks, verbose);
 
-            std::cerr << "got traces\n";
 
             if (verbose){
                 std::cerr << "traces has length " << traces.size() <<"\n";
             }
-            // for(auto trace : traces){
-            //     std::cerr << "new trace\n";
-            //     auto blocks = trace->blocks;
-            //     for(auto block : blocks){
-            //         std::cerr << "printing block\n" << block->to_string();
-            //     }
-            // }
 
             while(traces.size() > 0){
                 auto trace = traces.back();
                 traces.pop_back();
                 std::vector<BasicBlock*> blocks =  trace->blocks;
                 std::vector<Instruction*> instructions;
-                std::cerr << "got blocks checkput\n";
                 for(int64_t i = blocks.size()-1; i > -1; i --){
                     BasicBlock* block = blocks[i];
                     Instruction_label* lb = new Instruction_label(block->label);
@@ -259,18 +237,24 @@ namespace IR {
                         instructions.push_back(in);
                     }
                     //if(block->end->get_name() != "Instruction_branch") 
+                    // if (block->end->get_name() != "Instruction_branch"){
                     instructions.push_back(block->end);
+                    // }
                 }
-
-                std::cerr << "loaded instructions " << instructions.size() << "\n";
-
+                for(int i = 0; i < instructions.size() - 1; i++){
+                    if (instructions[i]->get_name() == "Instruction_branch" && instructions[i+1]->get_name() == "Instruction_label"){
+                        Instruction_branch* ins = (Instruction_branch*) instructions[i];
+                        Instruction_label* lab = (Instruction_label*) instructions[i+1];
+                        if (ins->get_label()->to_string() == lab->get_label()->to_string()){
+                            instructions.erase(instructions.begin() + i + 1);
+                        }
+                    }
+                    // func_string += (translate_instruction(in, &array_mapping, & tuple_mapping) + "\n");
+                }
                 for(Instruction* in : instructions){
-                    std::cerr << "working on instruciton " << in->get_name() << "\n";
                     func_string += (translate_instruction(in, &array_mapping, & tuple_mapping) + "\n");
                 }
-                std::cerr << "translated all instructions\n";
             }
-            std::cerr << "func_string for this function is \n" << func_string << "\n";
             outputFile<< func_string;
             
             outputFile << "}\n";

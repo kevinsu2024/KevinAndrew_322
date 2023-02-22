@@ -633,12 +633,10 @@ namespace IR {
             while (parsed_items.size() > 0){
                 auto popped_item = parsed_items.back();
                 parsed_items.pop_back();
-                std::cerr << "getting rid of item in declaration with string " << popped_item->to_string() << " type " << popped_item->get_name() << "\n";
                 if (popped_item->get_name() == "FunctionName"){
                     newF->name = popped_item->to_string();
                 }
                 else if (popped_item->get_name() == "FunctionType"){
-                    std::cerr << "size b4 finishing " << parsed_items.size() << "\n";
                     newF->return_type = popped_item->to_string();
                     if(popped_item->to_string() != "void") parsed_items.pop_back();
                     break;
@@ -660,8 +658,8 @@ namespace IR {
     template<> struct action < Instruction_label_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
-            std::cerr << "before label parsed items has size "  << parsed_items.size() << "\n";
-            std::cerr << "first tiem is " << parsed_items[0]->get_name() << "\n";
+
+
             auto currentF = p.functions.back();
             auto label = parsed_items.back();
             parsed_items.pop_back();
@@ -670,7 +668,7 @@ namespace IR {
 
 
             currentF->basic_blocks.push_back(newBBlock);
-            std::cerr << "after label parsed items has size "  << parsed_items.size() << "\n";
+
         }
     };
 
@@ -1073,7 +1071,7 @@ namespace IR {
     template<> struct action < Instruction_return_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
-        // std::cerr << "\nherererer2\n";
+
         /* 
         * Fetch the current function.
         */ 
@@ -1105,7 +1103,7 @@ namespace IR {
         /* 
         * Check the grammar for some possible issues.
         */
-        // std::cerr << "\n\n hererer xd \n\n";
+
         pegtl::analyze< grammar >();
 
         /*

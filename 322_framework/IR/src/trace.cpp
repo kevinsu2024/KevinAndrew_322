@@ -13,14 +13,14 @@ namespace IR{
         }
     }
     BasicBlock*
-    fetch_and_remove(std::vector<BasicBlock*>* blocks){ // pass pointer since we modify original list
+    fetch_and_remove(std::vector<BasicBlock*>* blocks){
         BasicBlock* return_block = blocks->back();
         blocks->pop_back();
-        return return_block; // maybe change heuristic later
+        return return_block; 
     }
 
     std::vector<BasicBlock*>
-    get_succ(BasicBlock* bb, std::vector<BasicBlock*> blocks){ //currently trivial implementation; need to think about how to get successors
+    get_succ(BasicBlock* bb, std::vector<BasicBlock*> blocks){ 
         std::vector<BasicBlock*> successors {};
         Instruction* end = bb->end;
         if (end->get_name() == "Instruction_return" || end->get_name() == "Instruction_return_t"){
@@ -52,14 +52,38 @@ namespace IR{
     }
     bool
     profitable(BasicBlock* bb, BasicBlock* c){
-        return bb->instructions.size() > c->instructions.size(); //trivial heuristic: check line no.
-        //future heuristic: maybe no. of branches/conditional jumps in each basic block?
+        bool b_has_self_loop = false;
+        bool c_has_self_loop = false;
+        Instruction* b_end = bb->end;
+        if (b_end->get_name() == "Instruction_branch_t"){
+            Instruction_branch_t* b_lab_end = (Instruction_branch_t*) b_end;
+            std::string b_label1 = b_lab_end->get_label1()->to_string();
+            std::string b_label2 = b_lab_end->get_label2()->to_string();
+            Item* b_label = bb->label;
+            if (b_label->to_string() == b_label1 || b_label->to_string() == b_label2){
+                b_has_self_loop == true;
+            }
+        }
+        Instruction* c_end = c->end;
+        if (c_end->get_name() == "Instruction_branch_t"){
+            Instruction_branch_t* c_lab_end = (Instruction_branch_t*) c_end;
+            std::string c_label1 = c_lab_end->get_label1()->to_string();
+            std::string c_label2 = c_lab_end->get_label2()->to_string();
+            Item* c_label = bb->label;
+            if (c_label->to_string() == c_label1 || c_label->to_string() == c_label2){
+                c_has_self_loop == true;
+            }
+        }
+
+        return (b_has_self_loop && !c_has_self_loop) or bb->instructions.size() > c->instructions.size(); 
     }
-    //might need a function that checks how many branches/conditional jumps in each basic block
 
     std::vector<Trace*>
     get_traces(std::vector<BasicBlock*> b, bool verbose){
         std::vector<BasicBlock*> blocks = b;
+        std::sort(b.begin(), b.end(), [](const BasicBlock* lhs, const BasicBlock* rhs){
+            return lhs->instructions.size() > rhs->instructions.size();
+        });
         std::vector<Trace*> traces;
         std::unordered_set<BasicBlock*> placed_blocks;
         while (blocks.size() > 0){
