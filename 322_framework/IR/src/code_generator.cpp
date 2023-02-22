@@ -182,6 +182,16 @@ namespace IR {
             return res;
         }
         else{
+            std::cerr << "NO MATCHING INSTRUCTION\n";
+            std::cerr << "NO MATCHING INSTRUCTION\n";
+            std::cerr << "NO MATCHING INSTRUCTION\n";
+            std::cerr << "NO MATCHING INSTRUCTION\n";
+            std::cerr << "NO MATCHING INSTRUCTION\n";
+            std::cerr << "NO MATCHING INSTRUCTION\n";
+            std::cerr << "NO MATCHING INSTRUCTION\n";
+            std::cerr << "NO MATCHING INSTRUCTION\n";
+            std::cerr << "NO MATCHING INSTRUCTION\n";
+            std::cerr << "NO MATCHING INSTRUCTION\n";
             return "\t" + in->to_string();
         }
     }
