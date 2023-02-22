@@ -128,6 +128,7 @@ namespace IR {
             std::string res = "";
             std::string dst = instr->get_dst_var()->to_string();
             std::vector<Item*> args = instr->get_args();
+            std::reverse(args.begin(), args.end());
             int64_t num_dimensions = args.size();
             std::string temp = "%temp <- ";
             for(int64_t i = 0; i < num_dimensions; i++){
@@ -148,7 +149,7 @@ namespace IR {
 
             for(int64_t i = 0; i < num_dimensions; i++){
                 std::string arg = args[i]->to_string();
-                res += ("\t%temp" + std::to_string(i) + " <- " + dst + " + 8\n");
+                res += ("\t%temp" + std::to_string(i) + " <- " + dst + " + " + std::to_string(8*(i+1)) + "\n");
                 res += ("\tstore %temp" + std::to_string(i) + " <- " + arg + "\n");
             }
 
