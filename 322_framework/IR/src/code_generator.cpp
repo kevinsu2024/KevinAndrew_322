@@ -50,11 +50,11 @@ namespace IR {
             }
             else if((*tuple_vars).find(src) != (*tuple_vars).end()){
                 //in tuple
-                // std::cerr<< "index is " << indices[0]->to_string() << "\n";
-                int64_t index = stoi(indices[0]->to_string());
-                int64_t offset = index << 3;
-                offset += 8;
-                res += ("\t%temp_var_0 <- " + src + " + " + std::to_string(offset) + "\n");
+                std::cerr<< "index is " << indices[0]->to_string() << "\n";
+                res += ("\t%temp_index_var <- " + indices[0]->to_string() + "\n");
+                res += ("\t%temp_index_var <- %temp_index_var * 8\n");
+                res += ("\t%temp_index_var <- %temp_index_var + 8\n");
+                res += ("\t%temp_var_0 <- " + src + " + %temp_index_var\n");
                 res += ("\t" + dst + " <- load %temp_var_0\n");
             }
             
@@ -79,10 +79,10 @@ namespace IR {
             }
             else if ((*tuple_vars).find(dst) != (*tuple_vars).end()){
                 //in tuple
-                int64_t index = stoi(indices[0]->to_string());
-                int64_t offset = index << 3;
-                offset += 8;
-                res += ("\t%temp_var_1 <- " + dst + " + " + std::to_string(offset) + "\n");
+                res += ("\t%temp_index_var <- " + indices[0]->to_string() + "\n");
+                res += ("\t%temp_index_var <- %temp_index_var * 8\n");
+                res += ("\t%temp_index_var <- %temp_index_var + 8\n");
+                res += ("\t%temp_var_1 <- " + dst + " + %temp_index_var\n");
                 res += ("\tstore %temp_var_1 <- " + src + "\n");
             }
             return res;
