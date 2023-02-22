@@ -1,0 +1,580 @@
+define void @main ( ) {
+
+ :new_label6
+ int64 %newVar6
+ int64 %newVar5
+ int64 %newVar4
+ int64 %newVar3
+ int64 %newVar2
+ int64 %newVar13
+ int64 %newVar12
+ int64 %newVar11
+ int64 %newVar10
+ int64 %newVar9
+ int64 %newVar8
+ int64 %newVar7
+ int64 %newVar1
+ int64 %newVar0
+ int64 %index
+ int64 %cont_start_loop
+ int64 %inp
+ int64[] %arr
+ int64 %unencoded_size
+ int64 %size
+ %size <- 1
+ %unencoded_size <- 1
+ %arr <- 0
+ %inp <- 1
+ %cont_start_loop <- 1
+ %index <- 1
+ %size <-  call input ()
+ %unencoded_size <- %size
+ %arr <- new Array (%size)
+ %index <- 1
+ br :start_loop
+
+ :start_loop
+ %inp <-  call input ()
+ %newVar0 <- 1
+ %newVar1 <- 1
+ %newVar1 <- %index
+ %newVar1 <- %newVar1 >> 1
+ %newVar7 <- 33
+ %newVar8 <- 1
+ %newVar9 <- 1
+ %newVar10 <- 1
+ %newVar11 <- %arr = 0
+ br %newVar11 :new_label0 :new_label3 
+
+ :new_label3
+ %newVar12 <- length %arr 0
+ %newVar8 <- %newVar12
+ %newVar12 <- %newVar12 >> 1
+ %newVar10 <- %newVar1
+ %newVar10 <- %newVar10 << 1
+ %newVar10 <- %newVar10 + 1
+ %newVar13 <- %newVar1 < %newVar12
+ br %newVar13 :new_label4 :new_label1 
+
+ :new_label4
+ br :new_label5
+
+ :new_label0
+  call tensor-error (%newVar7)
+ br :new_label1
+
+ :new_label1
+  call tensor-error (%newVar7, %newVar8, %newVar10)
+ br :new_label2
+
+ :new_label2
+  call tensor-error (%newVar7, %newVar9, %newVar8, %newVar10)
+ br :new_label5
+
+ :new_label5
+ %arr[%newVar1] <- %inp
+ %newVar2 <- 1
+ %newVar2 <- %index
+ %newVar2 <- %newVar2 >> 1
+ %newVar3 <- 1
+ %newVar3 <- 3
+ %newVar3 <- %newVar3 >> 1
+ %index <- %newVar2 + %newVar3
+ %index <- %index << 1
+ %index <- %index + 1
+ %newVar4 <- 1
+ %newVar4 <- %index
+ %newVar4 <- %newVar4 >> 1
+ %newVar5 <- 1
+ %newVar5 <- %unencoded_size
+ %newVar5 <- %newVar5 >> 1
+ %cont_start_loop <- %newVar4 < %newVar5
+ %cont_start_loop <- %cont_start_loop << 1
+ %cont_start_loop <- %cont_start_loop + 1
+ %newVar6 <- 1
+ %newVar6 <- %cont_start_loop
+ %newVar6 <- %newVar6 >> 1
+ br %newVar6 :start_loop :end 
+
+ :end
+  call @orderprinter (%arr)
+ return 
+
+ :new_label7
+ return 
+
+}
+
+define void @orderprinter ( int64[] %arr) {
+
+ :new_label0
+ int64 %newVar4
+ int64 %newVar3
+ int64 %newVar2
+ int64 %newVar1
+ int64 %newVar0
+ int64 %cjump_val
+ int64 %smallest_num_index
+ int64 %num_ele
+ int64 %start_index
+ %start_index <- 1
+ %start_index <- 1
+ %num_ele <- 1
+ %num_ele <- length %arr 0
+ %smallest_num_index <- 1
+ %cjump_val <- 1
+ br :start_of_iteration
+
+ :start_of_iteration
+ %smallest_num_index <-  call @find_smallest (%arr, %start_index)
+  call @swap (%arr, %start_index, %smallest_num_index)
+ %newVar0 <- 1
+ %newVar0 <- %start_index
+ %newVar0 <- %newVar0 >> 1
+ %newVar1 <- 1
+ %newVar1 <- 3
+ %newVar1 <- %newVar1 >> 1
+ %start_index <- %newVar0 + %newVar1
+ %start_index <- %start_index << 1
+ %start_index <- %start_index + 1
+ %newVar2 <- 1
+ %newVar2 <- %start_index
+ %newVar2 <- %newVar2 >> 1
+ %newVar3 <- 1
+ %newVar3 <- %num_ele
+ %newVar3 <- %newVar3 >> 1
+ %cjump_val <- %newVar2 < %newVar3
+ %cjump_val <- %cjump_val << 1
+ %cjump_val <- %cjump_val + 1
+ %newVar4 <- 1
+ %newVar4 <- %cjump_val
+ %newVar4 <- %newVar4 >> 1
+ br %newVar4 :start_of_iteration :end 
+
+ :end
+ return 
+
+ :new_label1
+ return 
+
+}
+
+define int64 @find_smallest ( int64[] %arr, int64 %start) {
+
+ :new_label18
+ int64 %newVar34
+ int64 %newVar33
+ int64 %newVar32
+ int64 %newVar31
+ int64 %newVar30
+ int64 %newVar29
+ int64 %newVar28
+ int64 %newVar13
+ int64 %newVar12
+ int64 %newVar11
+ int64 %newVar10
+ int64 %newVar9
+ int64 %newVar8
+ int64 %newVar7
+ int64 %newVar6
+ int64 %newVar5
+ int64 %newVar4
+ int64 %newVar27
+ int64 %newVar26
+ int64 %newVar25
+ int64 %newVar24
+ int64 %newVar23
+ int64 %newVar22
+ int64 %newVar21
+ int64 %newVar3
+ int64 %newVar2
+ int64 %newVar20
+ int64 %newVar19
+ int64 %newVar18
+ int64 %newVar17
+ int64 %newVar16
+ int64 %newVar15
+ int64 %newVar14
+ int64 %newVar1
+ int64 %newVar0
+ int64 %num
+ int64 %cmp_val2
+ int64 %num_ele
+ int64 %cmp_val
+ int64 %smallest_num
+ int64 %smallest_index
+ %smallest_index <- 1
+ %smallest_num <- 1
+ %cmp_val <- 1
+ %num_ele <- 1
+ %cmp_val2 <- 1
+ %num_ele <- length %arr 0
+ %num <- 1
+ %smallest_index <- %start
+ %newVar0 <- 1
+ %newVar1 <- 1
+ %newVar1 <- %start
+ %newVar1 <- %newVar1 >> 1
+ %newVar14 <- 111
+ %newVar15 <- 1
+ %newVar16 <- 1
+ %newVar17 <- 1
+ %newVar18 <- %arr = 0
+ br %newVar18 :new_label0 :new_label3 
+
+ :new_label3
+ %newVar19 <- length %arr 0
+ %newVar15 <- %newVar19
+ %newVar19 <- %newVar19 >> 1
+ %newVar17 <- %newVar1
+ %newVar17 <- %newVar17 << 1
+ %newVar17 <- %newVar17 + 1
+ %newVar20 <- %newVar1 < %newVar19
+ br %newVar20 :new_label4 :new_label1 
+
+ :new_label4
+ br :new_label5
+
+ :new_label0
+  call tensor-error (%newVar14)
+ br :new_label1
+
+ :new_label1
+  call tensor-error (%newVar14, %newVar15, %newVar17)
+ br :new_label2
+
+ :new_label2
+  call tensor-error (%newVar14, %newVar16, %newVar15, %newVar17)
+ br :new_label5
+
+ :new_label5
+ %smallest_num <- %arr[%newVar1]
+ br :start_of_iteration
+
+ :start_of_iteration
+ %newVar2 <- 1
+ %newVar3 <- 1
+ %newVar3 <- %start
+ %newVar3 <- %newVar3 >> 1
+ %newVar21 <- 121
+ %newVar22 <- 1
+ %newVar23 <- 1
+ %newVar24 <- 1
+ %newVar25 <- %arr = 0
+ br %newVar25 :new_label6 :new_label9 
+
+ :new_label9
+ %newVar26 <- length %arr 0
+ %newVar22 <- %newVar26
+ %newVar26 <- %newVar26 >> 1
+ %newVar24 <- %newVar3
+ %newVar24 <- %newVar24 << 1
+ %newVar24 <- %newVar24 + 1
+ %newVar27 <- %newVar3 < %newVar26
+ br %newVar27 :new_label10 :new_label7 
+
+ :new_label10
+ br :new_label11
+
+ :new_label6
+  call tensor-error (%newVar21)
+ br :new_label7
+
+ :new_label7
+  call tensor-error (%newVar21, %newVar22, %newVar24)
+ br :new_label8
+
+ :new_label8
+  call tensor-error (%newVar21, %newVar23, %newVar22, %newVar24)
+ br :new_label11
+
+ :new_label11
+ %num <- %arr[%newVar3]
+ %newVar4 <- 1
+ %newVar4 <- %num
+ %newVar4 <- %newVar4 >> 1
+ %newVar5 <- 1
+ %newVar5 <- %smallest_num
+ %newVar5 <- %newVar5 >> 1
+ %cmp_val <- %newVar4 < %newVar5
+ %cmp_val <- %cmp_val << 1
+ %cmp_val <- %cmp_val + 1
+ %newVar6 <- 1
+ %newVar6 <- %cmp_val
+ %newVar6 <- %newVar6 >> 1
+ br %newVar6 :update :continue 
+
+ :continue
+ %newVar7 <- 1
+ %newVar7 <- %start
+ %newVar7 <- %newVar7 >> 1
+ %newVar8 <- 1
+ %newVar8 <- 3
+ %newVar8 <- %newVar8 >> 1
+ %start <- %newVar7 + %newVar8
+ %start <- %start << 1
+ %start <- %start + 1
+ %newVar9 <- 1
+ %newVar9 <- %start
+ %newVar9 <- %newVar9 >> 1
+ %newVar10 <- 1
+ %newVar10 <- %num_ele
+ %newVar10 <- %newVar10 >> 1
+ %cmp_val2 <- %newVar9 < %newVar10
+ %cmp_val2 <- %cmp_val2 << 1
+ %cmp_val2 <- %cmp_val2 + 1
+ %newVar11 <- 1
+ %newVar11 <- %cmp_val2
+ %newVar11 <- %newVar11 >> 1
+ br %newVar11 :start_of_iteration :end 
+
+ :update
+ %smallest_index <- %start
+ %newVar12 <- 1
+ %newVar13 <- 1
+ %newVar13 <- %start
+ %newVar13 <- %newVar13 >> 1
+ %newVar28 <- 145
+ %newVar29 <- 1
+ %newVar30 <- 1
+ %newVar31 <- 1
+ %newVar32 <- %arr = 0
+ br %newVar32 :new_label12 :new_label15 
+
+ :new_label15
+ %newVar33 <- length %arr 0
+ %newVar29 <- %newVar33
+ %newVar33 <- %newVar33 >> 1
+ %newVar31 <- %newVar13
+ %newVar31 <- %newVar31 << 1
+ %newVar31 <- %newVar31 + 1
+ %newVar34 <- %newVar13 < %newVar33
+ br %newVar34 :new_label16 :new_label13 
+
+ :new_label16
+ br :new_label17
+
+ :new_label12
+  call tensor-error (%newVar28)
+ br :new_label13
+
+ :new_label13
+  call tensor-error (%newVar28, %newVar29, %newVar31)
+ br :new_label14
+
+ :new_label14
+  call tensor-error (%newVar28, %newVar30, %newVar29, %newVar31)
+ br :new_label17
+
+ :new_label17
+ %smallest_num <- %arr[%newVar13]
+ br :continue
+
+ :end
+ return %smallest_index
+
+}
+
+define void @swap ( int64[] %arr, int64 %start, int64 %smallest_num_index) {
+
+ :new_label24
+ int64 %newVar35
+ int64 %newVar34
+ int64 %newVar33
+ int64 %newVar32
+ int64 %newVar31
+ int64 %newVar30
+ int64 %newVar29
+ int64 %newVar7
+ int64 %newVar6
+ int64 %newVar28
+ int64 %newVar27
+ int64 %newVar26
+ int64 %newVar25
+ int64 %newVar24
+ int64 %newVar23
+ int64 %newVar22
+ int64 %newVar5
+ int64 %newVar4
+ int64 %newVar21
+ int64 %newVar20
+ int64 %newVar19
+ int64 %newVar18
+ int64 %newVar17
+ int64 %newVar16
+ int64 %newVar15
+ int64 %newVar3
+ int64 %newVar2
+ int64 %temp2
+ int64 %newVar14
+ int64 %newVar13
+ int64 %newVar12
+ int64 %newVar11
+ int64 %newVar10
+ int64 %newVar9
+ int64 %newVar8
+ int64 %newVar1
+ int64 %newVar0
+ int64 %temp
+ %temp <- 1
+ %newVar0 <- 1
+ %newVar1 <- 1
+ %newVar1 <- %start
+ %newVar1 <- %newVar1 >> 1
+ %newVar8 <- 165
+ %newVar9 <- 1
+ %newVar10 <- 1
+ %newVar11 <- 1
+ %newVar12 <- %arr = 0
+ br %newVar12 :new_label0 :new_label3 
+
+ :new_label3
+ %newVar13 <- length %arr 0
+ %newVar9 <- %newVar13
+ %newVar13 <- %newVar13 >> 1
+ %newVar11 <- %newVar1
+ %newVar11 <- %newVar11 << 1
+ %newVar11 <- %newVar11 + 1
+ %newVar14 <- %newVar1 < %newVar13
+ br %newVar14 :new_label4 :new_label1 
+
+ :new_label4
+ br :new_label5
+
+ :new_label0
+  call tensor-error (%newVar8)
+ br :new_label1
+
+ :new_label1
+  call tensor-error (%newVar8, %newVar9, %newVar11)
+ br :new_label2
+
+ :new_label2
+  call tensor-error (%newVar8, %newVar10, %newVar9, %newVar11)
+ br :new_label5
+
+ :new_label5
+ %temp <- %arr[%newVar1]
+ %temp2 <- 1
+ %newVar2 <- 1
+ %newVar3 <- 1
+ %newVar3 <- %smallest_num_index
+ %newVar3 <- %newVar3 >> 1
+ %newVar15 <- 169
+ %newVar16 <- 1
+ %newVar17 <- 1
+ %newVar18 <- 1
+ %newVar19 <- %arr = 0
+ br %newVar19 :new_label6 :new_label9 
+
+ :new_label9
+ %newVar20 <- length %arr 0
+ %newVar16 <- %newVar20
+ %newVar20 <- %newVar20 >> 1
+ %newVar18 <- %newVar3
+ %newVar18 <- %newVar18 << 1
+ %newVar18 <- %newVar18 + 1
+ %newVar21 <- %newVar3 < %newVar20
+ br %newVar21 :new_label10 :new_label7 
+
+ :new_label10
+ br :new_label11
+
+ :new_label6
+  call tensor-error (%newVar15)
+ br :new_label7
+
+ :new_label7
+  call tensor-error (%newVar15, %newVar16, %newVar18)
+ br :new_label8
+
+ :new_label8
+  call tensor-error (%newVar15, %newVar17, %newVar16, %newVar18)
+ br :new_label11
+
+ :new_label11
+ %temp2 <- %arr[%newVar3]
+ %newVar4 <- 1
+ %newVar5 <- 1
+ %newVar5 <- %start
+ %newVar5 <- %newVar5 >> 1
+ %newVar22 <- 171
+ %newVar23 <- 1
+ %newVar24 <- 1
+ %newVar25 <- 1
+ %newVar26 <- %arr = 0
+ br %newVar26 :new_label12 :new_label15 
+
+ :new_label15
+ %newVar27 <- length %arr 0
+ %newVar23 <- %newVar27
+ %newVar27 <- %newVar27 >> 1
+ %newVar25 <- %newVar5
+ %newVar25 <- %newVar25 << 1
+ %newVar25 <- %newVar25 + 1
+ %newVar28 <- %newVar5 < %newVar27
+ br %newVar28 :new_label16 :new_label13 
+
+ :new_label16
+ br :new_label17
+
+ :new_label12
+  call tensor-error (%newVar22)
+ br :new_label13
+
+ :new_label13
+  call tensor-error (%newVar22, %newVar23, %newVar25)
+ br :new_label14
+
+ :new_label14
+  call tensor-error (%newVar22, %newVar24, %newVar23, %newVar25)
+ br :new_label17
+
+ :new_label17
+ %arr[%newVar5] <- %temp2
+ %newVar6 <- 1
+ %newVar7 <- 1
+ %newVar7 <- %smallest_num_index
+ %newVar7 <- %newVar7 >> 1
+ %newVar29 <- 173
+ %newVar30 <- 1
+ %newVar31 <- 1
+ %newVar32 <- 1
+ %newVar33 <- %arr = 0
+ br %newVar33 :new_label18 :new_label21 
+
+ :new_label21
+ %newVar34 <- length %arr 0
+ %newVar30 <- %newVar34
+ %newVar34 <- %newVar34 >> 1
+ %newVar32 <- %newVar7
+ %newVar32 <- %newVar32 << 1
+ %newVar32 <- %newVar32 + 1
+ %newVar35 <- %newVar7 < %newVar34
+ br %newVar35 :new_label22 :new_label19 
+
+ :new_label22
+ br :new_label23
+
+ :new_label18
+  call tensor-error (%newVar29)
+ br :new_label19
+
+ :new_label19
+  call tensor-error (%newVar29, %newVar30, %newVar32)
+ br :new_label20
+
+ :new_label20
+  call tensor-error (%newVar29, %newVar31, %newVar30, %newVar32)
+ br :new_label23
+
+ :new_label23
+ %arr[%newVar7] <- %temp
+  call print (%temp2)
+ return 
+
+ :new_label25
+ return 
+
+}
+

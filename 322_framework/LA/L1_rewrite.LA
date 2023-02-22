@@ -1,0 +1,90 @@
+void main (){
+	int64 size
+	int64 unencoded_size
+	int64[] arr
+	int64 inp
+	int64 cont_start_loop
+	int64 index
+	size <- input()
+	unencoded_size <- size
+	arr <- new Array(size)
+	index <- 0
+	br :start_loop
+
+	:start_loop
+	inp <- input()
+	arr[index] <- inp
+	index <- index + 1
+	cont_start_loop <- index < unencoded_size
+	br cont_start_loop :start_loop :end
+
+	:end
+    orderprinter(arr)
+    return
+}
+
+void orderprinter (int64[] arr){
+	int64 start_index
+	start_index <- 0
+	int64 num_ele
+	num_ele <- length arr 0
+	int64 smallest_num_index
+	int64 cjump_val
+	br :start_of_iteration
+
+	:start_of_iteration
+	smallest_num_index <- find_smallest(arr, start_index)
+    swap(arr,start_index,smallest_num_index)
+	start_index <- start_index + 1
+	cjump_val <- start_index < num_ele
+	br cjump_val :start_of_iteration :end
+
+	:end
+	return
+}
+
+int64 find_smallest(int64[] arr, int64 start){
+	int64 smallest_index
+	int64 smallest_num
+	int64 cmp_val
+	int64 num_ele
+	int64 cmp_val2
+	num_ele <- length arr 0
+	int64 num
+	smallest_index <- start
+    smallest_num <- arr[start]
+	br :start_of_iteration
+	
+
+	:start_of_iteration
+	num <- arr[start]
+	cmp_val <- num < smallest_num
+	br cmp_val :update :continue
+	
+
+	:continue
+	start <- start + 1
+	cmp_val2 <- start < num_ele
+	br cmp_val2 :start_of_iteration :end
+
+	:update
+	smallest_index <- start
+	smallest_num <- arr[start]
+	br :continue
+
+	:end
+	return smallest_index
+	
+}
+
+void swap (int64[] arr, int64 start, int64 smallest_num_index){
+	int64 temp
+	temp <- arr[start]
+	int64 temp2
+	temp2 <- arr[smallest_num_index]
+	arr[start] <- temp2
+	arr[smallest_num_index] <- temp
+	print(temp2)
+    return
+}
+
