@@ -8,7 +8,7 @@ namespace IR {
         int64_t length = indices.size();
         
         for(int64_t i = 1; i < length; i++){
-            ans += ("\t%addr_" + std::to_string(i) + " <- " + var + std::to_string((i+1)*8) + "\n");
+            ans += ("\t%addr_" + std::to_string(i) + " <- " + var + " + " + std::to_string((i+1)*8) + "\n");
             ans += ("\t%temp_size_" + std::to_string(i) + " <- load %addr_" + std::to_string(i) + "\n");
             ans += ("\t%size_" + std::to_string(i) + " <- %temp_size_" + std::to_string(i) + " >> 1\n");
         }
