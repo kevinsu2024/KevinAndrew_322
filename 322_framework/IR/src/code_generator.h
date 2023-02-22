@@ -15,8 +15,6 @@
 
 namespace IR{
 
-    typedef std::unordered_map<std::string, Data_holder*> var_map;
-
     void generate_code(Program p, bool verbose);
     // void generate_call(Instruction* instr, std::ofstream& out);
     // void generate_call_assignment(Instruction* instr, std::ofstream& out);

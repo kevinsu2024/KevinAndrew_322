@@ -130,7 +130,7 @@ namespace IR {
             std::vector<Item*> args = instr->get_args();
             std::reverse(args.begin(), args.end());
             int64_t num_dimensions = args.size();
-            std::string temp = "%temp <- ";
+            std::vector<std::string> temp;
             for(int64_t i = 0; i < num_dimensions; i++){
                 std::string arg = args[i]->to_string();
                 std::string new_arg = arg;
@@ -138,10 +138,16 @@ namespace IR {
                     new_arg = "%num_" + arg;
                 }
                 res += ("\t" + new_arg + "D <- " + arg + " >> 1\n");
-                temp += (new_arg + "D");
-                if(i != num_dimensions - 1) temp += " * ";
+                temp.push_back(new_arg + "D");
             }
-            res += ("\t" + temp + "\n");
+            for(int64_t i = 0; i < temp.size(); i++){
+                if(i == 0) res += ("\t%temp <- " + temp[i]);
+
+                else{
+                    res += ("\t%temp <- %temp * " + temp[i]);
+                }
+                res += "\n";
+            }
             res += ("\t%temp <- %temp + " + std::to_string(args.size()) + "\n");
             res += ("\t%temp <- %temp << 1\n");
             res += ("\t%temp <- %temp + 1\n");
