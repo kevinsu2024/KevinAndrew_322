@@ -3,8 +3,10 @@
 
 namespace IR {
     std::string
-    get_array_offset(std::vector<std::string> indices, std::string var){
+    get_array_offset(std::vector<std::string> indexes, std::string var){
         std::string ans = "";
+        auto indices = indexes;
+        std::reverse(indices.begin(),indices.end());
         int64_t length = indices.size();
         
         for(int64_t i = 1; i < length; i++){
