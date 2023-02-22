@@ -12,7 +12,7 @@ namespace IR {
             ans += ("\t%temp_size_" + std::to_string(i) + " <- load %addr_" + std::to_string(i) + "\n");
             ans += ("\t%size_" + std::to_string(i) + " <- %temp_size_" + std::to_string(i) + " >> 1\n");
         }
-        ans += ("\t%arry_offset_total <- " + std::to_string(8 * (length + 1)) + "\n");
+        ans += ("\t%array_offset_total <- " + std::to_string(8 * (length + 1)) + "\n");
         for(int64_t i = 0; i < length ; i ++){
             ans += ("\t%temp_offset <- " + indices[i] + "\n");
             for(int64_t j = i + 1; j < length; j++){
