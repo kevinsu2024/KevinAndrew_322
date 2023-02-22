@@ -3,18 +3,18 @@
 
 namespace IR {
     std::string
-    get_array_offset(std::vector<int64_t> indices, std::string var){
+    get_array_offset(std::vector<std::string> indices, std::string var){
         std::string ans = "";
         int64_t length = indices.size();
         
         for(int64_t i = 1; i < length; i++){
-            ans += ("\t%addr_" + std::to_string(i) + " <- " + var + std::to_string((i+1)*8) + "\n");
+            ans += ("\t%addr_" + std::to_string(i) + " <- " + var + " + " + std::to_string((i+1)*8) + "\n");
             ans += ("\t%temp_size_" + std::to_string(i) + " <- load %addr_" + std::to_string(i) + "\n");
             ans += ("\t%size_" + std::to_string(i) + " <- %temp_size_" + std::to_string(i) + " >> 1\n");
         }
         ans += ("\t%arry_offset_total <- " + std::to_string(8 * (length + 1)) + "\n");
         for(int64_t i = 0; i < length ; i ++){
-            ans += ("\t%temp_offset <- " + std::to_string(indices[i]) + "\n");
+            ans += ("\t%temp_offset <- " + indices[i] + "\n");
             for(int64_t j = i + 1; j < length; j++){
                 ans += ("\t%temp_offset <- %temp_offset * %size_" + std::to_string(j) + "\n");
             }
@@ -38,9 +38,9 @@ namespace IR {
 
             if((*array_vars).find(src) != (*array_vars).end()){
                 //in array
-                std::vector<int64_t> indexes;
+                std::vector<std::string> indexes;
                 for(Item* it : indices){
-                    indexes.push_back(stoi(it->to_string()));
+                    indexes.push_back(it->to_string());
                 }
 
                 res += get_array_offset(indexes, src);
@@ -48,6 +48,7 @@ namespace IR {
             }
             else if((*tuple_vars).find(src) != (*tuple_vars).end()){
                 //in tuple
+                // std::cerr<< "index is " << indices[0]->to_string() << "\n";
                 int64_t index = stoi(indices[0]->to_string());
                 int64_t offset = index << 3;
                 offset += 8;
@@ -66,9 +67,9 @@ namespace IR {
 
             if((*array_vars).find(dst) != (*array_vars).end()){
                 //in array
-                std::vector<int64_t> indexes;
+                std::vector<std::string> indexes;
                 for(Item* it : indices){
-                    indexes.push_back(stoi(it->to_string()));
+                    indexes.push_back(it->to_string());
                 }
 
                 res += get_array_offset(indexes, dst);
@@ -135,7 +136,7 @@ namespace IR {
                 std::string arg = args[i]->to_string();
                 std::string new_arg = arg;
                 if(arg.substr(0,1) != "%"){
-                    new_arg = "%num_" + arg;
+                    new_arg = "%num_" + arg + "_" + std::to_string(i);
                 }
                 res += ("\t" + new_arg + "D <- " + arg + " >> 1\n");
                 temp.push_back(new_arg + "D");
@@ -213,6 +214,10 @@ namespace IR {
             std::string func_string = "";
             std::set<std::string> array_mapping;
             std::set<std::string> tuple_mapping;
+            for(int i = 0 ; i < f->vars.size(); i ++){
+                if(f->types[i]->to_string() == "tuple") tuple_mapping.insert(f->vars[i]->to_string());
+                else if(f->types[i]->to_string().substr(f->types[i]->to_string().size()-1,1) == "]") array_mapping.insert(f->vars[i]->to_string());
+            }
             auto traces = get_traces(f->basic_blocks, verbose);
 
             std::cerr << "got traces\n";
