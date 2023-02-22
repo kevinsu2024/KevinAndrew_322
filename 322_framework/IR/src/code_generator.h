@@ -14,9 +14,6 @@
 // #include <algorithm>
 
 namespace IR{
-    struct Data_holder{
-        int64_t num_dimensions;
-    };
 
     typedef std::unordered_map<std::string, Data_holder*> var_map;
 

@@ -235,7 +235,8 @@ namespace IR {
                     for(Instruction* in : block->instructions){
                         instructions.push_back(in);
                     }
-                    if(block->end->get_name() != "Instruction_branch") instructions.push_back(block->end);
+                    //if(block->end->get_name() != "Instruction_branch") 
+                    instructions.push_back(block->end);
                 }
 
                 std::cerr << "loaded instructions " << instructions.size() << "\n";
