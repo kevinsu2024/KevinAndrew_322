@@ -1,5 +1,5 @@
 #include <LA.h>
-
+#include <iostream>
 
 namespace LA{
 std::string
@@ -444,6 +444,7 @@ Instruction_branch_t::get_label2(){
 std::string
 Function::to_string(){
     std::string ans = return_type + " " + name + "(";
+    
     for(int64_t i = 0; i < types.size(); i++){
         ans += (types[i]->to_string() + " " + vars[i]->to_string() + ", ");
     }

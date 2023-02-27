@@ -135,14 +135,15 @@ namespace LA {
                 pegtl::star<
                     str_type_bracket
                 >
-            >
+            >,
+            str_void
         > {};
 
-    struct function_type_rule:
-        pegtl::sor<
-            str_void,
-            type_rule
-        > {};
+    // struct function_type_rule:
+    //     pegtl::sor<
+    //         str_void,
+    //         type_rule
+    //     > {};
 
     struct op_rule:
         pegtl::sor<
@@ -391,22 +392,22 @@ namespace LA {
 
     struct Instruction_rule:
         pegtl::sor<
-            pegtl::seq< pegtl::at<Instruction_declaration_rule>     , Instruction_declaration_rule      >,
-            pegtl::seq< pegtl::at<Instruction_load_assignment_rule> , Instruction_load_assignment_rule  >,
-            pegtl::seq< pegtl::at<Instruction_op_assignment_rule>   , Instruction_op_assignment_rule    >,
-            pegtl::seq< pegtl::at<Instruction_assignment_rule>      , Instruction_assignment_rule       >,
-            pegtl::seq< pegtl::at<Instruction_store_assignment_rule>, Instruction_store_assignment_rule >,
-            pegtl::seq< pegtl::at<Instruction_array_length_rule>    , Instruction_array_length_rule     >,
-            pegtl::seq< pegtl::at<Instruction_tuple_length_rule>    , Instruction_tuple_length_rule     >,
             pegtl::seq< pegtl::at<Instruction_call_assignment_rule> , Instruction_call_assignment_rule  >,
             pegtl::seq< pegtl::at<Instruction_call_rule>            , Instruction_call_rule             >,
             pegtl::seq< pegtl::at<Instruction_create_array_rule>    , Instruction_create_array_rule     >,
             pegtl::seq< pegtl::at<Instruction_create_tuple_rule>    , Instruction_create_tuple_rule     >,
+            pegtl::seq< pegtl::at<Instruction_array_length_rule>    , Instruction_array_length_rule     >,
+            pegtl::seq< pegtl::at<Instruction_tuple_length_rule>    , Instruction_tuple_length_rule     >,
+            pegtl::seq< pegtl::at<Instruction_declaration_rule>     , Instruction_declaration_rule      >,
             pegtl::seq< pegtl::at<Instruction_branch_t_rule>        , Instruction_branch_t_rule         >,
             pegtl::seq< pegtl::at<Instruction_branch_rule>          , Instruction_branch_rule           >,
             pegtl::seq< pegtl::at<Instruction_return_t_rule>        , Instruction_return_t_rule         >,
             pegtl::seq< pegtl::at<Instruction_return_rule>          , Instruction_return_rule           >,
-            pegtl::seq< pegtl::at<Instruction_label_rule>           , Instruction_label_rule            >
+            pegtl::seq< pegtl::at<Instruction_label_rule>           , Instruction_label_rule            >,
+            pegtl::seq< pegtl::at<Instruction_load_assignment_rule> , Instruction_load_assignment_rule  >,
+            pegtl::seq< pegtl::at<Instruction_store_assignment_rule>, Instruction_store_assignment_rule >,
+            pegtl::seq< pegtl::at<Instruction_op_assignment_rule>   , Instruction_op_assignment_rule    >,
+            pegtl::seq< pegtl::at<Instruction_assignment_rule>      , Instruction_assignment_rule       >
         > {};
     
     struct Instructions_rule:
@@ -425,7 +426,7 @@ namespace LA {
     struct define_function_rule:
         pegtl::seq<
             seps,
-            function_type_rule,
+            type_rule,
             seps,
             name_rule,
             seps,
@@ -469,21 +470,20 @@ namespace LA {
         template< typename Input >
         static void apply( const Input & in, Program & p){
             std::string input_string = in.string();
-            std::cout << "name is: " << input_string << "\n";
             Item* n = new Name(input_string);
             parsed_items.push_back(n);
         }
     };
 
 
-    template<> struct action < function_type_rule > {
-        template< typename Input >
-        static void apply( const Input & in, Program & p){
-            std::string input_string = in.string();
-            Item* fn = new FunctionType(input_string);
-            parsed_items.push_back(fn);
-        }
-    };
+    // template<> struct action < function_type_rule > {
+    //     template< typename Input >
+    //     static void apply( const Input & in, Program & p){
+    //         std::string input_string = in.string();
+    //         Item* fn = new FunctionType(input_string);
+    //         parsed_items.push_back(fn);
+    //     }
+    // };
 
     template<> struct action < type_rule > {
         template< typename Input >
@@ -530,22 +530,25 @@ namespace LA {
         template< typename Input >
         static void apply( const Input & in, Program & p){
             auto newF = new Function();
+            for (auto item : parsed_items){
+                std::cerr << item->to_string() << "\n";
+            }
             while (parsed_items.size() > 0){
                 auto popped_item = parsed_items.back();
                 parsed_items.pop_back();
-                if (popped_item->get_name() == "Name"){
-                    newF->name = popped_item->to_string();
-                }
-                else if (popped_item->get_name() == "FunctionType"){
-                    newF->return_type = popped_item->to_string();
-                    if(popped_item->to_string() != "void") parsed_items.pop_back();
-                    break;
-                }
-                else if (popped_item->get_name() == "Type"){
-                    newF->types.push_back(popped_item);
+                if (popped_item->get_name() == "Type"){
+                    if (parsed_items.size() == 0){
+                        newF->return_type = popped_item->to_string();
+                    } else {
+                        newF->types.push_back(popped_item);
+                    }   
                 }
                 else {
-                    newF->vars.push_back(popped_item);
+                    if (parsed_items.size() == 1){
+                        newF->name = popped_item->to_string();
+                    } else {
+                        newF->vars.push_back(popped_item);
+                    }
                 }
             }
             std::reverse(newF->vars.begin(), newF->vars.end());
@@ -565,7 +568,7 @@ namespace LA {
             */
             auto label = parsed_items.back();
             parsed_items.pop_back();
-            
+            parsed_items.pop_back();
             /* 
             * Create the instruction.
             */ 
@@ -680,7 +683,7 @@ namespace LA {
                 parsed_items.pop_back();
                 indices.push_back(index->get_index());
             }
-
+            std::reverse(indices.begin(), indices.end());
             Item* src = parsed_items.back();
             parsed_items.pop_back();
             Item* dst = parsed_items.back();
@@ -713,7 +716,7 @@ namespace LA {
                 parsed_items.pop_back();
                 indices.push_back(index->get_index());
             }
-
+            std::reverse(indices.begin(), indices.end());
             auto var = parsed_items.back();
             parsed_items.pop_back();
 
@@ -795,9 +798,6 @@ namespace LA {
         template< typename Input >
         static void apply( const Input & in, Program & p){
             auto currentF = p.functions.back();
-            
-            std::cerr << "In call assignment\n";
-            std::cerr << parsed_items.size() << "\n";
             std::vector<Item*> args;
             while (parsed_items.size() > 2){ //in call assignment rule, last two items are var and callee. rest are args
                 auto popped_item = parsed_items.back();
@@ -834,7 +834,7 @@ namespace LA {
                 parsed_items.pop_back();
                 args.push_back(popped_item);
             }
-
+            std::reverse(args.begin(), args.end());
             Item* dst = parsed_items.back();
             parsed_items.pop_back();
 
@@ -874,6 +874,7 @@ namespace LA {
 
             auto label = parsed_items.back();
             parsed_items.pop_back();
+            parsed_items.pop_back();
 
             /* 
             * Create the instruction.
@@ -891,11 +892,15 @@ namespace LA {
         template< typename Input >
         static void apply( const Input & in, Program & p){
             auto currentF = p.functions.back();
-            
+            for (auto item : parsed_items){
+                std::cerr << item->to_string() << "\n";
+            }
 
             auto label2 = parsed_items.back();
             parsed_items.pop_back();
+            parsed_items.pop_back();
             auto label1 = parsed_items.back();
+            parsed_items.pop_back();
             parsed_items.pop_back();
             auto t = parsed_items.back();
             parsed_items.pop_back();
