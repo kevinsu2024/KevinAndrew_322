@@ -2,6 +2,7 @@
 
 #include <LA.h>
 #include <iostream>
+#include <set>
 
 
 namespace LA{
