@@ -66,7 +66,11 @@ int main(
   for (auto f : p.functions){
     std::cerr << f->to_string();
   }
+
+  LA::generate_code(p);
   /*
+
+  
    * Code optimizations (optional)
    */
 
