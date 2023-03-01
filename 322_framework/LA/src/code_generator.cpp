@@ -49,7 +49,7 @@ namespace LA{
         Item* new_v_name = new Name(ln + std::to_string(line_no) + "_new_new");
         Instruction_declaration* new_v_dec = new Instruction_declaration(new Type("int64"), new_v_name);
         ins_ind = insert_ins(instructions, new_v_dec, ins_ind);
-        Item* array_name = new Name(array->to_string().substr(1,array->to_string().size()));
+        Item* array_name = new Name(array->to_string());
         Item* zero_name = new InstructionNumber(std::to_string(0));
         Item* equal_op = new Op("=");
         Instruction_op* new_v_assign = new Instruction_op(new_v_name, array_name, equal_op, zero_name);
