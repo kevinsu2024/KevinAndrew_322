@@ -46,6 +46,7 @@ namespace LA{
         for(auto f : p.functions){
             std::cerr <<"\n orig functions is <<\n" << f->to_string();
             auto longest_label = f->longest_label + "_global";
+            std::string longest_name = f->longest_name;
             int label_count = 0;
             auto instructions = f->instructions;
             int64_t ctr = 0;
