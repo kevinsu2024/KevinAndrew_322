@@ -74,12 +74,23 @@ namespace LA{
         //checking memory access
         for (int i = 0; i < indices.size(); i++){
             Item* length_name = new Name(ln + std::to_string(line_no) + indices[i]->to_string() + "_new");
+            Instruction_declaration* length_name_dec = new Instruction_declaration(new Type("int64"), length_name);
+            ins_ind = insert_ins(instructions,length_name_dec, ins_ind);
+
             Item* dim_name = new InstructionNumber(std::to_string(i));
             Instruction_array_length* arr_len_ins = new Instruction_array_length(length_name, array_name, dim_name);
             ins_ind = insert_ins(instructions, arr_len_ins, ins_ind);
-
+            
+            // Item* rshift_op = new Op(">>");
+            // Item* one_number_item = new InstructionNumber("1");
+            // Instruction_op* rshift = new Instruction_op(length_name, length_name, rshift_op, one_number_item);
+            // ins_ind = insert_ins(instructions, rshift, ins_ind);
+            
             Item* length_check_name = new Name(ln + std::to_string(line_no) + indices[i]->to_string() + "_check");
-            Item* check_op = new Op("<");
+            Instruction_declaration* length_check_name_dec = new Instruction_declaration(new Type("int64"), length_check_name);
+            ins_ind = insert_ins(instructions,length_check_name_dec, ins_ind);
+
+            Item* check_op = new Op(">=");
             Item* dim_value_name;
             if (indices[i]->get_name() == "Name"){
                 dim_value_name = new Name(indices[i]->to_string());
