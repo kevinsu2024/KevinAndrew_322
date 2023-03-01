@@ -476,7 +476,7 @@ namespace LA {
         static void apply( const Input & in, Program & p){
             std::string input_string = in.string();
             std::cerr << "in name\n";
-            if(input_string.size() > longest_name.size()) longest_name = input_string;
+            if(p.functions.size() > 0 && input_string.size() > p.functions.back()->longest_name.size()) p.functions.back()->longest_name = input_string;
             Item* n = new Name(input_string);
             parsed_items.push_back(n);
             std::cerr << "parsed name\n";

@@ -113,6 +113,7 @@ namespace LA{
             auto longest_label = f->longest_label + "_global";
             if(f->longest_label.size() == 0) longest_label = ":" + longest_label;
             std::string longest_name = f->longest_name;
+            std::cerr<< "\nlongest name is " << longest_name<< "\n\n";
             int label_count = 0;
             auto instructions = f->instructions;
             std::string return_type = f->return_type;
