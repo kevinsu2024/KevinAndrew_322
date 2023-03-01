@@ -63,6 +63,7 @@ namespace LA{
         ins_ind = insert_ins(instructions, ins_false_label, ins_ind);
 
         Item* tensor_error_name = new Name("tensor-error");
+        tensor_error_name->set_string("tensor-error");
         Instruction_call* tensor_error_call = new Instruction_call(tensor_error_name, std::vector<Item*>{line_number});
         ins_ind = insert_ins(instructions, tensor_error_call, ins_ind);
 
