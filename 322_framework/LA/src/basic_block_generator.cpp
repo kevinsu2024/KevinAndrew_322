@@ -7,6 +7,15 @@ namespace LA{
         std::set<std::string> terminator_instrs = {"Instruction_return", "Instruction_return_t", "Instruction_branch", "Instruction_branch_t"};
         int64_t ctr = 0;
         bool startBB = true;
+        if(old.size() == 0){
+            Instruction* new_label_instr = new Instruction_label(new InstructionLabel(longest_label + "_temp_label_name_" + std::to_string(ctr)));
+            new_instrs.push_back(new_label_instr);
+            Instruction* in;
+            if(return_type == "void") in = new Instruction_return();
+            else in = new Instruction_return_t(new InstructionNumber(0));
+            new_instrs.push_back(in);
+            return new_instrs;
+        }
         while(ctr < old.size()){
             Instruction* in = old[ctr];
             if(startBB){
