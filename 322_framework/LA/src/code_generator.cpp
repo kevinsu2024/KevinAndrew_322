@@ -78,7 +78,13 @@ namespace LA{
 
             Item* length_check_name = new Name(ln + std::to_string(line_no) + indices[i]->to_string() + "_check");
             Item* check_op = new Op("<");
-            Item* dim_value_name = new Name(indices[i]->to_string());
+            Item* dim_value_name;
+            if (indices[i]->get_name() == "Name"){
+                dim_value_name = new Name(indices[i]->to_string());
+            } else {
+                dim_value_name = new InstructionNumber(indices[i]->to_string());
+            }
+            
             Instruction_op* length_check_ins = new Instruction_op(length_check_name, dim_value_name, check_op, length_name);
             ins_ind = insert_ins(instructions, length_check_ins, ins_ind);
 
