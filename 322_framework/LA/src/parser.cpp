@@ -614,7 +614,7 @@ namespace LA {
 
             Item* var = parsed_items.back();
             parsed_items.pop_back();
-            p.functions.back()->var_names.insert(in.string());
+            p.functions.back()->var_names.insert(var->to_string());
 
 
             Item* type = parsed_items.back();
@@ -659,7 +659,7 @@ namespace LA {
 
             auto s = parsed_items.back();
             parsed_items.pop_back();
-            if(currentF->var_names.find(s->to_string()) == currentF->var_names.end()){
+            if(s->get_name() == "Name" && currentF->var_names.find(s->to_string()) == currentF->var_names.end()){
                 s = new FunctionName(s->to_string());
             }
             auto var = parsed_items.back();
@@ -787,6 +787,9 @@ namespace LA {
                 args.push_back(popped_item);
             }
             auto callee = parsed_items.back();
+            std::cerr << "\n\n\n\nhererereer with callee name " << callee->to_string()<<"\n";
+            for(auto var : currentF->var_names) std::cerr << var << " ";
+            std::cerr << "\n\n";
             if(currentF->var_names.find(callee->to_string()) == currentF->var_names.end()){
                 callee= new FunctionName(callee->to_string());
             } 
@@ -815,6 +818,9 @@ namespace LA {
             }
             std::reverse(args.begin(), args.end());
             auto callee = parsed_items.back();
+            std::cerr << "\n\n\n\nhererereer with callee name " << in.string();
+            for(auto var : currentF->var_names) std::cerr << var << " ";
+            std::cerr << "\n\n";
             if(currentF->var_names.find(callee->to_string()) == currentF->var_names.end()){
                 callee= new FunctionName(callee->to_string());
             } 
