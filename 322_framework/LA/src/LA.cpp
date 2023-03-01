@@ -28,6 +28,11 @@ Name::Name(std::string n){
     return;
 }
 
+std::string
+Name::ir_to_string(){
+    return "%" + this->to_string();
+}
+
 InstructionLabel::InstructionLabel(std::string l){
     set_name("InstructionLabel");
     set_string(l);

@@ -47,10 +47,11 @@ namespace LA{
         Instruction_declaration* new_v_dec = new Instruction_declaration(new Type("int64"), new_v_name);
         ins_ind = insert_ins(instructions, new_v_dec, ins_ind);
         Item* array_name = new Name(array->to_string());
-        
         Item* zero_name = new InstructionNumber(std::to_string(0));
-        Instruction_assignment* new_v_assign = new Instruction_assignment(array_name, zero_name);
+        Item* equal_op = new Op("=");
+        Instruction_op* new_v_assign = new Instruction_op(new_v_name, array_name, equal_op, zero_name);
         ins_ind = insert_ins(instructions, new_v_assign, ins_ind);
+        
         Item* false_label = new InstructionLabel(ll + std::to_string(line_no) + "_new_false");
         Item* true_label = new InstructionLabel(ll + std::to_string(line_no) + "_new_true");
         Instruction_branch_t* branch_false_true = new Instruction_branch_t(new_v_name, false_label, true_label);
@@ -74,7 +75,7 @@ namespace LA{
             ins_ind = insert_ins(instructions, arr_len_ins, ins_ind);
 
             Item* length_check_name = new Name(ln + std::to_string(line_no) + indices[i]->to_string() + "_check");
-            Item* check_op = new Name("<");
+            Item* check_op = new Op("<");
             Item* dim_value_name = new Name(indices[i]->to_string());
             Instruction_op* length_check_ins = new Instruction_op(length_check_name, dim_value_name, check_op, length_name);
             ins_ind = insert_ins(instructions, length_check_ins, ins_ind);
@@ -124,6 +125,11 @@ namespace LA{
                     if(type == "int64"){
                         int_names.insert(instr->get_var()->to_string());
                         Instruction_assignment* i = new Instruction_assignment(instr->get_var(), new InstructionNumber("1"));
+                        instructions.insert(instructions.begin() + ctr + 1, i);
+                        ctr += 2;
+                    } else if (type.find("int64") != std::string::npos && type.size() > 5)
+                    {
+                        Instruction_assignment* i = new Instruction_assignment(instr->get_var(), new InstructionNumber("0"));
                         instructions.insert(instructions.begin() + ctr + 1, i);
                         ctr += 2;
                     }
