@@ -1,6 +1,7 @@
 #include <code_generator.h>
 
 
+
 namespace LA{
     Item*
     convert_constant(Item* it){
@@ -22,13 +23,30 @@ namespace LA{
     }
 
     void
+    check_tensor_error(Instruction* in, Item* array, std::vector<Item*> indices, int64_t line_no, std::ofstream& out, std::string ll, int* ctr){
+        //check memory access
+        out << "%LineNumber <- " << std::to_string(line_no) << "\n";
+        out << "int64 %newV \n";
+        out << "%newV <- %" << array->to_string() << " = 0\n";
+        std::string false_label = ll + std::to_string(*ctr);
+        std::string true_label = ll + std::to_string(*ctr + 1);
+        out << "br %newV " << false_label << " " << true_label << "\n";
+        (*ctr) += 2;
+        out << false_label << "\n";
+        out << "tensor-error(%" << std::to_string(line_no) << ")\n";
+        out << true_label << "\n";
+
+    }
+
+    void
     generate_code(Program p){
-        // std::ofstream outputFile;
-        // outputFile.open("prog.IR");
+        std::ofstream outputFile;
+        outputFile.open("prog.IR");
 
         for(auto f : p.functions){
             std::cerr <<"\n orig functions is <<\n" << f->to_string();
-
+            auto longest_label = f->longest_label + "_global";
+            int label_count = 0;
             auto instructions = f->instructions;
             int64_t ctr = 0;
             std::set<std::string> int_names;
@@ -124,7 +142,8 @@ namespace LA{
                     Item* var_dest = instr->get_var_dst();
                     Item* var_src = instr->get_var_src();
                     std::vector<Item*> indices = instr->get_indices();
-                    // check_tensor_error(in, instr, var_dest, var_src, indices);
+                    int64_t line_no = instr->get_line_no();
+                    check_tensor_error(instr, var_src, indices, line_no, outputFile, longest_label, &(label_count));
                     for(int64_t i = 0; i < indices.size(); i++){
                         if(indices[i]->get_name() == "Name" && (int_names.find(indices[i]->to_string()) != int_names.end())){
                             indices[i] = decode_name(&instructions, ctr, indices[i]);
@@ -142,6 +161,8 @@ namespace LA{
                     Item* var = instr->get_var();
                     Item* s = instr->get_s();
                     std::vector<Item*> indices = instr->get_indices();
+                    int64_t line_no = instr->get_line_no();
+                    check_tensor_error(instr, var, indices, line_no, outputFile, longest_label, &(label_count));
                     for(int64_t i = 0; i < indices.size(); i++){
                         if(indices[i]->get_name() == "Name" && (int_names.find(indices[i]->to_string()) != int_names.end())){
                             indices[i] = decode_name(&instructions, ctr, indices[i]);

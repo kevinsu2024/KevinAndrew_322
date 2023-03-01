@@ -269,6 +269,7 @@ namespace LA{
             std::vector<Item*> vars;
             std::vector<Instruction *> instructions;
             std::string longest_name;
+            std::string longest_label;
             std::string to_string();
     };
     class Program{
