@@ -13,8 +13,8 @@ namespace LA{
     }
 
     Item*
-    decode_name(std::vector<Instruction*>* instructions, int64_t ind, Item* it){
-        Item* new_name = new Name(it->to_string() + "_new");
+    decode_name(std::vector<Instruction*>* instructions, int64_t ind, Item* it, std::string longest){
+        Item* new_name = new Name(longest + it->to_string() + "_new");
         Instruction_declaration* new_dec = new Instruction_declaration(new Type("int64"), new_name);
         Instruction_op* new_assing = new Instruction_op(new_name, it, new Op(">>"), new InstructionNumber("1"));
         (*instructions).insert((*instructions).begin() + ind, new_assing);
@@ -85,12 +85,12 @@ namespace LA{
                     Item* op = instr->get_op();
                     Item* t2 = instr->get_t2();
                     if(t1->get_name() == "Name" && (int_names.find(t1->to_string()) != int_names.end())){
-                        t1 = decode_name(&instructions, ctr, t1);
+                        t1 = decode_name(&instructions, ctr, t1, longest_name);
                         int_names.insert(t1->to_string());
                         ctr += 2;
                     }
                     if(t2->get_name() == "Name" && (int_names.find(t2->to_string()) != int_names.end())){
-                        t2 = decode_name(&instructions, ctr, t2);
+                        t2 = decode_name(&instructions, ctr, t2, longest_name);
                         int_names.insert(t2->to_string());
                         ctr += 2;
                     }
@@ -113,7 +113,7 @@ namespace LA{
                     Item* s = instr->get_src_var();
                     Item* ind = instr->get_index();
                     if(ind->get_name() == "Name" && (int_names.find(ind->to_string()) != int_names.end())){
-                        ind = decode_name(&instructions, ctr, ind);
+                        ind = decode_name(&instructions, ctr, ind, longest_name);
                         int_names.insert(ind->to_string());
                         ctr += 2;
                     }
@@ -128,7 +128,7 @@ namespace LA{
                     Item* label1 = instr->get_label1();
                     Item* label2 = instr->get_label2();
                     if(t->get_name() == "Name" && (int_names.find(t->to_string()) != int_names.end())){
-                        t = decode_name(&instructions, ctr, t);
+                        t = decode_name(&instructions, ctr, t, longest_name);
                         int_names.insert(t->to_string());
                         ctr += 2;
                     }
@@ -146,7 +146,7 @@ namespace LA{
                     check_tensor_error(instr, var_src, indices, line_no, outputFile, longest_label, &(label_count));
                     for(int64_t i = 0; i < indices.size(); i++){
                         if(indices[i]->get_name() == "Name" && (int_names.find(indices[i]->to_string()) != int_names.end())){
-                            indices[i] = decode_name(&instructions, ctr, indices[i]);
+                            indices[i] = decode_name(&instructions, ctr, indices[i], longest_name);
                             int_names.insert(indices[i]->to_string());
                             ctr += 2;
                         }
@@ -165,7 +165,7 @@ namespace LA{
                     check_tensor_error(instr, var, indices, line_no, outputFile, longest_label, &(label_count));
                     for(int64_t i = 0; i < indices.size(); i++){
                         if(indices[i]->get_name() == "Name" && (int_names.find(indices[i]->to_string()) != int_names.end())){
-                            indices[i] = decode_name(&instructions, ctr, indices[i]);
+                            indices[i] = decode_name(&instructions, ctr, indices[i], longest_name);
                             int_names.insert(indices[i]->to_string());
                             ctr += 2;
                         }
