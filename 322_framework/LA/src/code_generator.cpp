@@ -14,7 +14,7 @@ namespace LA{
 
     Item*
     decode_name(std::vector<Instruction*>* instructions, int64_t ind, Item* it, std::string longest){
-        std::string nn = longest + it->to_string() + "_new";
+        std::string nn = longest + it->to_string().substr(1,it->to_string().size()-1) + "_new" + std::to_string(ind);
         nn = nn.substr(1, nn.size() - 1);
         Item* new_name = new Name(nn);
         Instruction_declaration* new_dec = new Instruction_declaration(new Type("int64"), new_name);
@@ -100,7 +100,6 @@ namespace LA{
             ins_ind = insert_ins(instructions, false_check_label_ins, ins_ind);
 
             if (indices.size() == 1){
-                std::cerr << "index no is: " << indices[i]->to_string() << "\n";
                 Instruction_call* tensor_error_check_call = new Instruction_call(tensor_error_name, std::vector<Item*>{line_number, length_name, indices[i]});
                 ins_ind = insert_ins(instructions, tensor_error_check_call, ins_ind);
             } else {
@@ -124,7 +123,9 @@ namespace LA{
             auto longest_label = f->longest_label + "_global";
             if(f->longest_label.size() == 0) longest_label = ":" + longest_label;
             std::string longest_name = f->longest_name;
-            std::cerr<< "\nlongest name is " << longest_name<< "\n\n";
+
+            std::cerr<< "\n\nlongest name is " << longest_name<< "\n\n";
+            std::cerr<< "\n\nlongest name is " << longest_label<< "\n\n";
             int label_count = 0;
             auto instructions = f->instructions;
             std::string return_type = f->return_type;
@@ -148,6 +149,9 @@ namespace LA{
                     i = check_tensor_error(&instructions, i, instr, var, indices, line_no, longest_label, longest_name);
                 }
             }
+
+            f->instructions = instructions;
+            std::cerr << "\n\n\ndone with check tensor error func is: \n" << f->to_string();
             while(ctr < instructions.size()){
                 Instruction* in = instructions[ctr];
                 std::string name = in->get_name();
@@ -357,7 +361,7 @@ namespace LA{
             }
             f->instructions = instructions;
 
-            std::cerr << "new func is \n" << f->to_string();
+            std::cerr << "\n\n\n done with step 2 new func is \n" << f->to_string();
             instructions = LA::get_basic_blocks(instructions, longest_label, return_type);
 
             f->instructions = instructions;
