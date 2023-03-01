@@ -108,9 +108,11 @@ namespace LA{
         for(auto f : p.functions){
             std::cerr <<"\n orig functions is <<\n" << f->to_string();
             auto longest_label = f->longest_label + "_global";
+            if(f->longest_label.size() == 0) longest_label = ":" + longest_label;
             std::string longest_name = f->longest_name;
             int label_count = 0;
             auto instructions = f->instructions;
+            std::string return_type = f->return_type;
             int64_t ctr = 0;
             std::set<std::string> int_names;
             while(ctr < instructions.size()){
@@ -318,9 +320,23 @@ namespace LA{
             f->instructions = instructions;
 
             std::cerr << "new func is \n" << f->to_string();
+            instructions = LA::get_basic_blocks(instructions, longest_label, return_type);
+
+            f->instructions = instructions;
+            std::cerr << "new func is \n" << f->to_string();
+            outputFile << "define " << f->return_type << " @" << f->name << "(";
+            for(int64_t i = 0; i < f->types.size(); i++){
+                outputFile << f->types[i]->to_string() << " "<< f->vars[i]->to_string();
+                if(i != f->types.size()-1) outputFile << ", ";
+            }
+            outputFile << "){\n";
+            for(auto in : f->instructions){
+                outputFile << "\t" << in->to_string() << "\n";
+            }
+            outputFile << "}\n";
         }
 
 
-        // outputFile.close();
+        outputFile.close();
     }
 }
