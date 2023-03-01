@@ -61,11 +61,11 @@ int main(
   /*
    * Parse the input file.
    */
-  
   auto p = LA::parse_file(argv[optind]);
   for (auto f : p.functions){
     std::cerr << f->to_string();
   }
+
 
   LA::generate_code(p);
   /*

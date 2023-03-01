@@ -28,6 +28,11 @@ namespace LA {
     */
     std::vector<Item *> parsed_items;
     /*
+    * longest name & label
+    */
+    std::string longest_name = "";
+    std::string longest_label = "";
+    /*
     * Grammar rules for IR
     */
    struct name_rule:
@@ -470,9 +475,11 @@ namespace LA {
         template< typename Input >
         static void apply( const Input & in, Program & p){
             std::string input_string = in.string();
-            if(input_string.size() > p.functions.back()->longest_name.size()) p.functions.back()->longest_name = input_string;
+            std::cerr << "in name\n";
+            if(input_string.size() > longest_name.size()) longest_name = input_string;
             Item* n = new Name(input_string);
             parsed_items.push_back(n);
+            std::cerr << "parsed name\n";
         }
     };
 
@@ -499,7 +506,7 @@ namespace LA {
         template< typename Input >
         static void apply( const Input & in, Program & p){
             std::string input_string = in.string();
-            if(input_string.size() > p.functions.back()->longest_label.size()) p.functions.back()->longest_label = input_string;
+            if(input_string.size() > longest_label.size()) longest_label = input_string;
             Item* label = new InstructionLabel(input_string);
             parsed_items.push_back(label);
             
@@ -531,6 +538,13 @@ namespace LA {
     template<> struct action < define_function_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
+            // if we have function before, add longest name and label to it.
+            if (p.functions.size() != 0){
+                p.functions.back()->longest_name = longest_name;
+                p.functions.back()->longest_name = longest_label;
+                longest_name = "";
+                longest_label = "";
+            }
             auto newF = new Function();
             for (auto item : parsed_items){
                 std::cerr << item->to_string() << "\n";

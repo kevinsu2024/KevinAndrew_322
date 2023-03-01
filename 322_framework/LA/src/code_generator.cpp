@@ -22,20 +22,51 @@ namespace LA{
         return new_name;
     }
 
-    void
-    check_tensor_error(Instruction* in, Item* array, std::vector<Item*> indices, int64_t line_no, std::ofstream& out, std::string ll, int* ctr){
+    int64_t
+    insert_ins(std::vector<Instruction*>* instructions, Instruction* ins, int64_t ctr){
+        if (ins->get_name() == "Instruction_declaration"){
+            (*instructions).insert((*instructions).begin(), ins);
+        } else {
+            (*instructions).insert((*instructions).begin() + ctr, ins);
+        }
+        return ctr + 1;
+        
+    }
+    int64_t
+    check_tensor_error( std::vector<Instruction*>* instructions, int64_t ins_ind, Instruction* ins, Item* array,
+                        std::vector<Item*> indices, int64_t line_no, std::string ll, std::string ln){
         //check memory access
-        out << "%LineNumber <- " << std::to_string(line_no) << "\n";
-        out << "int64 %newV \n";
-        out << "%newV <- %" << array->to_string() << " = 0\n";
-        std::string false_label = ll + std::to_string(*ctr);
-        std::string true_label = ll + std::to_string(*ctr + 1);
-        out << "br %newV " << false_label << " " << true_label << "\n";
-        (*ctr) += 2;
-        out << false_label << "\n";
-        out << "tensor-error(%" << std::to_string(line_no) << ")\n";
-        out << true_label << "\n";
+        Item* line_number_name = new Name(ln + std::to_string(line_no)+ "_new");
+        Item* line_number = new InstructionNumber(std::to_string(line_no));
+        Instruction_declaration* line_number_dec = new Instruction_declaration(new Type("int64"), line_number_name);
+        Instruction_assignment* line_number_ins = new Instruction_assignment(line_number_name, line_number);
+        ins_ind = insert_ins(instructions, line_number_dec, ins_ind);
+        ins_ind = insert_ins(instructions, line_number_ins, ins_ind);
 
+        Item* new_v_name = new Name(ln + std::to_string(line_no) + "_new_new");
+        Instruction_declaration* new_v_dec = new Instruction_declaration(new Type("int64"), new_v_name);
+        ins_ind = insert_ins(instructions, new_v_dec, ins_ind);
+        Item* array_name = new Name(array->to_string());
+        
+        Item* zero_name = new InstructionNumber(std::to_string(0));
+        Instruction_assignment* new_v_assign = new Instruction_assignment(array_name, zero_name);
+        ins_ind = insert_ins(instructions, new_v_assign, ins_ind);
+        Item* false_label = new InstructionLabel(ll + std::to_string(line_no) + "_new_false");
+        Item* true_label = new InstructionLabel(ll + std::to_string(line_no) + "_new_true");
+        Instruction_branch_t* branch_false_true = new Instruction_branch_t(new_v_name, false_label, true_label);
+        ins_ind = insert_ins(instructions, branch_false_true, ins_ind);
+        
+        Instruction_label* ins_false_label = new Instruction_label(false_label);
+        ins_ind = insert_ins(instructions, ins_false_label, ins_ind);
+
+        Item* tensor_error_name = new Name("tensor-error");
+        Instruction_call* tensor_error_call = new Instruction_call(tensor_error_name, std::vector<Item*>{line_number});
+        ins_ind = insert_ins(instructions, tensor_error_call, ins_ind);
+
+        Instruction_label* ins_true_label = new Instruction_label(true_label);
+        ins_ind = insert_ins(instructions, ins_true_label, ins_ind);
+
+        return ins_ind;
     }
 
     void
@@ -144,7 +175,8 @@ namespace LA{
                     Item* var_src = instr->get_var_src();
                     std::vector<Item*> indices = instr->get_indices();
                     int64_t line_no = instr->get_line_no();
-                    check_tensor_error(instr, var_src, indices, line_no, outputFile, longest_label, &(label_count));
+                    
+                    ctr = check_tensor_error(&instructions, ctr, instr, var_src, indices, line_no, longest_label, longest_name);
                     for(int64_t i = 0; i < indices.size(); i++){
                         if(indices[i]->get_name() == "Name" && (int_names.find(indices[i]->to_string()) != int_names.end())){
                             indices[i] = decode_name(&instructions, ctr, indices[i], longest_name);
@@ -163,7 +195,7 @@ namespace LA{
                     Item* s = instr->get_s();
                     std::vector<Item*> indices = instr->get_indices();
                     int64_t line_no = instr->get_line_no();
-                    check_tensor_error(instr, var, indices, line_no, outputFile, longest_label, &(label_count));
+                    ctr = check_tensor_error(&instructions, ctr, instr, var, indices, line_no, longest_label, longest_name);
                     for(int64_t i = 0; i < indices.size(); i++){
                         if(indices[i]->get_name() == "Name" && (int_names.find(indices[i]->to_string()) != int_names.end())){
                             indices[i] = decode_name(&instructions, ctr, indices[i], longest_name);

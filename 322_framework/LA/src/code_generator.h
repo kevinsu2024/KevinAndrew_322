@@ -8,5 +8,5 @@
 
 namespace LA{
     void generate_code(Program p);
-    void check_tensor_error(Instruction* in, Item* array, std::vector<Item*> indices, int64_t line_no, std::ofstream& out, std::string longest_label, int* ctr);
+    // int64_t check_tensor_error(std::vector<Instruction*>* ins, int64_t ins_ind, Instruction* in, Item* array, std::vector<Item*> indices, int64_t line_no, std::string longest_label, std::string longest_name);
 }
