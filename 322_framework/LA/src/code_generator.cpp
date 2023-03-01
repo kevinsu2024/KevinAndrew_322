@@ -38,6 +38,8 @@ namespace LA{
     check_tensor_error( std::vector<Instruction*>* instructions, int64_t ins_ind, Instruction* ins, Item* array,
                         std::vector<Item*> indices, int64_t line_no, std::string ll, std::string ln){
         //check allocation
+        line_no = line_no << 1;
+        line_no++;
         Item* line_number_name = new Name(ln + std::to_string(line_no)+ "_new");
         Item* line_number = new InstructionNumber(std::to_string(line_no));
         Instruction_declaration* line_number_dec = new Instruction_declaration(new Type("int64"), line_number_name);
