@@ -38,8 +38,8 @@ namespace LA{
     check_tensor_error( std::vector<Instruction*>* instructions, int64_t ins_ind, Instruction* ins, Item* array,
                         std::vector<Item*> indices, int64_t line_no, std::string ll, std::string ln){
         //check allocation
-        line_no = line_no << 1;
-        line_no++;
+        // line_no = line_no << 1;
+        // line_no++;
         Item* line_number_name = new Name(ln + std::to_string(line_no)+ "_new");
         Item* line_number = new InstructionNumber(std::to_string(line_no));
         Instruction_declaration* line_number_dec = new Instruction_declaration(new Type("int64"), line_number_name);
@@ -100,6 +100,7 @@ namespace LA{
             ins_ind = insert_ins(instructions, false_check_label_ins, ins_ind);
 
             if (indices.size() == 1){
+                std::cerr << "index no is: " << indices[i]->to_string() << "\n";
                 Instruction_call* tensor_error_check_call = new Instruction_call(tensor_error_name, std::vector<Item*>{line_number, length_name, indices[i]});
                 ins_ind = insert_ins(instructions, tensor_error_check_call, ins_ind);
             } else {
@@ -117,6 +118,7 @@ namespace LA{
         std::ofstream outputFile;
         outputFile.open("prog.IR");
 
+
         for(auto f : p.functions){
             std::cerr <<"\n orig functions is <<\n" << f->to_string();
             auto longest_label = f->longest_label + "_global";
@@ -128,6 +130,24 @@ namespace LA{
             std::string return_type = f->return_type;
             int64_t ctr = 0;
             std::set<std::string> int_names;
+            for(int i = 0; i < instructions.size(); i++){
+                auto in = instructions[i];
+                if (in->get_name() == "Instruction_load"){
+                    Instruction_load* instr = (Instruction_load*) in;
+                    Item* var_dest = instr->get_var_dst();
+                    Item* var_src = instr->get_var_src();
+                    std::vector<Item*> indices = instr->get_indices();
+                    int64_t line_no = instr->get_line_no();
+                    i = check_tensor_error(&instructions, i, instr, var_src, indices, line_no, longest_label, longest_name);
+                } else if (in->get_name() == "Instruction_store"){
+                    Instruction_store* instr = (Instruction_store*) in;
+                    Item* var = instr->get_var();
+                    Item* s = instr->get_s();
+                    std::vector<Item*> indices = instr->get_indices();
+                    int64_t line_no = instr->get_line_no();
+                    i = check_tensor_error(&instructions, i, instr, var, indices, line_no, longest_label, longest_name);
+                }
+            }
             while(ctr < instructions.size()){
                 Instruction* in = instructions[ctr];
                 std::string name = in->get_name();
@@ -227,7 +247,7 @@ namespace LA{
                     std::vector<Item*> indices = instr->get_indices();
                     int64_t line_no = instr->get_line_no();
                     
-                    ctr = check_tensor_error(&instructions, ctr, instr, var_src, indices, line_no, longest_label, longest_name);
+                    // ctr = check_tensor_error(&instructions, ctr, instr, var_src, indices, line_no, longest_label, longest_name);
                     for(int64_t i = 0; i < indices.size(); i++){
                         if(indices[i]->get_name() == "Name" && (int_names.find(indices[i]->to_string()) != int_names.end())){
                             indices[i] = decode_name(&instructions, ctr, indices[i], longest_name);
@@ -246,7 +266,7 @@ namespace LA{
                     Item* s = instr->get_s();
                     std::vector<Item*> indices = instr->get_indices();
                     int64_t line_no = instr->get_line_no();
-                    ctr = check_tensor_error(&instructions, ctr, instr, var, indices, line_no, longest_label, longest_name);
+                    // ctr = check_tensor_error(&instructions, ctr, instr, var, indices, line_no, longest_label, longest_name);
                     for(int64_t i = 0; i < indices.size(); i++){
                         if(indices[i]->get_name() == "Name" && (int_names.find(indices[i]->to_string()) != int_names.end())){
                             indices[i] = decode_name(&instructions, ctr, indices[i], longest_name);
