@@ -35,7 +35,7 @@ namespace LA{
     int64_t
     check_tensor_error( std::vector<Instruction*>* instructions, int64_t ins_ind, Instruction* ins, Item* array,
                         std::vector<Item*> indices, int64_t line_no, std::string ll, std::string ln){
-        //check memory access
+        //check allocation
         Item* line_number_name = new Name(ln + std::to_string(line_no)+ "_new");
         Item* line_number = new InstructionNumber(std::to_string(line_no));
         Instruction_declaration* line_number_dec = new Instruction_declaration(new Type("int64"), line_number_name);
@@ -66,6 +66,37 @@ namespace LA{
         Instruction_label* ins_true_label = new Instruction_label(true_label);
         ins_ind = insert_ins(instructions, ins_true_label, ins_ind);
 
+        //checking memory access
+        for (int i = 0; i < indices.size(); i++){
+            Item* length_name = new Name(ln + std::to_string(line_no) + indices[i]->to_string() + "_new");
+            Item* dim_name = new InstructionNumber(std::to_string(i));
+            Instruction_array_length* arr_len_ins = new Instruction_array_length(length_name, array_name, dim_name);
+            ins_ind = insert_ins(instructions, arr_len_ins, ins_ind);
+
+            Item* length_check_name = new Name(ln + std::to_string(line_no) + indices[i]->to_string() + "_check");
+            Item* check_op = new Name("<");
+            Item* dim_value_name = new Name(indices[i]->to_string());
+            Instruction_op* length_check_ins = new Instruction_op(length_check_name, dim_value_name, check_op, length_name);
+            ins_ind = insert_ins(instructions, length_check_ins, ins_ind);
+
+            Item* false_check_label = new InstructionLabel(ll + std::to_string(line_no) + "_new_check_" + std::to_string(i) + indices[i]->to_string() + "false");
+            Item* true_check_label = new InstructionLabel(ll + std::to_string(line_no) + "_new_check_" + std::to_string(i) + indices[i]->to_string() + "true");
+            Instruction_branch_t* length_check_branch_ins = new Instruction_branch_t(length_check_name, false_check_label, true_check_label);
+            ins_ind = insert_ins(instructions, length_check_branch_ins, ins_ind);
+
+            Instruction_label* false_check_label_ins = new Instruction_label(false_check_label);
+            ins_ind = insert_ins(instructions, false_check_label_ins, ins_ind);
+
+            if (indices.size() == 1){
+                Instruction_call* tensor_error_check_call = new Instruction_call(tensor_error_name, std::vector<Item*>{line_number, length_name, indices[i]});
+                ins_ind = insert_ins(instructions, tensor_error_check_call, ins_ind);
+            } else {
+                Instruction_call* tensor_error_check_call = new Instruction_call(tensor_error_name, std::vector<Item*>{line_number, dim_name, length_name, indices[i]});
+                ins_ind = insert_ins(instructions, tensor_error_check_call, ins_ind);
+            } 
+            Instruction_label* true_check_label_ins = new Instruction_label(true_check_label);
+            ins_ind = insert_ins(instructions, true_check_label_ins, ins_ind);
+        }
         return ins_ind;
     }
 
