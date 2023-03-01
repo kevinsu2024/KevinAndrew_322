@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <set>
+#include <basic_block_generator.h>
 
 
 namespace LA{
