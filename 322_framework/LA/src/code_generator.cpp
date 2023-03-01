@@ -129,7 +129,7 @@ namespace LA{
                         Instruction_assignment* i = new Instruction_assignment(instr->get_var(), new InstructionNumber("1"));
                         instructions.insert(instructions.begin() + ctr + 1, i);
                         ctr += 2;
-                    } else if (type.find("int64") != std::string::npos && type.size() > 5)
+                    } else if ((type.find("int64") != std::string::npos && type.size() > 5) || type == "tuple")
                     {
                         Instruction_assignment* i = new Instruction_assignment(instr->get_var(), new InstructionNumber("0"));
                         instructions.insert(instructions.begin() + ctr + 1, i);
