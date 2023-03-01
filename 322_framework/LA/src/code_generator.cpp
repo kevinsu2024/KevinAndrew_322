@@ -124,6 +124,7 @@ namespace LA{
                     Item* var_dest = instr->get_var_dst();
                     Item* var_src = instr->get_var_src();
                     std::vector<Item*> indices = instr->get_indices();
+                    // check_tensor_error(in, instr, var_dest, var_src, indices);
                     for(int64_t i = 0; i < indices.size(); i++){
                         if(indices[i]->get_name() == "Name" && (int_names.find(indices[i]->to_string()) != int_names.end())){
                             indices[i] = decode_name(&instructions, ctr, indices[i]);
@@ -132,7 +133,7 @@ namespace LA{
                         }
                     }
                     
-                    Instruction* new_instr = new Instruction_load(var_dest, var_src, indices);
+                    Instruction* new_instr = new Instruction_load(var_dest, var_src, indices, 0);
                     instructions[ctr] = new_instr;
                     ctr++;
                 }
@@ -153,7 +154,7 @@ namespace LA{
                         s = convert_constant(s);
                     }
                     
-                    Instruction* new_instr = new Instruction_store(var, indices, s);
+                    Instruction* new_instr = new Instruction_store(var, indices, s, 0);
                     instructions[ctr] = new_instr;
                     ctr++;
                     

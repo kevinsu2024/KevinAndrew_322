@@ -7,4 +7,5 @@
 
 namespace LA{
     void generate_code(Program p);
+    void check_tensor_error();
 }

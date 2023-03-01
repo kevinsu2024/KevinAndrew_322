@@ -118,28 +118,31 @@ namespace LA{
 
     class Instruction_load : public Instruction{
         public:
-            Instruction_load (Item* d, Item* s, std::vector<Item*> i);
+            Instruction_load (Item* d, Item* s, std::vector<Item*> i, int64_t l);
             
             Item* get_var_dst();
             Item* get_var_src();
             std::vector<Item*> get_indices();
+            int64_t get_line_no();
         private:
             Item *var_dst;
             Item *var_src;
             std::vector<Item*> indices;
+            int64_t line_no;
     };
 
     class Instruction_store : public Instruction{
         public:
-            Instruction_store (Item *var, std::vector<Item*> i, Item *s);
-            
+            Instruction_store (Item *var, std::vector<Item*> i, Item *s, int64_t l);
             Item* get_var();
             Item* get_s();
             std::vector<Item*> get_indices();
+            int64_t get_line_no();
         private:
             Item *var;
             Item *s;
             std::vector<Item*> indices;
+            int64_t line_no;
     };
 
     class Instruction_array_length : public Instruction{

@@ -688,11 +688,11 @@ namespace LA {
             parsed_items.pop_back();
             Item* dst = parsed_items.back();
             parsed_items.pop_back();
-
+            int64_t line_no = in.position().line;
             /* 
             * Create the instruction.
             */ 
-            auto i = new Instruction_load(dst, src, indices); 
+            auto i = new Instruction_load(dst, src, indices, line_no); 
 
             /* 
             * Add the just-created instruction to the current function.
@@ -719,11 +719,11 @@ namespace LA {
             std::reverse(indices.begin(), indices.end());
             auto var = parsed_items.back();
             parsed_items.pop_back();
-
+            int64_t line_no = in.position().line;
             /* 
             * Create the instruction.
             */ 
-            auto i = new Instruction_store(var, indices, s); 
+            auto i = new Instruction_store(var, indices, s, line_no); 
 
             /* 
             * Add the just-created instruction to the current function.

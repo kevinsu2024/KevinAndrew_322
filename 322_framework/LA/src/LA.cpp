@@ -166,7 +166,7 @@ Instruction_bracket::get_index(){
     return index;
 }
 
-Instruction_load::Instruction_load(Item* d, Item* s, std::vector<Item*> i){
+Instruction_load::Instruction_load(Item* d, Item* s, std::vector<Item*> i, int64_t l){
     set_name("Instruction_load");
     std::string st = (d->to_string() + " <- " + s->to_string());
     for(Item* ele : i){
@@ -175,7 +175,8 @@ Instruction_load::Instruction_load(Item* d, Item* s, std::vector<Item*> i){
     set_string(st);
     this->var_dst = d;
     this->var_src = s;
-    indices = i;
+    this->line_no = l;
+    this->indices = i;
     return;
 }
 
@@ -189,12 +190,17 @@ Instruction_load::get_var_src(){
     return var_src;
 }
 
+int64_t
+Instruction_load::get_line_no(){
+    return line_no;
+}
+
 std::vector<Item*>
 Instruction_load::get_indices(){
     return indices;
 }
 
-Instruction_store::Instruction_store(Item* var, std::vector<Item*> i, Item* s){
+Instruction_store::Instruction_store(Item* var, std::vector<Item*> i, Item* s, int64_t l){
     set_name("Instruction_store");
     std::string st = var->to_string();
     for(Item* ele : i){
@@ -204,7 +210,8 @@ Instruction_store::Instruction_store(Item* var, std::vector<Item*> i, Item* s){
     set_string(st);
     this->var = var;
     this->s = s;
-    indices = i;
+    this->indices = i;
+    this->line_no = l;
     return;
 }
 
@@ -218,6 +225,10 @@ Instruction_store::get_s(){
     return s;
 }
 
+int64_t
+Instruction_store::get_line_no(){
+    return line_no;
+}
 std::vector<Item*>
 Instruction_store::get_indices(){
     return indices;
