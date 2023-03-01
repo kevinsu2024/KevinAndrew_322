@@ -14,8 +14,7 @@ namespace LA{
 
     Item*
     decode_name(std::vector<Instruction*>* instructions, int64_t ind, Item* it, std::string longest){
-        std::string nn = longest + it->to_string().substr(1,it->to_string().size()-1) + "_new" + std::to_string(ind);
-        nn = nn.substr(1, nn.size() - 1);
+        std::string nn = longest + it->to_string() + "_new" + std::to_string(ind);
         Item* new_name = new Name(nn);
         Instruction_declaration* new_dec = new Instruction_declaration(new Type("int64"), new_name);
         Instruction_op* new_assing = new Instruction_op(new_name, it, new Op(">>"), new InstructionNumber("1"));
@@ -152,6 +151,10 @@ namespace LA{
 
             f->instructions = instructions;
             std::cerr << "\n\n\ndone with check tensor error func is: \n" << f->to_string();
+
+
+
+
             while(ctr < instructions.size()){
                 Instruction* in = instructions[ctr];
                 std::string name = in->get_name();
@@ -376,7 +379,13 @@ namespace LA{
                 outputFile << "\t" << in->to_string() << "\n";
             }
             outputFile << "}\n";
+
+
+            //printing shit now
         }
+
+
+
 
 
         outputFile.close();

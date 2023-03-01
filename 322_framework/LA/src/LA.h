@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <typeinfo>
+#include <set>
 
 
 namespace LA{
@@ -31,6 +32,11 @@ namespace LA{
     class InstructionLabel : public Item{
         public:
             InstructionLabel (std::string label);
+    };
+
+    class FunctionName : public Item{
+        public:
+            FunctionName(std::string name);
     };
 
     class InstructionNumber : public Item {
@@ -271,6 +277,7 @@ namespace LA{
             std::vector<Instruction *> instructions;
             std::string longest_name;
             std::string longest_label;
+            std::set<std::string> var_names;
             std::string to_string();
     };
     class Program{

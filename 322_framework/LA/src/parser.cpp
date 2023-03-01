@@ -470,11 +470,9 @@ namespace LA {
         template< typename Input >
         static void apply( const Input & in, Program & p){
             std::string input_string = in.string();
-            std::cerr << "in name\n";
             if(p.functions.size() > 0 && input_string.size() > p.functions.back()->longest_name.size()) p.functions.back()->longest_name = input_string;
             Item* n = new Name(input_string);
             parsed_items.push_back(n);
-            std::cerr << "parsed name\n";
         }
     };
 
@@ -535,9 +533,7 @@ namespace LA {
         static void apply( const Input & in, Program & p){
             // if we have function before, add longest name and label to it.
             auto newF = new Function();
-            for (auto item : parsed_items){
-                std::cerr << item->to_string() << "\n";
-            }
+            
             while (parsed_items.size() > 0){
                 auto popped_item = parsed_items.back();
                 parsed_items.pop_back();
@@ -550,7 +546,7 @@ namespace LA {
                 }
                 else {
                     if (parsed_items.size() == 1){
-                        newF->name = popped_item->to_string().substr(1, popped_item->to_string().size() - 1);
+                        newF->name = popped_item->to_string();
                     } else {
                         newF->vars.push_back(popped_item);
                     }
@@ -618,6 +614,8 @@ namespace LA {
 
             Item* var = parsed_items.back();
             parsed_items.pop_back();
+            p.functions.back()->var_names.insert(in.string());
+
 
             Item* type = parsed_items.back();
             parsed_items.pop_back();
@@ -661,6 +659,9 @@ namespace LA {
 
             auto s = parsed_items.back();
             parsed_items.pop_back();
+            if(currentF->var_names.find(s->to_string()) == currentF->var_names.end()){
+                s = new FunctionName(s->to_string());
+            }
             auto var = parsed_items.back();
             parsed_items.pop_back();
 
@@ -786,8 +787,9 @@ namespace LA {
                 args.push_back(popped_item);
             }
             auto callee = parsed_items.back();
-            if(callee->to_string() != "%print" && callee->to_string() != "%input") callee->set_string("@" + callee->to_string().substr(1, callee->to_string().size() - 1));
-            else callee->set_string(callee->to_string().substr(1, callee->to_string().size()-1));
+            if(currentF->var_names.find(callee->to_string()) == currentF->var_names.end()){
+                callee= new FunctionName(callee->to_string());
+            } 
             parsed_items.pop_back();
             std::reverse(args.begin(), args.end());
             /* 
@@ -813,8 +815,9 @@ namespace LA {
             }
             std::reverse(args.begin(), args.end());
             auto callee = parsed_items.back();
-            if(callee->to_string() != "%print" && callee->to_string() != "%input") callee->set_string("@" + callee->to_string().substr(1, callee->to_string().size() - 1));
-            else callee->set_string(callee->to_string().substr(1, callee->to_string().size()-1));
+            if(currentF->var_names.find(callee->to_string()) == currentF->var_names.end()){
+                callee= new FunctionName(callee->to_string());
+            } 
             parsed_items.pop_back();
             auto var = parsed_items.back();
             parsed_items.pop_back();
@@ -901,9 +904,7 @@ namespace LA {
         template< typename Input >
         static void apply( const Input & in, Program & p){
             auto currentF = p.functions.back();
-            for (auto item : parsed_items){
-                std::cerr << item->to_string() << "\n";
-            }
+            
 
             auto label2 = parsed_items.back();
             parsed_items.pop_back();
