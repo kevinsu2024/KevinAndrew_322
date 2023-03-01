@@ -561,7 +561,7 @@ namespace LA {
                 }
                 else {
                     if (parsed_items.size() == 1){
-                        newF->name = popped_item->to_string();
+                        newF->name = popped_item->to_string().substr(1, popped_item->to_string().size() - 1);
                     } else {
                         newF->vars.push_back(popped_item);
                     }
@@ -797,6 +797,8 @@ namespace LA {
                 args.push_back(popped_item);
             }
             auto callee = parsed_items.back();
+            if(callee->to_string() != "%print" && callee->to_string() != "%input") callee->set_string("@" + callee->to_string().substr(1, callee->to_string().size() - 1));
+            else callee->set_string(callee->to_string().substr(1, callee->to_string().size()-1));
             parsed_items.pop_back();
             std::reverse(args.begin(), args.end());
             /* 
@@ -822,6 +824,8 @@ namespace LA {
             }
             std::reverse(args.begin(), args.end());
             auto callee = parsed_items.back();
+            if(callee->to_string() != "%print" && callee->to_string() != "%input") callee->set_string("@" + callee->to_string().substr(1, callee->to_string().size() - 1));
+            else callee->set_string(callee->to_string().substr(1, callee->to_string().size()-1));
             parsed_items.pop_back();
             auto var = parsed_items.back();
             parsed_items.pop_back();

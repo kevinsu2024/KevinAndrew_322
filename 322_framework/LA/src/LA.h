@@ -15,7 +15,6 @@ namespace LA{
             std::string to_string();
             void set_name(std::string item_name);
             void set_string(std::string item_str);
-            std::string ir_item_str;
         private:
             std::string item_name;
             std::string item_str;
@@ -28,7 +27,6 @@ namespace LA{
     class Name : public Item {
         public:
             Name (std::string name);
-            std::string ir_to_string();
     };
     class InstructionLabel : public Item{
         public:

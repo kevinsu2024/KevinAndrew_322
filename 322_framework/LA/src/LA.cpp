@@ -24,14 +24,11 @@ Item::set_string(std::string s){
 
 Name::Name(std::string n){
     set_name("Name");
-    set_string(n);
+    set_string("%" + n);
     return;
 }
 
-std::string
-Name::ir_to_string(){
-    return "%" + this->to_string();
-}
+
 
 InstructionLabel::InstructionLabel(std::string l){
     set_name("InstructionLabel");
@@ -286,7 +283,7 @@ Item* Instruction_tuple_length::get_src_var(){
 
 Instruction_call::Instruction_call(Item* callee, std::vector<Item*> args){
     set_name("Instruction_call");
-    std::string LA_string = callee->to_string() + "(";
+    std::string LA_string = "call " + callee->to_string() + "(";
     for (int i = 0; i < args.size(); i++){
         LA_string += args[i]->to_string();
         if (i < args.size() - 1){
@@ -314,7 +311,7 @@ Instruction_call::get_args(){
 
 Instruction_call_assignment::Instruction_call_assignment(Item* var, Item* callee, std::vector<Item*> args){
     set_name("Instruction_call_assignment");
-    std::string LA_string = var->to_string() + " <- " + callee->to_string() + "(";
+    std::string LA_string = var->to_string() + " <- call " + callee->to_string() + "(";
     for (int i = 0; i < args.size(); i++){
         LA_string += args[i]->to_string();
         if (i < args.size() - 1){

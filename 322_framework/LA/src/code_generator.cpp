@@ -14,7 +14,9 @@ namespace LA{
 
     Item*
     decode_name(std::vector<Instruction*>* instructions, int64_t ind, Item* it, std::string longest){
-        Item* new_name = new Name(longest + it->to_string() + "_new");
+        std::string nn = longest + it->to_string() + "_new";
+        nn = nn.substr(1, nn.size() - 1);
+        Item* new_name = new Name(nn);
         Instruction_declaration* new_dec = new Instruction_declaration(new Type("int64"), new_name);
         Instruction_op* new_assing = new Instruction_op(new_name, it, new Op(">>"), new InstructionNumber("1"));
         (*instructions).insert((*instructions).begin() + ind, new_assing);
