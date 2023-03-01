@@ -797,7 +797,7 @@ namespace LA {
                 args.push_back(popped_item);
             }
             auto callee = parsed_items.back();
-            if(callee->to_string() != "%print" && callee->to_string() != "%input") callee->set_string("@" + callee->to_string().substr(1, callee->to_string().size() - 1));
+            if(callee->to_string() != "%print" && callee->to_string() != "%input" && callee->to_string() != "%tensor-error") callee->set_string("@" + callee->to_string().substr(1, callee->to_string().size() - 1));
             else callee->set_string(callee->to_string().substr(1, callee->to_string().size()-1));
             parsed_items.pop_back();
             std::reverse(args.begin(), args.end());
