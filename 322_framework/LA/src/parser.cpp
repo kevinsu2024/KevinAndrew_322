@@ -470,6 +470,7 @@ namespace LA {
         template< typename Input >
         static void apply( const Input & in, Program & p){
             std::string input_string = in.string();
+            if(input_string > p.functions.back()->longest_name.size()) p.functions.back()->longest_name = input_string;
             Item* n = new Name(input_string);
             parsed_items.push_back(n);
         }
