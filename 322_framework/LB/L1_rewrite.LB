@@ -1,0 +1,75 @@
+void swap(int64[] array, int64 index, int64 smallest_index){
+	int64 temp
+	int64 temp2
+	temp <- array[index]
+	temp2 <- array[smallest_index]
+	array[index] <- temp2
+	array[smallest_index] <- temp
+	print(temp2)
+	return
+}
+
+void main (){
+	int64 size
+	int64[] arr
+	int64 inp
+	int64 cont_start_loop
+	int64 index
+	int64 cur_element
+	int64 cur_smallest_index
+
+	size <- input()
+	arr <- new Array(size)
+	index <- 0
+	while (index < size) :start_loop :end
+	{
+		:start_loop
+		inp <- input()
+		arr[index] <- inp
+		index <- index + 1
+		continue
+	}
+	:end
+	index <- 0
+	cur_smallest_index <- 0
+	size <- length arr 0
+	while (index < size) :print_loop :print_end
+	{
+		:print_loop
+		cur_smallest_index <- find_smallest(arr, size, index)
+		swap(arr, index, cur_smallest_index)
+		index <- index + 1
+		continue
+	}
+	:print_end
+    return
+}
+
+int64 find_smallest(int64[] array, int64 size, int64 start_index){
+	int64 index
+	int64 smallest
+	int64 smallest_index
+	int64 cur_element
+	int64 cur_size
+	index <- start_index
+	smallest_index <- start_index
+	smallest <- array[index]
+	cur_size <- size
+	while (index < cur_size) :find_smallest_loop :find_smallest_end
+	{
+		:find_smallest_loop
+		cur_element <- array[index]
+		if (cur_element < smallest) :update_smallest :cont
+		{
+			:update_smallest
+			smallest <- cur_element
+			smallest_index <- index
+		}
+		:cont
+		index <- index + 1
+		continue
+	}
+	:find_smallest_end
+	return smallest_index
+}
+

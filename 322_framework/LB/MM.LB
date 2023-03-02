@@ -1,0 +1,159 @@
+void main(){
+	
+	int64 num_rows_1
+	int64 num_cols_1
+	int64 num_rows_2
+	int64 num_cols_2
+	int64 u_num_rows_1
+	int64 u_num_cols_1
+	int64 u_num_rows_2
+	int64 u_num_cols_2
+	int64 cmp_val
+	int64 cmp_val2
+	int64 row_ctr
+	int64 col_ctr
+	int64 val
+	int64[][] m1
+	int64[][] m2
+	int64[][] ans
+	
+	row_ctr <- 0
+	col_ctr <- 0
+	num_rows_1 <-  input()
+	num_cols_1 <-  input()
+	u_num_rows_1 <- num_rows_1 
+	u_num_cols_1 <- num_cols_1 
+	m1 <- new Array(num_rows_1, num_cols_1)
+	 get_matrix_vals(m1, u_num_rows_1, u_num_cols_1)
+	num_rows_2 <-  input()
+	num_cols_2 <-  input()
+	u_num_rows_2 <- num_rows_2 
+	u_num_cols_2 <- num_cols_2 
+	m2 <- new Array(num_rows_2, num_cols_2)
+	 get_matrix_vals(m2, u_num_rows_2, u_num_cols_2)
+	ans <- new Array(num_rows_1, num_cols_2)
+	br :row_loop
+
+
+	:row_loop
+	br :col_loop
+
+	:col_loop
+	val <-  get_prod(m1,m2,row_ctr,col_ctr, u_num_cols_1)
+	ans[row_ctr][col_ctr] <- val
+	col_ctr <- col_ctr + 1
+	cmp_val <- col_ctr < u_num_cols_2
+	br cmp_val :col_loop :update
+
+	:update
+	row_ctr <- row_ctr + 1
+	col_ctr <- 0
+	cmp_val2 <- row_ctr < u_num_rows_1
+	br cmp_val2 :row_loop :end
+
+	:end
+	 print_matrix(ans)
+	return
+
+}
+
+void print_matrix(int64[][] m){
+	
+	int64 rows
+	int64 cols
+	int64 crow
+	int64 ccol
+	int64 cmp_val
+	int64 cmp_val2
+	int64 temp
+	rows <- length m 0
+	 print(rows)
+	rows <- rows
+	cols <- length m 1
+	 print(cols)
+	cols <- cols
+	crow <- 0
+    ccol <- 0
+	br :row_loop
+
+	:row_loop
+	br :col_loop
+
+	:col_loop
+	temp <- m[crow][ccol]
+	 print(temp)
+	ccol <- ccol + 1
+	cmp_val <- ccol < cols
+	br cmp_val :col_loop :continue
+
+	:continue
+	crow <- crow + 1
+	ccol <- 0
+	cmp_val2 <- crow < rows
+	br cmp_val2 :row_loop :end
+
+	:end
+	return
+	
+}
+
+int64 get_prod(int64[][] m1,int64[][] m2,int64 r, int64 c, int64 num_iter){
+	
+	int64 ctr
+	ctr <- 0
+	int64 val
+	val <- 0
+	int64  temp1
+	int64 temp2
+	int64 cmp_val
+	
+	br :loop
+
+	:loop
+	temp1 <- m1[r][ctr]
+	temp1 <- temp1
+	temp2 <- m2[ctr][c]
+	temp2 <- temp2
+	temp1 <- temp1 * temp2
+	val <- val + temp1
+	ctr <- ctr + 1
+	cmp_val <- ctr < num_iter
+	br cmp_val :loop :end
+
+	:end
+	return val
+
+}
+
+
+void get_matrix_vals(int64[][] m, int64 rows, int64 cols){
+	
+	int64 crow
+	int64 ccol
+	int64 val
+	int64 cmp_val
+	int64 cmp_val2
+	crow <- 0
+	ccol <- 0
+	br :row_loop
+
+	:row_loop
+	br :col_loop
+
+	:col_loop
+	val <-  input()
+	m[crow][ccol] <- val
+	ccol <- ccol + 1
+	cmp_val <- ccol < cols
+	br cmp_val :col_loop :continue
+
+
+	:continue
+	ccol <- 0
+	crow <- crow + 1
+	cmp_val2 <- crow < rows
+	br cmp_val2 :row_loop :end
+
+	:end
+	return
+}
