@@ -1,0 +1,7 @@
+void main () {
+    int64 stuf
+    stuf <- input()
+    stuf <- stuf + 1
+    print(stuf)
+    return
+}

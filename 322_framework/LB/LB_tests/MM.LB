@@ -1,0 +1,139 @@
+void main(){
+	int64 num_rows_1
+	int64 num_cols_1
+	int64 num_rows_2
+	int64 num_cols_2
+	int64 cmp_val
+	int64 cmp_val2
+	int64 row_ctr
+	int64 col_ctr
+	int64 val
+	int64[][] m1
+	int64[][] m2
+	int64[][] ans
+	
+	row_ctr <- 0
+	col_ctr <- 0
+	num_rows_1 <- input()
+	num_cols_1 <- input()
+	m1 <- new Array(num_rows_1, num_cols_1)
+	get_matrix_vals(m1, num_rows_1, num_cols_1)
+	num_rows_2 <- input()
+	num_cols_2 <- input()
+	m2 <- new Array(num_rows_2, num_cols_2)
+	get_matrix_vals(m2, num_rows_2, num_cols_2)
+	ans <- new Array(num_rows_1, num_cols_2)
+	while (row_ctr < num_rows_1) :row_loop :end
+	{
+		:row_loop
+		while (col_ctr < num_cols_2) :col_loop :update
+		{
+			:col_loop
+			val <- get_prod(m1,m2,row_ctr,col_ctr, num_cols_1)
+			ans[row_ctr][col_ctr] <- val
+			col_ctr <- col_ctr + 1
+			continue
+		}
+		:update
+		row_ctr <- row_ctr + 1
+		col_ctr <- 0
+		continue
+	}
+	:end
+	print_matrix(ans)
+	return
+
+}
+
+void print_matrix(int64[][] m){
+	
+	int64 rows
+	int64 cols
+	int64 crow
+	int64 ccol
+	int64 cmp_val
+	int64 cmp_val2
+	int64 temp
+	rows <- length m 0
+	print(rows)
+	rows <- rows
+	cols <- length m 1
+	print(cols)
+	cols <- cols
+	crow <- 0
+    ccol <- 0
+	while (crow < rows) :row_loop :end 
+	{
+		:row_loop
+		while (ccol < cols) :col_loop :continue
+		{
+			:col_loop
+			temp <- m[crow][ccol]
+			print(temp)
+			ccol <- ccol + 1
+			continue
+		}
+		:continue
+		crow <- crow + 1
+		ccol <- 0
+		continue
+	}
+	:end
+	return
+	
+}
+
+int64 get_prod(int64[][] m1,int64[][] m2,int64 r, int64 c, int64 num_iter){
+	
+	int64 ctr
+	ctr <- 0
+	int64 val
+	val <- 0
+	int64  temp1
+	int64 temp2
+	int64 cmp_val
+	
+	while (ctr < num_iter) :loop :end
+	{
+		:loop
+		temp1 <- m1[r][ctr]
+		temp2 <- m2[ctr][c]
+		temp1 <- temp1 * temp2
+		val <- val + temp1
+		ctr <- ctr + 1
+		continue
+	}
+	:end
+	return val
+
+}
+
+void get_matrix_vals(int64[][] m, int64 rows, int64 cols){
+	
+	int64 crow
+	int64 ccol
+	int64 val
+	int64 cmp_val
+	int64 cmp_val2
+	crow <- 0
+	ccol <- 0
+	while (crow < rows) :row_loop :end{
+
+		:row_loop
+		while (ccol<cols) :col_loop :continue
+		{
+			:col_loop
+			val <- input()
+			m[crow][ccol] <- val
+			ccol <- ccol + 1
+			continue
+
+		}
+		:continue
+		ccol <- 0
+		crow <- crow + 1
+		continue
+	}
+	:end
+	return
+}
