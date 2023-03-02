@@ -229,7 +229,9 @@ Instruction_store::Instruction_store(Item* var, std::vector<Item*> i, Item* s, i
         if(ele->get_name() == "Name") p2 = "%";
         st += ("[" + p2 + ele->to_string() + "]");
     }
-    st += " <- " + s->to_string();
+    std::string p1 = "";
+    if(s->get_name() == "Name") p1 = "%";
+    st += " <- " + p1 + s->to_string();
     set_string(st);
     this->var = var;
     this->s = s;
