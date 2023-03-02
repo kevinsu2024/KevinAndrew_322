@@ -163,9 +163,9 @@ namespace LA{
             f->instructions = instructions;
             std::cerr << "\n\n\ndone with check tensor error func is: \n" << f->to_string();
 
-
-
-
+            for (auto var: f->vars){
+                int_names.insert(var->to_string());
+            }
             while(ctr < instructions.size()){
                 Instruction* in = instructions[ctr];
                 std::string name = in->get_name();
