@@ -382,7 +382,7 @@ namespace LA{
             std::cerr << "new func is \n" << f->to_string();
             outputFile << "define " << f->return_type << " @" << f->name << "(";
             for(int64_t i = 0; i < f->types.size(); i++){
-                outputFile << f->types[i]->to_string() << " "<< f->vars[i]->to_string();
+                outputFile << f->types[i]->to_string() << " "<< "%" + f->vars[i]->to_string();
                 if(i != f->types.size()-1) outputFile << ", ";
             }
             outputFile << "){\n";

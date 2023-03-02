@@ -549,6 +549,7 @@ namespace LA {
                         newF->name = popped_item->to_string();
                     } else {
                         newF->vars.push_back(popped_item);
+                        newF->var_names.insert(popped_item->to_string());
                     }
                 }
             }
