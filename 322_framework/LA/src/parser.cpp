@@ -498,6 +498,7 @@ namespace LA {
     template<> struct action < label_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
+            // if (parsed_items.size() > 0) parsed_items.pop_back();
             std::string input_string = in.string();
             if(p.functions.size() > 0 && input_string.size() > p.functions.back()->longest_label.size()) p.functions.back()->longest_label = input_string;
             Item* label = new InstructionLabel(input_string);
@@ -532,16 +533,23 @@ namespace LA {
         template< typename Input >
         static void apply( const Input & in, Program & p){
             // if we have function before, add longest name and label to it.
+            std::cerr << "\ndefining new function " << "\n";
+            std::cerr << in.string() << "\n";
+            std::cerr << parsed_items.size() << "\n";
             auto newF = new Function();
             
             while (parsed_items.size() > 0){
                 auto popped_item = parsed_items.back();
+                std::cerr << "popped item is " << popped_item->get_name() << " " << popped_item->to_string() << "\n";
                 parsed_items.pop_back();
                 if (popped_item->get_name() == "Type"){
                     if (parsed_items.size() == 0){
                         newF->return_type = popped_item->to_string();
                     } else {
                         newF->types.push_back(popped_item);
+                        if(popped_item->to_string() == "tuple"){
+                            newF->tuple_names.insert(newF->vars.back()->to_string());
+                        }
                     }   
                 }
                 else {
@@ -712,10 +720,16 @@ namespace LA {
     template<> struct action < Instruction_store_assignment_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
+            std::cerr << "\n printing aprsed items in store instr " << in.string() << "\n";
+            for(auto it : parsed_items){
+                std::cerr << it->to_string() << " ";
+            }
+            std::cerr <<"\n";
             auto currentF = p.functions.back();
 
             auto s = parsed_items.back();
             parsed_items.pop_back();
+            if(s->get_name() == "InstructionLabel") parsed_items.pop_back();
 
             std::vector<Item*> indices;
             while (parsed_items.size() > 0 && (parsed_items.back()->get_name() == "Instruction_bracket")){
@@ -788,9 +802,6 @@ namespace LA {
                 args.push_back(popped_item);
             }
             auto callee = parsed_items.back();
-            std::cerr << "\n\n\n\nhererereer with callee name " << callee->to_string()<<"\n";
-            for(auto var : currentF->var_names) std::cerr << var << " ";
-            std::cerr << "\n\n";
             if(currentF->var_names.find(callee->to_string()) == currentF->var_names.end()){
                 callee= new FunctionName(callee->to_string());
             } 
@@ -819,9 +830,6 @@ namespace LA {
             }
             std::reverse(args.begin(), args.end());
             auto callee = parsed_items.back();
-            std::cerr << "\n\n\n\nhererereer with callee name " << in.string();
-            for(auto var : currentF->var_names) std::cerr << var << " ";
-            std::cerr << "\n\n";
             if(currentF->var_names.find(callee->to_string()) == currentF->var_names.end()){
                 callee= new FunctionName(callee->to_string());
             } 

@@ -35,7 +35,7 @@ namespace LA{
     }
     int64_t
     check_tensor_error( std::vector<Instruction*>* instructions, int64_t ins_ind, Instruction* ins, Item* array,
-                        std::vector<Item*> indices, int64_t line_no, std::string ll, std::string ln){
+                        std::vector<Item*> indices, int64_t line_no, std::string ll, std::string ln, std::set<std::string> tuple_names){
         //check allocation
         // line_no = line_no << 1;
         // line_no++;
@@ -78,7 +78,9 @@ namespace LA{
             ins_ind = insert_ins(instructions,length_name_dec, ins_ind);
 
             Item* dim_name = new InstructionNumber(std::to_string(i));
-            Instruction_array_length* arr_len_ins = new Instruction_array_length(length_name, array_name, dim_name);
+            Instruction* arr_len_ins;
+            if(tuple_names.find(array_name->to_string()) == tuple_names.end()) arr_len_ins = new Instruction_array_length(length_name, array_name, dim_name);
+            else arr_len_ins = new Instruction_tuple_length(length_name, array_name);
             ins_ind = insert_ins(instructions, arr_len_ins, ins_ind);
             
             // Item* rshift_op = new Op(">>");
@@ -143,20 +145,26 @@ namespace LA{
             std::set<std::string> int_names;
             for(int i = 0; i < instructions.size(); i++){
                 auto in = instructions[i];
-                if (in->get_name() == "Instruction_load"){
+                if (in-> get_name() == "Instruction_declaration"){
+                    Instruction_declaration* instr = (Instruction_declaration*) in;
+                    Item* type = instr->get_var_type();
+                    Item* var = instr->get_var();
+                    if(type->to_string() == "tuple") f->tuple_names.insert(var->to_string());
+                }
+                else if (in->get_name() == "Instruction_load"){
                     Instruction_load* instr = (Instruction_load*) in;
                     Item* var_dest = instr->get_var_dst();
                     Item* var_src = instr->get_var_src();
                     std::vector<Item*> indices = instr->get_indices();
                     int64_t line_no = instr->get_line_no();
-                    i = check_tensor_error(&instructions, i, instr, var_src, indices, line_no, longest_label, longest_name);
+                    i = check_tensor_error(&instructions, i, instr, var_src, indices, line_no, longest_label, longest_name, f->tuple_names);
                 } else if (in->get_name() == "Instruction_store"){
                     Instruction_store* instr = (Instruction_store*) in;
                     Item* var = instr->get_var();
                     Item* s = instr->get_s();
                     std::vector<Item*> indices = instr->get_indices();
                     int64_t line_no = instr->get_line_no();
-                    i = check_tensor_error(&instructions, i, instr, var, indices, line_no, longest_label, longest_name);
+                    i = check_tensor_error(&instructions, i, instr, var, indices, line_no, longest_label, longest_name, f->tuple_names);
                 }
             }
 
@@ -377,6 +385,7 @@ namespace LA{
 
             std::cerr << "\n\n\n done with step 2 new func is \n" << f->to_string();
             instructions = LA::get_basic_blocks(instructions, longest_label, return_type);
+            instructions = LA::move_declarations(instructions, longest_label);
 
             f->instructions = instructions;
             std::cerr << "new func is \n" << f->to_string();

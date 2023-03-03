@@ -278,6 +278,7 @@ namespace LA{
             std::string longest_name;
             std::string longest_label;
             std::set<std::string> var_names;
+            std::set<std::string> tuple_names;
             std::string to_string();
     };
     class Program{

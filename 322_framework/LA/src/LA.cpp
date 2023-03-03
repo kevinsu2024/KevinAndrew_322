@@ -294,7 +294,7 @@ Instruction_tuple_length::Instruction_tuple_length(Item* d, Item* s){
     set_name("Instruction_tuple_length");
     std::string p1 = "";
     if(s->get_name() == "Name") p1 = "%";
-    set_string(d->to_string() + " <- length " + p1 + s->to_string());
+    set_string("%" + d->to_string() + " <- length " + p1 + s->to_string());
     dst_var = d;
     src_var = s;
 }
