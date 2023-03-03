@@ -344,7 +344,8 @@ namespace IR {
             seps,
             str_length,
             seps,
-            variable_rule
+            variable_rule,
+            pegtl::until< pegtl::eolf, t_rule>
         > {};
 
     struct Instruction_call_rule:
@@ -417,8 +418,8 @@ namespace IR {
             pegtl::seq< pegtl::at<Instruction_op_assignment_rule>   , Instruction_op_assignment_rule    >,
             pegtl::seq< pegtl::at<Instruction_assignment_rule>      , Instruction_assignment_rule       >,
             pegtl::seq< pegtl::at<Instruction_store_assignment_rule>, Instruction_store_assignment_rule >,
-            pegtl::seq< pegtl::at<Instruction_array_length_rule>            , Instruction_array_length_rule             >,
             pegtl::seq< pegtl::at<Instruction_tuple_length_rule>            , Instruction_tuple_length_rule             >,
+            pegtl::seq< pegtl::at<Instruction_array_length_rule>            , Instruction_array_length_rule             >,
             pegtl::seq< pegtl::at<Instruction_call_assignment_rule> , Instruction_call_assignment_rule  >,
             pegtl::seq< pegtl::at<Instruction_call_rule>            , Instruction_call_rule             >,
             pegtl::seq< pegtl::at<Instruction_create_array_rule>            , Instruction_create_array_rule             >,
