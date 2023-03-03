@@ -336,7 +336,9 @@ namespace LA {
             str_array,
             seps,
             pegtl::one<'('>,
-            arguments_rule,
+            seps,
+            pegtl::star<arguments_rule>,
+            seps,
             pegtl::one<')'>
         > {};
 
@@ -392,10 +394,10 @@ namespace LA {
 
     struct Instruction_rule:
         pegtl::sor<
-            pegtl::seq< pegtl::at<Instruction_call_assignment_rule> , Instruction_call_assignment_rule  >,
-            pegtl::seq< pegtl::at<Instruction_call_rule>            , Instruction_call_rule             >,
             pegtl::seq< pegtl::at<Instruction_create_array_rule>    , Instruction_create_array_rule     >,
             pegtl::seq< pegtl::at<Instruction_create_tuple_rule>    , Instruction_create_tuple_rule     >,
+            pegtl::seq< pegtl::at<Instruction_call_assignment_rule> , Instruction_call_assignment_rule  >,
+            pegtl::seq< pegtl::at<Instruction_call_rule>            , Instruction_call_rule             >,
             pegtl::seq< pegtl::at<Instruction_array_length_rule>    , Instruction_array_length_rule     >,
             pegtl::seq< pegtl::at<Instruction_tuple_length_rule>    , Instruction_tuple_length_rule     >,
             pegtl::seq< pegtl::at<Instruction_declaration_rule>     , Instruction_declaration_rule      >,
