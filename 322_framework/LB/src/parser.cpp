@@ -173,7 +173,6 @@ namespace LB {
 
     struct op_rule:
         pegtl::sor<
-            pegtl::seq<pegtl::at<cmp_rule>, cmp_rule>,
             pegtl::seq<pegtl::at<str_lshift>,str_lshift>,
             pegtl::seq<pegtl::at<str_rshift>,str_rshift>,
             pegtl::seq<pegtl::at<str_times>,str_times>,
@@ -240,16 +239,20 @@ namespace LB {
 
     struct open_scope_rule:
         pegtl::seq<
-            seps,
-            pegtl::one<'{'>,
-            seps
+            pegtl::plus<
+                seps,
+                pegtl::one<'{'>,
+                seps
+            >
         > {};
     
     struct close_scope_rule:
         pegtl::seq<
-            seps,
-            pegtl::one<'}'>,
-            seps
+            pegtl::plus<
+                seps,
+                pegtl::one<'}'>,
+                seps
+            >
         > {};
 
     struct Instruction_declaration_rule:
@@ -277,6 +280,19 @@ namespace LB {
             t_rule,
             seps,
             op_rule,
+            seps,
+            t_rule
+        > {};
+    
+    struct Instruction_cmp_assignment_rule:
+        pegtl::seq<
+            name_rule,
+            seps,
+            str_arrow,
+            seps,
+            t_rule,
+            seps,
+            cmp_rule,
             seps,
             t_rule
         > {};
@@ -450,10 +466,25 @@ namespace LB {
         pegtl::seq<
             label_rule
         > {};
+    
+    struct define_function_rule:
+        pegtl::seq<
+            seps,
+            type_rule,
+            seps,
+            name_rule,
+            seps,
+            pegtl::one<'('>,
+            seps,
+            pegtl::star<function_arguments_rule>,
+            seps,
+            pegtl::one<')'>
+        > {};
 
     struct Instruction_rule:
         pegtl::seq<
             pegtl::sor<
+                pegtl::seq< pegtl::at<define_function_rule>             , define_function_rule              >,
                 pegtl::seq< pegtl::at<Instruction_create_array_rule>    , Instruction_create_array_rule     >,
                 pegtl::seq< pegtl::at<Instruction_create_tuple_rule>    , Instruction_create_tuple_rule     >,
                 pegtl::seq< pegtl::at<Instruction_call_assignment_rule> , Instruction_call_assignment_rule  >,
@@ -471,43 +502,54 @@ namespace LB {
                 pegtl::seq< pegtl::at<Instruction_load_assignment_rule> , Instruction_load_assignment_rule  >,
                 pegtl::seq< pegtl::at<Instruction_store_assignment_rule>, Instruction_store_assignment_rule >,
                 pegtl::seq< pegtl::at<Instruction_op_assignment_rule>   , Instruction_op_assignment_rule    >,
+                pegtl::seq< pegtl::at<Instruction_cmp_assignment_rule>  , Instruction_cmp_assignment_rule   >,
                 pegtl::seq< pegtl::at<Instruction_assignment_rule>      , Instruction_assignment_rule       >
             >
         > {};
 
-    struct scope_rule:
-        pegtl::star<
+    struct Instructions_rule:
+        pegtl::plus<
             pegtl::seq<
-                pegtl::star<open_scope_rule>,
-                pegtl::star<Instruction_rule>,
-                pegtl::star<close_scope_rule>
+                seps,
+                Instruction_rule,
+                seps
             >
         > {};
-    
 
-    
+    struct scope_rule:
+        pegtl::sor<
+            pegtl::seq<
+                seps,
+                Instructions_rule,
+                seps,
+                scope_rule
+            >,
+            pegtl::seq<
+                seps,
+                open_scope_rule,
+                seps,
+                scope_rule
+            >,
+            pegtl::seq<
+                seps,
+                close_scope_rule,
+                pegtl::seq<
+                    pegtl::star<
+                        seps,
+                        scope_rule
+                    >
+                >
+            >
+
+        >{};
 
     /*
     * function/grammar rules
     */
-    struct define_function_rule:
-        pegtl::seq<
-            seps,
-            type_rule,
-            seps,
-            name_rule,
-            seps,
-            pegtl::one<'('>,
-            seps,
-            pegtl::star<function_arguments_rule>,
-            seps,
-            pegtl::one<')'>
-        > {};
+    
 
     struct Function_rule:
-        pegtl::seq<
-            define_function_rule,
-            seps,
+        pegtl::plus<
             scope_rule
         > {};
 
@@ -779,6 +821,8 @@ namespace LB {
             auto i = new Instruction_declaration(type,vars);
 
             scope->instructions.push_back(i);
+            std::cerr << "finished dec\n";
+            std::cerr << parsed_items.size() << "\n";
         }
     };
 
@@ -786,6 +830,34 @@ namespace LB {
         template< typename Input >
         static void apply( const Input & in, Program & p){
             std::cerr << "In op assign rule\n";
+            auto currentF = p.functions.back();
+            auto scope = scope_stack.back();
+
+            auto t2 = parsed_items.back();
+            parsed_items.pop_back();
+            auto op = parsed_items.back();
+            parsed_items.pop_back();
+            auto t1 = parsed_items.back();
+            parsed_items.pop_back();
+            auto var = parsed_items.back();
+            parsed_items.pop_back();
+
+            /* 
+            * Create the instruction.
+            */ 
+            auto i = new Instruction_op(var, t1, op, t2); 
+
+            /* 
+            * Add the just-created instruction to the current function.
+            */ 
+            scope->instructions.push_back(i);
+            std::cerr << "items size after op assign is: " << parsed_items.size() << "\n";
+        }
+    };
+    template<> struct action < Instruction_cmp_assignment_rule > {
+        template< typename Input >
+        static void apply( const Input & in, Program & p){
+            std::cerr << "In cmp assign rule\n";
             auto currentF = p.functions.back();
             auto scope = scope_stack.back();
 
@@ -834,6 +906,7 @@ namespace LB {
             * Add the just-created instruction to the current function.
             */ 
             scope->instructions.push_back(i);
+            std::cerr << "finished assign\n";
         }
     };
 
@@ -1127,6 +1200,7 @@ namespace LB {
             * Add the just-created instruction to the current function.
             */ 
             scope->instructions.push_back(i);
+            std::cerr << "finished while\n";
         }
     };
 
@@ -1264,6 +1338,7 @@ namespace LB {
         file_input< > fileInput(fileName);
         Program p;
         parse< grammar, action >(fileInput, p);
+        std::cerr << "ended parsing\n";
         return p;
     }
 
