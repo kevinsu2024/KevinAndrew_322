@@ -29,15 +29,11 @@ namespace LB{
         public:
             Name (std::string name);
     };
+
     class InstructionLabel : public Item{
         public:
             InstructionLabel (std::string label);
-    };
-
-    class FunctionName : public Item{
-        public:
-            FunctionName(std::string name);
-    };
+    };  
 
     class InstructionNumber : public Item {
         public:
@@ -54,19 +50,9 @@ namespace LB{
             Cmp (std::string cmp);
     };
 
-    class FunctionType : public Item{
-        public:
-            FunctionType (std::string s);
-    };
-
     class Type : public Item{
         public:
             Type (std::string s);
-    };
-
-    class StandardLibrary : public Item{
-        public:
-            StandardLibrary(std::string standard_library_function_name);
     };
 
     class Instruction_bracket : public Item{
@@ -205,6 +191,16 @@ namespace LB{
             Instruction_break();
     };
 
+    class Instruction_open_brace : public Instruction{
+        public:
+            Instruction_open_brace();
+    };
+
+    class Instruction_close_brace : public Instruction{
+        public:
+            Instruction_close_brace();
+    };
+
     class Instruction_load : public Instruction{
         public:
             Instruction_load (Item* d, Item* s, std::vector<Item*> i, int64_t l);
@@ -244,16 +240,6 @@ namespace LB{
             Item* dst_var;
             Item* src_var;
             Item* index;
-    };
-
-    class Instruction_tuple_length : public Instruction{
-        public:
-            Instruction_tuple_length(Item* d, Item* s);
-            Item* get_dst_var();
-            Item* get_src_var();
-        private:
-            Item* dst_var;
-            Item* src_var;
     };
     
 
@@ -301,14 +287,6 @@ namespace LB{
             Item* size;
     };
 
-    class Scope : public Instruction{
-        //Scope is a child of Instructions
-        public:
-            Scope();
-            std::vector<Instruction*> instructions;
-            std::string to_string();
-    };
-
 
     /*
     *
@@ -321,11 +299,9 @@ namespace LB{
             std::string return_type;
             std::vector<Item*> types;
             std::vector<Item*> vars;
-            Scope scope;
             std::string longest_name;
             std::string longest_label;
-            std::set<std::string> var_names;
-            std::set<std::string> tuple_names;
+            std::vector<Instruction*> instructions;
             std::string to_string();
     };
     class Program{

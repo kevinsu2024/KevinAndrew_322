@@ -28,14 +28,6 @@ Name::Name(std::string n){
     return;
 }
 
-
-FunctionName::FunctionName(std::string n){
-    set_name("FunctionName");
-    set_string(n);
-    return;
-}
-
-
 InstructionLabel::InstructionLabel(std::string l){
     set_name("InstructionLabel");
     set_string(l);
@@ -61,25 +53,22 @@ Cmp::Cmp(std::string c){
     return;
 }
 
-
-FunctionType::FunctionType(std::string s){
-    set_name("FunctionType");
-    set_string(s);
-    return;
-}
-
 Type::Type(std::string s){
     set_name("Type");
     set_string(s);
     return;
 }
 
-StandardLibrary::StandardLibrary(std::string stl){
-    set_name("StandardLibrary");
-    set_string(stl);
-    return;
+Instruction_bracket::Instruction_bracket(Item* item){
+    index = item;
+    set_name("Instruction_bracket");
+    set_string("[" + item->to_string() + "]");
 }
 
+Item*
+Instruction_bracket::get_index(){
+    return index;
+}
 
 //Instructions
 void
@@ -173,16 +162,7 @@ Instruction_op::get_t2(){
     return t2;
 }
 
-Instruction_bracket::Instruction_bracket(Item* item){
-    index = item;
-    set_name("Instruction_bracket");
-    set_string("[" + item->to_string() + "]");
-}
 
-Item*
-Instruction_bracket::get_index(){
-    return index;
-}
 
 Instruction_load::Instruction_load(Item* d, Item* s, std::vector<Item*> i, int64_t l){
     set_name("Instruction_load");
@@ -275,24 +255,6 @@ Instruction_array_length::get_src_var(){
 Item*
 Instruction_array_length::get_index(){
     return index;
-}
-
-
-
-Instruction_tuple_length::Instruction_tuple_length(Item* d, Item* s){
-    set_name("Instruction_tuple_length");
-    set_string(d->to_string() + " <- length " + s->to_string());
-    dst_var = d;
-    src_var = s;
-}
-
-Item*
-Instruction_tuple_length::get_dst_var(){
-    return dst_var;
-}
-
-Item* Instruction_tuple_length::get_src_var(){
-    return src_var;
 }
 
 
@@ -435,6 +397,19 @@ Instruction_break::Instruction_break(){
     return;
 }
 
+Instruction_open_brace::Instruction_open_brace(){
+    set_name("Instruction_open_brace");
+    set_string("{");
+    return;
+}
+
+Instruction_close_brace::Instruction_close_brace(){
+    set_name("Instruction_close_brace");
+    set_string("}");
+    return;
+}
+
+
 Instruction_return_t::Instruction_return_t(Item* t){
     set_name("Instruction_return_t");
     set_string("return " + t->to_string());
@@ -526,25 +501,6 @@ Instruction_while::get_label2(){
 }
 
 
-Scope::Scope(){
-    set_name("Scope");
-    set_string("");
-    this->instructions = {};
-}
-
-std::string
-Scope::to_string(){
-    std::string ans = "{\n";
-    for (auto i : instructions){
-        if (i->get_name() == "Scope"){
-            Scope* s = (Scope*) i;
-            ans += s->to_string();
-        }
-        ans += "\t" + i->to_string() + "\n";
-    }
-    ans += "}\n";
-    return ans;
-}
 
 std::string
 Function::to_string(){
@@ -554,7 +510,10 @@ Function::to_string(){
     }
     if(types.size() > 0) ans = ans.substr(0,ans.size()-2);
     ans += ")\n";
-    ans += scope.to_string();
+    for(auto in : instructions){
+        ans += in->to_string() + "\n";
+    }
+
     return ans;
 }
 

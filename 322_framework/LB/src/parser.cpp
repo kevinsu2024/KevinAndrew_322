@@ -28,15 +28,6 @@ namespace LB {
     */
     std::vector<Item *> parsed_items;
     /*
-    * Scope stack
-    * Logic: The back of scope_stack is the "most nested" scope. Whenever we see an open brace '{', we add a new scope at the 
-    * back of the stack. When we see a close brace '}', we add this scope into the parent scope's vector of instructions, as scope
-    * is a subclass of Instructions
-    * When there are no scopes left in the scope stack, we know we have reached the end of a function. We then finally add this
-    * scope into currentF->scope. See actions for str_open_brace and str_close_brace
-    */
-    std::vector<Scope*> scope_stack;
-    /*
     * Grammar rules for IR
     */
    struct name_rule:
@@ -59,8 +50,8 @@ namespace LB {
     * Strings
     */
     struct str_arrow : TAOCPP_PEGTL_STRING("<-") {};
-    struct str_print : TAOCPP_PEGTL_STRING( "print" ) {};
-    struct str_input : TAOCPP_PEGTL_STRING( "input" ) {};
+    struct str_call : TAOCPP_PEGTL_STRING( "call" ) {};
+    struct str_branch : TAOCPP_PEGTL_STRING( "br" ) {};
     struct str_return : TAOCPP_PEGTL_STRING( "return" ) {};
     struct str_plus: TAOCPP_PEGTL_STRING( "+" ) {};
     struct str_minus: TAOCPP_PEGTL_STRING( "-" ) {};
@@ -87,8 +78,7 @@ namespace LB {
     struct str_goto : TAOCPP_PEGTL_STRING("goto") {};
     struct str_continue : TAOCPP_PEGTL_STRING("continue") {};
     struct str_break : TAOCPP_PEGTL_STRING("break") {};
-    struct str_open_brace : TAOCPP_PEGTL_STRING("{") {};
-    struct str_close_brace : TAOCPP_PEGTL_STRING("}") {};
+
 
     /*
     * sep rules
@@ -157,11 +147,8 @@ namespace LB {
             str_void
         > {};
 
-    // struct function_type_rule:
-    //     pegtl::sor<
-    //         str_void,
-    //         type_rule
-    //     > {};
+
+
     struct cmp_rule:
         pegtl::sor<
             pegtl::seq<pegtl::at<str_geq>,str_geq>,
@@ -219,12 +206,6 @@ namespace LB {
             >
         > {};
 
-    struct standard_library_rule:
-        pegtl::sor<
-            str_print,
-            str_input
-        > {};
-
     struct instruction_bracket_rule:
         pegtl::seq<
             pegtl::one<'['>,
@@ -237,23 +218,7 @@ namespace LB {
     * Instruction rules
     */
 
-    struct open_scope_rule:
-        pegtl::seq<
-            pegtl::plus<
-                seps,
-                pegtl::one<'{'>,
-                seps
-            >
-        > {};
-    
-    struct close_scope_rule:
-        pegtl::seq<
-            pegtl::plus<
-                seps,
-                pegtl::one<'}'>,
-                seps
-            >
-        > {};
+
 
     struct Instruction_declaration_rule:
         pegtl::seq<
@@ -440,10 +405,6 @@ namespace LB {
             label_rule
         > {};
 
-    struct Instruction_return_rule:
-        pegtl::seq<
-            str_return
-        > {};
     
     struct Instruction_continue_rule:
         pegtl::seq<
@@ -454,6 +415,11 @@ namespace LB {
         pegtl::seq<
             str_break
         > {};
+
+    struct Instruction_return_rule:
+        pegtl::seq<
+            str_return
+        > {};
     
     struct Instruction_return_t_rule:
         pegtl::seq<
@@ -462,11 +428,22 @@ namespace LB {
             t_rule
         > {};
 
+
     struct Instruction_label_rule:
         pegtl::seq<
             label_rule
         > {};
+
+    struct Instruction_open_brace_rule:
+        pegtl::seq<
+            pegtl::one<'{'>
+        > {};
     
+    struct Instruction_close_brace_rule:
+        pegtl::seq<
+            pegtl::one<'}'>
+        > {};
+
     struct define_function_rule:
         pegtl::seq<
             seps,
@@ -484,7 +461,9 @@ namespace LB {
     struct Instruction_rule:
         pegtl::seq<
             pegtl::sor<
-                pegtl::seq< pegtl::at<define_function_rule>             , define_function_rule              >,
+                pegtl::seq< pegtl::at<define_function_rule>    , define_function_rule     >,
+                pegtl::seq< pegtl::at<Instruction_open_brace_rule>    , Instruction_open_brace_rule     >,
+                pegtl::seq< pegtl::at<Instruction_close_brace_rule>    , Instruction_close_brace_rule     >,
                 pegtl::seq< pegtl::at<Instruction_create_array_rule>    , Instruction_create_array_rule     >,
                 pegtl::seq< pegtl::at<Instruction_create_tuple_rule>    , Instruction_create_tuple_rule     >,
                 pegtl::seq< pegtl::at<Instruction_call_assignment_rule> , Instruction_call_assignment_rule  >,
@@ -508,40 +487,14 @@ namespace LB {
         > {};
 
     struct Instructions_rule:
-        pegtl::plus<
+        pegtl::star<
             pegtl::seq<
                 seps,
                 Instruction_rule,
                 seps
             >
         > {};
-
-    struct scope_rule:
-        pegtl::sor<
-            pegtl::seq<
-                seps,
-                Instructions_rule,
-                seps,
-                scope_rule
-            >,
-            pegtl::seq<
-                seps,
-                open_scope_rule,
-                seps,
-                scope_rule
-            >,
-            pegtl::seq<
-                seps,
-                close_scope_rule,
-                pegtl::seq<
-                    pegtl::star<
-                        seps,
-                        scope_rule
-                    >
-                >
-            >
-
-        >{};
+    
 
     /*
     * function/grammar rules
@@ -549,10 +502,13 @@ namespace LB {
     
 
     struct Function_rule:
-        pegtl::plus<
-            scope_rule
+        pegtl::seq<
+            seps,
+            define_function_rule,
+            seps,
+            Instructions_rule,
+            seps
         > {};
-
 
     struct grammar:
         pegtl::must<
@@ -560,6 +516,7 @@ namespace LB {
                 Function_rule
             > 
         > {};
+
 
     /*
     * Actions attached to grammar rules.
@@ -574,10 +531,7 @@ namespace LB {
     template<> struct action < name_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
-            std::cerr << "in name rule\n" ;
-            
             std::string input_string = in.string();
-            std::cerr << input_string << "\n";
             if(p.functions.size() > 0 && input_string.size() > p.functions.back()->longest_name.size()) p.functions.back()->longest_name = input_string;
             Item* n = new Name(input_string);
             parsed_items.push_back(n);
@@ -585,31 +539,12 @@ namespace LB {
     };
 
 
-    // template<> struct action < function_type_rule > {
-    //     template< typename Input >
-    //     static void apply( const Input & in, Program & p){
-    //         std::string input_string = in.string();
-    //         Item* fn = new FunctionType(input_string);
-    //         parsed_items.push_back(fn);
-    //     }
-    // };
-
-    template<> struct action < type_rule > {
-        template< typename Input >
-        static void apply( const Input & in, Program & p){
-            std::cerr << "in type rule\n" ;
-            std::string input_string = in.string();
-            Item* fn = new Type(input_string);
-            parsed_items.push_back(fn);
-        }
-    };
-
     template<> struct action < label_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
-            // if (parsed_items.size() > 0) parsed_items.pop_back();
-            std::cerr << "in label rule\n" ;
-            std::string input_string = in.string();
+            Item* name = parsed_items.back();
+            parsed_items.pop_back();
+            std::string input_string = ":" + name->to_string();
             if(p.functions.size() > 0 && input_string.size() > p.functions.back()->longest_label.size()) p.functions.back()->longest_label = input_string;
             Item* label = new InstructionLabel(input_string);
             parsed_items.push_back(label);
@@ -620,7 +555,7 @@ namespace LB {
     template<> struct action < number_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
-            std::cerr << "in number rule\n" ;
+            
             std::string input_string = in.string();
             Item* num = new InstructionNumber(input_string);
             parsed_items.push_back(num);
@@ -628,48 +563,58 @@ namespace LB {
         }
     };
 
+    template<> struct action < type_rule > {
+        template< typename Input >
+        static void apply( const Input & in, Program & p){
+            std::string input_string = in.string();
+            Item* fn = new Type(input_string);
+            parsed_items.push_back(fn);
+        }
+    };
+
     template<> struct action < op_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
-            std::cerr << "in op rule\n" ;
             std::string input_string = in.string();
             Item* op = new Op(input_string);
             parsed_items.push_back(op);
         }
     };
 
+    template<> struct action < instruction_bracket_rule > {
+        template < typename Input >
+        static void apply( const Input & in, Program & p){
+            Item* index = parsed_items.back();
+            parsed_items.pop_back();
+            Item* instructionBracket = new Instruction_bracket(index);
+            parsed_items.push_back(instructionBracket);
+        }
+    };
+
     template<> struct action < cmp_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
-            std::cerr << "in cmp rule\n" ;
             std::string input_string = in.string();
             Item* cmp = new Cmp(input_string);
             parsed_items.push_back(cmp);
         }
     };
-    
-    
+
+
     template<> struct action < define_function_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
             // if we have function before, add longest name and label to it.
-            std::cerr << "\ndefining new function " << "\n";
-            std::cerr << in.string() << "\n";
-            std::cerr << parsed_items.size() << "\n";
             auto newF = new Function();
             
             while (parsed_items.size() > 0){
                 auto popped_item = parsed_items.back();
-                std::cerr << "popped item is " << popped_item->get_name() << " " << popped_item->to_string() << "\n";
                 parsed_items.pop_back();
                 if (popped_item->get_name() == "Type"){
                     if (parsed_items.size() == 0){
                         newF->return_type = popped_item->to_string();
                     } else {
                         newF->types.push_back(popped_item);
-                        if(popped_item->to_string() == "tuple"){
-                            newF->tuple_names.insert(newF->vars.back()->to_string());
-                        }
                     }   
                 }
                 else {
@@ -677,31 +622,30 @@ namespace LB {
                         newF->name = popped_item->to_string();
                     } else {
                         newF->vars.push_back(popped_item);
-                        newF->var_names.insert(popped_item->to_string());
                     }
                 }
             }
-            std::cerr << "exited while loop\n";
             std::reverse(newF->vars.begin(), newF->vars.end());
             std::reverse(newF->types.begin(), newF->types.end());
             p.functions.push_back(newF);
-            std::cerr << "pushed back func\n";
             
         }
     };
 
+
+    /*
+    Instruction actions
+    */
+
     template<> struct action < Instruction_label_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
-            std::cerr << "in instruction label rule\n" ;
             auto currentF = p.functions.back();
-            auto scope = scope_stack.back();
 
             /*
             * Fetch the tokens parsed.
             */
             auto label = parsed_items.back();
-            parsed_items.pop_back();
             parsed_items.pop_back();
             /* 
             * Create the instruction.
@@ -710,128 +654,37 @@ namespace LB {
             /* 
             * Add the just-created instruction to the current function.
             */ 
-            scope->instructions.push_back(i);
+            currentF->instructions.push_back(i);
 
         }
     };
 
 
-    template<> struct action < standard_library_rule > {
-        template< typename Input >
-        static void apply( const Input & in, Program & p){
-            std::cerr << "in standard library rule\n" ;
-            std::string input_string = in.string();
-            // std::cout << input_string << "\n";
-            Item* stl = new StandardLibrary(input_string);
-            parsed_items.push_back(stl);
-        }
-    };
-
-    template<> struct action < instruction_bracket_rule > {
-        template < typename Input >
-        static void apply( const Input & in, Program & p){
-            std::cerr << "in bracket rule\n" ;
-            Item* index = parsed_items.back();
-            parsed_items.pop_back();
-            Item* instructionBracket = new Instruction_bracket(index);
-            parsed_items.push_back(instructionBracket);
-        }
-    };
-
-    template<> struct action < open_scope_rule > {
-        template< typename Input >
-        static void apply( const Input & in, Program & p){
-
-        /* 
-        * Fetch the current function.
-        */ 
-
-        /*
-        * Fetch the tokens parsed.
-        */
-
-        /* 
-        * Create the instruction.
-        */ 
-        std::cerr << "making new scope\n";
-        auto s = new Scope();
-        scope_stack.push_back(s);
-        /* 
-        * Add the just-created instruction to the current function.
-        */ 
-        }
-    };
-
-    template<> struct action < close_scope_rule > {
-        template< typename Input >
-        static void apply( const Input & in, Program & p){
-
-        /* 
-        * Fetch the current function.
-        */ 
-
-        /*
-        * Fetch the tokens parsed.
-        */
-
-        /* 
-        * Create the instruction.
-        */ 
-        std::cerr << "closing current child scope\n";
-        auto s = scope_stack.back();
-        std::cerr << "child instructions are: \n";
-        for (auto ins : s->instructions){
-            std::cerr << ins->to_string() << "\n";
-        }
-        scope_stack.pop_back();
-        if (scope_stack.size() > 0){
-            auto prev_s = scope_stack.back();
-            prev_s->instructions.push_back(s);
-        } else {
-            auto currentF = p.functions.back();
-            currentF->scope = *s;
-        }
-        
-        /* 
-        * Add the just-created instruction to the current function.
-        */ 
-        }
-    };
-
-    /*
-    * Instruction actions
-    */
     template<> struct action < Instruction_declaration_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
-            std::cerr << "In declaration rule\n";
             auto currentF = p.functions.back();
-            auto scope = scope_stack.back();
+
             std::vector<Item*> vars;
             while (parsed_items.size() > 1){
                 Item* var = parsed_items.back();
                 parsed_items.pop_back();
-                p.functions.back()->var_names.insert(var->to_string());
                 vars.push_back(var);
             }
-            
+
             Item* type = parsed_items.back();
             parsed_items.pop_back();
 
             auto i = new Instruction_declaration(type,vars);
 
-            scope->instructions.push_back(i);
-            std::cerr << "finished dec\n";
-            std::cerr << parsed_items.size() << "\n";
+            currentF->instructions.push_back(i);
         }
     };
 
     template<> struct action < Instruction_op_assignment_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
-            std::cerr << "In op assign rule\n";
             auto currentF = p.functions.back();
-            auto scope = scope_stack.back();
 
             auto t2 = parsed_items.back();
             parsed_items.pop_back();
@@ -850,50 +703,18 @@ namespace LB {
             /* 
             * Add the just-created instruction to the current function.
             */ 
-            scope->instructions.push_back(i);
-            std::cerr << "items size after op assign is: " << parsed_items.size() << "\n";
-        }
-    };
-    template<> struct action < Instruction_cmp_assignment_rule > {
-        template< typename Input >
-        static void apply( const Input & in, Program & p){
-            std::cerr << "In cmp assign rule\n";
-            auto currentF = p.functions.back();
-            auto scope = scope_stack.back();
-
-            auto t2 = parsed_items.back();
-            parsed_items.pop_back();
-            auto op = parsed_items.back();
-            parsed_items.pop_back();
-            auto t1 = parsed_items.back();
-            parsed_items.pop_back();
-            auto var = parsed_items.back();
-            parsed_items.pop_back();
-
-            /* 
-            * Create the instruction.
-            */ 
-            auto i = new Instruction_op(var, t1, op, t2); 
-
-            /* 
-            * Add the just-created instruction to the current function.
-            */ 
-            scope->instructions.push_back(i);
+            currentF->instructions.push_back(i);
         }
     };
 
     template<> struct action < Instruction_assignment_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
-            std::cerr << "In assign rule\n";
             auto currentF = p.functions.back();
-            auto scope = scope_stack.back();
 
             auto s = parsed_items.back();
             parsed_items.pop_back();
-            if(s->get_name() == "Name" && currentF->var_names.find(s->to_string()) == currentF->var_names.end()){
-                s = new FunctionName(s->to_string());
-            }
+            
             auto var = parsed_items.back();
             parsed_items.pop_back();
 
@@ -905,18 +726,15 @@ namespace LB {
             /* 
             * Add the just-created instruction to the current function.
             */ 
-            scope->instructions.push_back(i);
-            std::cerr << "finished assign\n";
+            currentF->instructions.push_back(i);
         }
     };
 
     template<> struct action < Instruction_load_assignment_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
-            std::cerr << "In load assign rule\n";
 
             auto currentF = p.functions.back();
-            auto scope = scope_stack.back();
 
             std::vector<Item*> indices;
             while (parsed_items.size() > 0 && (parsed_items.back()->get_name() == "Instruction_bracket")){
@@ -938,7 +756,7 @@ namespace LB {
             /* 
             * Add the just-created instruction to the current function.
             */ 
-            scope->instructions.push_back(i);
+            currentF->instructions.push_back(i);
         }
     };
 
@@ -946,18 +764,10 @@ namespace LB {
     template<> struct action < Instruction_store_assignment_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
-            std::cerr << "In store assign rule\n";
-            std::cerr << "\n printing aprsed items in store instr " << in.string() << "\n";
-            for(auto it : parsed_items){
-                std::cerr << it->to_string() << " ";
-            }
-            std::cerr <<"\n";
             auto currentF = p.functions.back();
-            auto scope = scope_stack.back();
 
             auto s = parsed_items.back();
             parsed_items.pop_back();
-            if(s->get_name() == "InstructionLabel") parsed_items.pop_back();
 
             std::vector<Item*> indices;
             while (parsed_items.size() > 0 && (parsed_items.back()->get_name() == "Instruction_bracket")){
@@ -977,16 +787,14 @@ namespace LB {
             /* 
             * Add the just-created instruction to the current function.
             */ 
-            scope->instructions.push_back(i);
+            currentF->instructions.push_back(i);
         }
     };
 
     template<> struct action < Instruction_array_length_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
-            std::cerr << "In arr len rule\n";
             auto currentF = p.functions.back();
-            auto scope = scope_stack.back();
 
             Item* index = parsed_items.back();
             parsed_items.pop_back();
@@ -999,16 +807,15 @@ namespace LB {
 
             auto i = new Instruction_array_length(dst, src, index);
 
-            scope->instructions.push_back(i);
+            currentF->instructions.push_back(i);
         }
     };
+
 
     template<> struct action < Instruction_call_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
-            std::cerr << "In call rule\n";
             auto currentF = p.functions.back();
-            auto scope = scope_stack.back();
             
             std::vector<Item*> args;
             while (parsed_items.size() > 1){ //in call rule, only last item is the callee
@@ -1017,9 +824,6 @@ namespace LB {
                 args.push_back(popped_item);
             }
             auto callee = parsed_items.back();
-            if(currentF->var_names.find(callee->to_string()) == currentF->var_names.end()){
-                callee= new FunctionName(callee->to_string());
-            } 
             parsed_items.pop_back();
             std::reverse(args.begin(), args.end());
             /* 
@@ -1029,16 +833,14 @@ namespace LB {
             /* 
             * Add the just-created instruction to the current function.
             */ 
-            scope->instructions.push_back(i);
+            currentF->instructions.push_back(i);
         }
     };
 
     template<> struct action < Instruction_call_assignment_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
-            std::cerr << "In call assign rule\n";
             auto currentF = p.functions.back();
-            auto scope = scope_stack.back();
             std::vector<Item*> args;
             while (parsed_items.size() > 2){ //in call assignment rule, last two items are var and callee. rest are args
                 auto popped_item = parsed_items.back();
@@ -1047,9 +849,6 @@ namespace LB {
             }
             std::reverse(args.begin(), args.end());
             auto callee = parsed_items.back();
-            if(currentF->var_names.find(callee->to_string()) == currentF->var_names.end()){
-                callee= new FunctionName(callee->to_string());
-            } 
             parsed_items.pop_back();
             auto var = parsed_items.back();
             parsed_items.pop_back();
@@ -1062,16 +861,14 @@ namespace LB {
             /* 
             * Add the just-created instruction to the current function.
             */ 
-            scope->instructions.push_back(i);
+            currentF->instructions.push_back(i);
         }
     };
 
     template<> struct action < Instruction_create_array_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
-            std::cerr << "In create array rule\n";
             auto currentF = p.functions.back();
-            auto scope = scope_stack.back();
             
 
             std::vector<Item*> args;
@@ -1086,7 +883,7 @@ namespace LB {
 
             auto i = new Instruction_create_array(dst,args);
 
-            scope->instructions.push_back(i);
+            currentF->instructions.push_back(i);
         }
     };
 
@@ -1094,9 +891,7 @@ namespace LB {
     template<> struct action < Instruction_create_tuple_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
-            std::cerr << "In create tuple rule\n";
             auto currentF = p.functions.back();
-            auto scope = scope_stack.back();
             
 
             Item* length = parsed_items.back();
@@ -1107,114 +902,18 @@ namespace LB {
 
             auto i = new Instruction_create_tuple(dst,length);
 
-            scope->instructions.push_back(i);
-        }
-    };
-
-
-    //end instructions
-
-    template<> struct action < Instruction_goto_rule > {
-        template< typename Input >
-        static void apply( const Input & in, Program & p){
-            std::cerr << "In goto rule\n";
-            auto currentF = p.functions.back();
-            auto scope = scope_stack.back();
-            
-            auto label = parsed_items.back();
-            parsed_items.pop_back();
-            parsed_items.pop_back();
-
-            /* 
-            * Create the instruction.
-            */ 
-            auto i = new Instruction_goto(label); 
-
-            /* 
-            * Add the just-created instruction to the current function.
-            */ 
-            scope->instructions.push_back(i);
-        }
-    };
-
-    template<> struct action < Instruction_if_rule > {
-        template< typename Input >
-        static void apply( const Input & in, Program & p){
-            std::cerr << "In if rule\n";
-            auto currentF = p.functions.back();
-            auto scope = scope_stack.back();
-            std::cerr << "before pop: parsed item size is: " << parsed_items.size() << "\n";
-            for (auto it : parsed_items){
-                std::cerr << it->to_string() << "\n";
-            }
-            auto label2 = parsed_items.back();
-            parsed_items.pop_back();
-            parsed_items.pop_back();
-            auto label1 = parsed_items.back();
-            parsed_items.pop_back();
-            parsed_items.pop_back();
-            auto t2 = parsed_items.back();
-            parsed_items.pop_back();
-            auto cmp = parsed_items.back();
-            parsed_items.pop_back();
-            auto t1 = parsed_items.back();
-            parsed_items.pop_back();
-
-            /* 
-            * Create the instruction.
-            */ 
-            auto i = new Instruction_if(t1, cmp, t2, label1, label2); 
-
-            /* 
-            * Add the just-created instruction to the current function.
-            */ 
-            scope->instructions.push_back(i);
-        }
-    };
-
-    template<> struct action < Instruction_while_rule > {
-        template< typename Input >
-        static void apply( const Input & in, Program & p){
-            std::cerr << "In while rule\n";
-            auto currentF = p.functions.back();
-            auto scope = scope_stack.back();
-            auto label2 = parsed_items.back();
-            parsed_items.pop_back();
-            parsed_items.pop_back();
-            auto label1 = parsed_items.back();
-            parsed_items.pop_back();
-            parsed_items.pop_back();
-            auto t2 = parsed_items.back();
-            parsed_items.pop_back();
-            auto cmp = parsed_items.back();
-            parsed_items.pop_back();
-            auto t1 = parsed_items.back();
-            parsed_items.pop_back();
-
-            /* 
-            * Create the instruction.
-            */ 
-            auto i = new Instruction_while(t1, cmp, t2, label1, label2); 
-
-            /* 
-            * Add the just-created instruction to the current function.
-            */ 
-            scope->instructions.push_back(i);
-            std::cerr << "finished while\n";
+            currentF->instructions.push_back(i);
         }
     };
 
     template<> struct action < Instruction_return_t_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
-            
 
         /* 
         * Fetch the current function.
         */ 
-       std::cerr << "in return t rule\n";
         auto currentF = p.functions.back();
-        auto scope = scope_stack.back();
         
 
         /*
@@ -1231,7 +930,7 @@ namespace LB {
         /* 
         * Add the just-created instruction to the current function.
         */ 
-        scope->instructions.push_back(i);
+        currentF->instructions.push_back(i);
         }
     };
 
@@ -1242,14 +941,9 @@ namespace LB {
         /* 
         * Fetch the current function.
         */ 
-        std::cerr << "in return rule\n";
         auto currentF = p.functions.back();
-        auto scope = scope_stack.back();
         
-        std::cerr << parsed_items.size() << "\n";
-        for (auto i: parsed_items){
-            std::cerr << i->to_string() << "\n";
-        }
+
         /*
         * Fetch the tokens parsed.
         */
@@ -1261,20 +955,92 @@ namespace LB {
         /* 
         * Add the just-created instruction to the current function.
         */ 
-        scope->instructions.push_back(i);
+        currentF->instructions.push_back(i);
+        }
+    };
+
+    template<> struct action < Instruction_goto_rule > {
+        template< typename Input >
+        static void apply( const Input & in, Program & p){
+            auto currentF = p.functions.back();
+            
+            auto label = parsed_items.back();
+            parsed_items.pop_back();
+
+            /* 
+            * Create the instruction.
+            */ 
+            auto i = new Instruction_goto(label); 
+
+            /* 
+            * Add the just-created instruction to the current function.
+            */ 
+            currentF->instructions.push_back(i);
+        }
+    };
+
+    template<> struct action < Instruction_if_rule > {
+        template< typename Input >
+        static void apply( const Input & in, Program & p){
+            auto currentF = p.functions.back();
+            auto label2 = parsed_items.back();
+            parsed_items.pop_back();
+            auto label1 = parsed_items.back();
+            parsed_items.pop_back();
+            auto t2 = parsed_items.back();
+            parsed_items.pop_back();
+            auto cmp = parsed_items.back();
+            parsed_items.pop_back();
+            auto t1 = parsed_items.back();
+            parsed_items.pop_back();
+
+            /* 
+            * Create the instruction.
+            */ 
+            auto i = new Instruction_if(t1, cmp, t2, label1, label2); 
+
+            /* 
+            * Add the just-created instruction to the current function.
+            */ 
+            currentF->instructions.push_back(i);
+        }
+    };
+
+    template<> struct action < Instruction_while_rule > {
+        template< typename Input >
+        static void apply( const Input & in, Program & p){
+            auto currentF = p.functions.back();
+            auto label2 = parsed_items.back();
+            parsed_items.pop_back();
+            auto label1 = parsed_items.back();
+            parsed_items.pop_back();
+            auto t2 = parsed_items.back();
+            parsed_items.pop_back();
+            auto cmp = parsed_items.back();
+            parsed_items.pop_back();
+            auto t1 = parsed_items.back();
+            parsed_items.pop_back();
+
+            /* 
+            * Create the instruction.
+            */ 
+            auto i = new Instruction_while(t1, cmp, t2, label1, label2); 
+
+            /* 
+            * Add the just-created instruction to the current function.
+            */ 
+            currentF->instructions.push_back(i);
         }
     };
 
     template<> struct action < Instruction_continue_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
-            std::cerr << "In continue rule\n";
 
         /* 
         * Fetch the current function.
         */ 
         auto currentF = p.functions.back();
-        auto scope = scope_stack.back();
         
 
         /*
@@ -1288,19 +1054,17 @@ namespace LB {
         /* 
         * Add the just-created instruction to the current function.
         */ 
-        scope->instructions.push_back(i);
+        currentF->instructions.push_back(i);
         }
     };
     template<> struct action < Instruction_break_rule > {
         template< typename Input >
         static void apply( const Input & in, Program & p){
-            std::cerr << "In break rule\n";
 
         /* 
         * Fetch the current function.
         */ 
         auto currentF = p.functions.back();
-        auto scope = scope_stack.back();
         
 
         /*
@@ -1314,7 +1078,58 @@ namespace LB {
         /* 
         * Add the just-created instruction to the current function.
         */ 
-        scope->instructions.push_back(i);
+        currentF->instructions.push_back(i);
+        }
+    };
+
+    template<> struct action < Instruction_open_brace_rule > {
+        template< typename Input >
+        static void apply( const Input & in, Program & p){
+
+        /* 
+        * Fetch the current function.
+        */ 
+        auto currentF = p.functions.back();
+        
+
+        /*
+        * Fetch the tokens parsed.
+        */
+
+        /* 
+        * Create the instruction.
+        */ 
+        auto i = new Instruction_open_brace();
+        /* 
+        * Add the just-created instruction to the current function.
+        */ 
+        currentF->instructions.push_back(i);
+        }
+    };
+
+
+    template<> struct action < Instruction_close_brace_rule > {
+        template< typename Input >
+        static void apply( const Input & in, Program & p){
+
+        /* 
+        * Fetch the current function.
+        */ 
+        auto currentF = p.functions.back();
+        
+
+        /*
+        * Fetch the tokens parsed.
+        */
+
+        /* 
+        * Create the instruction.
+        */ 
+        auto i = new Instruction_close_brace();
+        /* 
+        * Add the just-created instruction to the current function.
+        */ 
+        currentF->instructions.push_back(i);
         }
     };
 
@@ -1338,8 +1153,8 @@ namespace LB {
         file_input< > fileInput(fileName);
         Program p;
         parse< grammar, action >(fileInput, p);
-        std::cerr << "ended parsing\n";
         return p;
     }
+
 
 }
