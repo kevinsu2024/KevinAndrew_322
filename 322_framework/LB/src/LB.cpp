@@ -500,7 +500,40 @@ Instruction_while::get_label2(){
     return label2;
 }
 
+Instruction_branch::Instruction_branch(Item* l){
+    set_name("Instruction_branch");
+    set_string("br " + l->to_string());
+    this->label = l;
+    return;
+}
 
+Item*
+Instruction_branch::get_label(){
+    return label;
+}
+
+Instruction_branch_t::Instruction_branch_t(Item* t, Item* l, Item* l2){
+    set_name("Instruction_branch_t");
+    set_string("br " + t->to_string() + " " + l->to_string() + " " + l2->to_string());
+    this->t = t;
+    this->label1 = l;
+    label2 = l2;
+}
+
+Item*
+Instruction_branch_t::get_t(){
+    return t;
+}
+
+Item*
+Instruction_branch_t::get_label1(){
+    return label1;
+}
+
+Item*
+Instruction_branch_t::get_label2(){
+    return label2;
+}
 
 std::string
 Function::to_string(){
@@ -509,11 +542,11 @@ Function::to_string(){
         ans += (types[i]->to_string() + " " + vars[i]->to_string() + ", ");
     }
     if(types.size() > 0) ans = ans.substr(0,ans.size()-2);
-    ans += ")\n";
+    ans += ")\n{\n";
     for(auto in : instructions){
         ans += in->to_string() + "\n";
     }
-
+    ans += "}\n";
     return ans;
 }
 

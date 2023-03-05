@@ -342,6 +342,114 @@ namespace LB{
         return instructions;
     }
 
+    std::vector<Instruction*>
+    translate_ifs_and_gotos(std::vector<Instruction*> instructions, std::string longest_name){
+        longest_name += "ifs_";
+        int ctr = 0;
+        std::vector<Instruction*> new_instrs;
+        for(Instruction* in : instructions){
+            if(in->get_name() == "Instruction_if"){
+                Instruction_if* instr = (Instruction_if*) in;
+                Item* t1 = instr->get_t1();
+                Item* cmp = instr->get_cmp();
+                Item* t2 = instr->get_t2();
+                Item* l1 = instr->get_label1();
+                Item* l2 = instr->get_label2();
+                auto t = new Name(longest_name + std::to_string(ctr));
+                std::vector<Item*> temp{t};
+                auto type = new Type("int64");
+                new_instrs.push_back(new Instruction_declaration(type, temp));
+                new_instrs.push_back(new Instruction_op(t, t1, cmp, t2));
+                new_instrs.push_back(new Instruction_branch_t(t, l1, l2));
+                ctr++;
+
+            }
+            else if(in->get_name() == "Instruction_goto"){
+                Instruction_goto* instr = (Instruction_goto*) in;
+                Item* label = instr->get_label();
+                new_instrs.push_back(new Instruction_branch(label));
+            }
+            else new_instrs.push_back(in);
+        }
+
+        return new_instrs;
+    }
+
+    std::vector<Instruction*>
+    translate_whiles(std::vector<Instruction*> instructions, std::string longest_name,std::string longest_label){
+        std::vector<Instruction*> new_instrs;
+        std::unordered_map<std::string,Item*> beginWhile;
+        std::unordered_map<std::string,Item*> endWhile;
+        std::unordered_map<std::string,std::string> bWhile;
+        std::unordered_map<std::string,std::string> eWhile;
+        std::unordered_map<std::string,Item*> condLabel;
+        longest_label += "label_";
+        longest_name += "name_";
+        int64_t l_ctr = 0;
+        int64_t n_ctr = 0;
+        for(Instruction* in : instructions){
+            if(in->get_name() == "Instruction_while"){
+                Instruction_while* instr = (Instruction_while*) in;
+                Item* l1 = instr->get_label1();
+                Item* l2 = instr->get_label2();
+                beginWhile[instr->to_string()] = l1;
+                endWhile[instr->to_string()] = l2;
+                bWhile[l1->to_string()] = instr->to_string();
+                eWhile[l2->to_string()] = instr->to_string();
+
+                condLabel[instr->to_string()] = new InstructionLabel(longest_label+ std::to_string(l_ctr));
+                l_ctr++;
+                new_instrs.push_back(new Instruction_label(condLabel[instr->to_string()]));
+            }
+            new_instrs.push_back(in);
+        }
+
+        std::vector<std::string> loopStack;
+        std::unordered_map<std::string,std::string> loop;
+        for(Instruction* in : new_instrs){
+            if(loopStack.size() > 0) loop[in->to_string()] = loopStack.back();
+
+            if(in->get_name() == "Instruction_label"){
+                Instruction_label* instr = (Instruction_label*) in;
+                std::string label = instr->get_label()->to_string();
+                if(bWhile.find(label) != bWhile.end()) loopStack.push_back(bWhile[label]);
+                else if(eWhile.find(label) != eWhile.end()) loopStack.pop_back();
+            }
+        }
+
+        std::vector<Instruction*> final_instrs;
+        for(Instruction* in : new_instrs){
+            if(in->get_name() == "Instruction_while"){
+                Instruction_while* instr = (Instruction_while*) in;
+                Item* t1 = instr->get_t1();
+                Item* cmp = instr->get_cmp();
+                Item* t2 = instr->get_t2();
+                Item* l1 = instr->get_label1();
+                Item* l2 = instr->get_label2();
+                auto t = new Name(longest_name + std::to_string(n_ctr));
+                std::vector<Item*> temp{t};
+                auto type = new Type("int64");
+                final_instrs.push_back(new Instruction_declaration(type, temp));
+                final_instrs.push_back(new Instruction_op(t, t1, cmp, t2));
+                final_instrs.push_back(new Instruction_branch_t(t, l1, l2));
+                n_ctr++;
+            }
+            else if(in->get_name() == "Instruction_continue"){
+                std::string s_loop = loop[in->to_string()];
+                Item* l_cond = condLabel[s_loop];
+                final_instrs.push_back(new Instruction_branch(l_cond));
+            }
+            else if(in->get_name() == "Instruction_break"){
+                std::string s_loop = loop[in->to_string()];
+                Item* l_exit = endWhile[s_loop];
+                final_instrs.push_back(new Instruction_branch(l_exit));
+            }
+            else final_instrs.push_back(in);
+        }
+
+        return final_instrs;
+    }
+
     void
     generate_code(Program p){
         std::ofstream outputFile;
@@ -368,6 +476,21 @@ namespace LB{
 
             f->instructions = instructions;
             std::cerr << "after translate_scopes new func is \n" << f->to_string() << "\n";
+
+
+            //now getting rid of ifs
+            instructions = translate_ifs_and_gotos(instructions, longest_name);
+
+            f->instructions = instructions;
+            std::cerr << "after translate_ifs_and_gotos new func is \n" << f->to_string() << "\n";
+
+            //now getting rid of whiles
+            instructions = translate_whiles(instructions, longest_name, longest_label);
+
+            f->instructions = instructions;
+            std::cerr << "after translate_ifs_and_gotos new func is \n" << f->to_string() << "\n";
+
+            outputFile << f->to_string();
         }
 
 

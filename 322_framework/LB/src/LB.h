@@ -288,6 +288,29 @@ namespace LB{
     };
 
 
+    class Instruction_branch : public Instruction{
+        public:
+            Instruction_branch (Item *l);
+            Item* get_label();
+
+        private:
+            Item *label;
+    };
+
+    class Instruction_branch_t : public Instruction{
+        public:
+            Instruction_branch_t (Item *t, Item *l, Item* l2);
+            Item* get_t();
+            Item* get_label1();
+            Item* get_label2();
+
+        private:
+            Item *t;
+            Item *label1;
+            Item* label2;
+    };
+    
+
     /*
     *
     */
