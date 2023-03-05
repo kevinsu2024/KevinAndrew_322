@@ -70,6 +70,236 @@ namespace LB{
                 Instruction* new_instr = new Instruction_assignment(var, t);
                 new_instrs.push_back(new_instr);
             }
+            else if (in->get_name() == "Instruction_op"){
+                Instruction_op* instr = (Instruction_op*) in;
+                Item* var = instr->get_var();
+                Item* t1 = instr->get_t1();
+                Item* op = instr->get_op();
+                Item* t2 = instr->get_t2();
+                std::string mapped_var = get_mapping(new_map, maps, var->to_string());
+                if(mapped_var != "") var = new Name(mapped_var);
+                if(t1->get_name() == "Name"){
+                    std::string mapped_t = get_mapping(new_map,maps, t1->to_string());
+                    if(mapped_t != "") t1 = new Name(mapped_t);
+                }
+                if(t2->get_name() == "Name"){
+                    std::string mapped_t = get_mapping(new_map,maps, t2->to_string());
+                    if(mapped_t != "") t2 = new Name(mapped_t);
+                }
+
+                Instruction* new_instr = new Instruction_op(var, t1, op, t2);
+                new_instrs.push_back(new_instr);
+            }
+
+            else if (in->get_name() == "Instruction_if"){
+                Instruction_if* instr = (Instruction_if*) in;
+                Item* t1 = instr->get_t1();
+                Item* cmp = instr->get_cmp();
+                Item* t2 = instr->get_t2();
+                Item* l1 = instr->get_label1();
+                Item* l2 = instr->get_label2();
+                if(t1->get_name() == "Name"){
+                    std::string mapped_t = get_mapping(new_map,maps, t1->to_string());
+                    if(mapped_t != "") t1 = new Name(mapped_t);
+                }
+                if(t2->get_name() == "Name"){
+                    std::string mapped_t = get_mapping(new_map,maps, t2->to_string());
+                    if(mapped_t != "") t2 = new Name(mapped_t);
+                }
+
+                Instruction* new_instr = new Instruction_if(t1, cmp, t2, l1,l2);
+                new_instrs.push_back(new_instr);
+            }
+
+
+            else if (in->get_name() == "Instruction_return_t"){
+                Instruction_return_t* instr = (Instruction_return_t*) in;
+                Item* t1 = instr->get_t();
+                if(t1->get_name() == "Name"){
+                    std::string mapped_t = get_mapping(new_map,maps, t1->to_string());
+                    if(mapped_t != "") t1 = new Name(mapped_t);
+                }
+
+                Instruction* new_instr = new Instruction_return_t(t1);
+                new_instrs.push_back(new_instr);
+            }
+
+            else if (in->get_name() == "Instruction_while"){
+                Instruction_while* instr = (Instruction_while*) in;
+                Item* t1 = instr->get_t1();
+                Item* cmp = instr->get_cmp();
+                Item* t2 = instr->get_t2();
+                Item* l1 = instr->get_label1();
+                Item* l2 = instr->get_label2();
+                if(t1->get_name() == "Name"){
+                    std::string mapped_t = get_mapping(new_map,maps, t1->to_string());
+                    if(mapped_t != "") t1 = new Name(mapped_t);
+                }
+                if(t2->get_name() == "Name"){
+                    std::string mapped_t = get_mapping(new_map,maps, t2->to_string());
+                    if(mapped_t != "") t2 = new Name(mapped_t);
+                }
+
+                Instruction* new_instr = new Instruction_while(t1, cmp, t2, l1,l2);
+                new_instrs.push_back(new_instr);
+            }
+
+            else if (in->get_name() == "Instruction_load"){
+                Instruction_load* instr = (Instruction_load*) in;
+                Item* dst = instr->get_var_dst();
+                Item* src = instr->get_var_src();
+                std::vector<Item*> indices = instr->get_indices();
+                int64_t ln = instr->get_line_no();
+
+
+                std::string mapped_var = get_mapping(new_map, maps, dst->to_string());
+                if(mapped_var != "") dst = new Name(mapped_var);
+
+                if(src->get_name() == "Name"){
+                    std::string mapped_t = get_mapping(new_map,maps, src->to_string());
+                    if(mapped_t != "") src = new Name(mapped_t);
+                }
+                
+                for(int j = 0; j < indices.size(); j++){
+                    if(indices[j]->get_name() == "Name"){
+                        std::string mapped_t = get_mapping(new_map,maps, indices[j]->to_string());
+                        if(mapped_t != "") indices[j] = new Name(mapped_t);
+                    }
+                }
+
+                Instruction* new_instr = new Instruction_load(dst, src, indices, ln);
+                new_instrs.push_back(new_instr);
+            }
+
+
+            else if (in->get_name() == "Instruction_store"){
+                Instruction_store* instr = (Instruction_store*) in;
+                Item* var = instr->get_var();
+                Item* s = instr->get_s();
+                std::vector<Item*> indices = instr->get_indices();
+                int64_t ln = instr->get_line_no();
+
+
+                std::string mapped_var = get_mapping(new_map, maps, var->to_string());
+                if(mapped_var != "") var = new Name(mapped_var);
+
+                if(s->get_name() == "Name"){
+                    std::string mapped_t = get_mapping(new_map,maps, s->to_string());
+                    if(mapped_t != "") s = new Name(mapped_t);
+                }
+                
+                for(int j = 0; j < indices.size(); j++){
+                    if(indices[j]->get_name() == "Name"){
+                        std::string mapped_t = get_mapping(new_map,maps, indices[j]->to_string());
+                        if(mapped_t != "") indices[j] = new Name(mapped_t);
+                    }
+                }
+
+                Instruction* new_instr = new Instruction_store(var, indices, s, ln);
+                new_instrs.push_back(new_instr);
+            }
+
+            else if (in->get_name() == "Instruction_array_length"){
+                Instruction_array_length* instr = (Instruction_array_length*) in;
+                Item* dst = instr->get_dst_var();
+                Item* src = instr->get_src_var();
+                Item* index = instr->get_index();
+
+
+                std::string mapped_var = get_mapping(new_map, maps, dst->to_string());
+                if(mapped_var != "") dst = new Name(mapped_var);
+
+                mapped_var = get_mapping(new_map, maps, src->to_string());
+                if(mapped_var != "") src = new Name(mapped_var);
+
+                if(index->get_name() == "Name"){
+                    std::string mapped_t = get_mapping(new_map,maps, index->to_string());
+                    if(mapped_t != "") index = new Name(mapped_t);
+                }
+                
+
+                Instruction* new_instr = new Instruction_array_length(dst, src, index);
+                new_instrs.push_back(new_instr);
+            }
+
+            else if (in->get_name() == "Instruction_call"){
+                Instruction_call* instr = (Instruction_call*) in;
+                Item* callee = instr->get_callee();
+                std::vector<Item*> args = instr->get_args();
+
+                std::string mapped_var = get_mapping(new_map, maps, callee->to_string());
+                if(mapped_var != "") callee = new Name(mapped_var);
+                
+                for(int j = 0; j < args.size(); j++){
+                    if(args[j]->get_name() == "Name"){
+                        std::string mapped_t = get_mapping(new_map,maps, args[j]->to_string());
+                        if(mapped_t != "") args[j] = new Name(mapped_t);
+                    }
+                }
+
+                Instruction* new_instr = new Instruction_call(callee, args);
+                new_instrs.push_back(new_instr);
+            }
+
+            else if (in->get_name() == "Instruction_call_assignment"){
+                Instruction_call_assignment* instr = (Instruction_call_assignment*) in;
+                Item* callee = instr->get_callee();
+                Item* dst = instr->get_var();
+                std::vector<Item*> args = instr->get_args();
+
+                std::string mapped_var = get_mapping(new_map, maps, callee->to_string());
+                if(mapped_var != "") callee = new Name(mapped_var);
+
+                mapped_var = get_mapping(new_map, maps, dst->to_string());
+                if(mapped_var != "") dst = new Name(mapped_var);
+                
+                for(int j = 0; j < args.size(); j++){
+                    if(args[j]->get_name() == "Name"){
+                        std::string mapped_t = get_mapping(new_map,maps, args[j]->to_string());
+                        if(mapped_t != "") args[j] = new Name(mapped_t);
+                    }
+                }
+
+                Instruction* new_instr = new Instruction_call_assignment(dst, callee, args);
+                new_instrs.push_back(new_instr);
+            }
+
+            else if (in->get_name() == "Instruction_creeate_array"){
+                Instruction_create_array* instr = (Instruction_create_array*) in;
+                Item* dst = instr->get_dst_var();
+                std::vector<Item*> args = instr->get_args();
+
+                std::string mapped_var = get_mapping(new_map, maps, dst->to_string());
+                if(mapped_var != "") dst = new Name(mapped_var);
+                
+                for(int j = 0; j < args.size(); j++){
+                    if(args[j]->get_name() == "Name"){
+                        std::string mapped_t = get_mapping(new_map,maps, args[j]->to_string());
+                        if(mapped_t != "") args[j] = new Name(mapped_t);
+                    }
+                }
+
+                Instruction* new_instr = new Instruction_create_array(dst, args);
+                new_instrs.push_back(new_instr);
+            }
+
+            else if (in->get_name() == "Instruction_creeate_tuple"){
+                Instruction_create_tuple* instr = (Instruction_create_tuple*) in;
+                Item* dst = instr->get_dst_var();
+                Item* size = instr->get_size();
+
+                std::string mapped_var = get_mapping(new_map, maps, dst->to_string());
+                if(mapped_var != "") dst = new Name(mapped_var);
+                
+                if(size->get_name() == "Name"){
+                    mapped_var = get_mapping(new_map, maps, size->to_string());
+                    if(mapped_var != "") size = new Name(mapped_var);
+                }
+
+                Instruction* new_instr = new Instruction_create_tuple(dst, size);
+                new_instrs.push_back(new_instr);
+            }
+
 
             else if(in->get_name() == "Instruction_open_brace"){
                 std::vector<Instruction*> inner;
