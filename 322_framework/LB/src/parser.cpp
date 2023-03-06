@@ -1068,6 +1068,7 @@ namespace LB {
         * Fetch the current function.
         */ 
         auto currentF = p.functions.back();
+        std::string line_no = std::to_string(in.position().line);
         
 
         /*
@@ -1077,7 +1078,7 @@ namespace LB {
         /* 
         * Create the instruction.
         */ 
-        auto i = new Instruction_continue();
+        auto i = new Instruction_continue(line_no);
         /* 
         * Add the just-created instruction to the current function.
         */ 
@@ -1092,6 +1093,7 @@ namespace LB {
         * Fetch the current function.
         */ 
         auto currentF = p.functions.back();
+        std::string line_no = std::to_string(in.position().line);
         
 
         /*
@@ -1101,7 +1103,7 @@ namespace LB {
         /* 
         * Create the instruction.
         */ 
-        auto i = new Instruction_break();
+        auto i = new Instruction_break(line_no);
         /* 
         * Add the just-created instruction to the current function.
         */ 

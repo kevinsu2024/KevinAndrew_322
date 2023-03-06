@@ -198,12 +198,18 @@ namespace LB{
 
     class Instruction_continue : public Instruction{
         public:
-            Instruction_continue();
+            Instruction_continue(std::string ln);
+            std::string get_line_num();
+        private:
+            std::string line_num;
     };
 
     class Instruction_break : public Instruction{
         public:
-            Instruction_break();
+            Instruction_break(std::string ln);
+            std::string get_line_num();
+        private:
+            std::string line_num;
     };
 
     class Instruction_open_brace : public Instruction{

@@ -416,16 +416,28 @@ Instruction_return::Instruction_return(){
     return;
 }
 
-Instruction_continue::Instruction_continue(){
+Instruction_continue::Instruction_continue(std::string ln){
     set_name("Instruction_continue");
     set_string("continue");
+    line_num = ln;
     return;
 }
 
-Instruction_break::Instruction_break(){
+std::string
+Instruction_continue::get_line_num(){
+    return line_num;
+}
+
+Instruction_break::Instruction_break(std::string ln){
     set_name("Instruction_break");
     set_string("break");
+    line_num = ln;
     return;
+}
+
+std::string
+Instruction_break::get_line_num(){
+    return line_num;
 }
 
 Instruction_open_brace::Instruction_open_brace(){

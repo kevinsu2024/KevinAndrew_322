@@ -404,10 +404,22 @@ namespace LB{
             new_instrs.push_back(in);
         }
 
+        std::cerr << "\n\nfinished adding to ds\n\n";
+
         std::vector<std::string> loopStack;
         std::unordered_map<std::string,std::string> loop;
         for(Instruction* in : new_instrs){
-            if(loopStack.size() > 0) loop[in->to_string()] = loopStack.back();
+            if(loopStack.size() > 0) {
+                if(in->get_name() == "Instruction_continue"){
+                    Instruction_continue* instr = (Instruction_continue*) in;
+                    loop[in->to_string() + instr->get_line_num()] = loopStack.back();
+                }
+                else if(in->get_name() == "Instruction_break"){
+                    Instruction_break* instr = (Instruction_break*) in;
+                    loop[in->to_string() + instr->get_line_num()] = loopStack.back();
+                }
+                else loop[in->to_string()] = loopStack.back();
+            }
 
             if(in->get_name() == "Instruction_label"){
                 Instruction_label* instr = (Instruction_label*) in;
@@ -416,6 +428,8 @@ namespace LB{
                 else if(eWhile.find(label) != eWhile.end()) loopStack.pop_back();
             }
         }
+
+        std::cerr << "\n\n finished storing continues and breaks\n\n";
 
         std::vector<Instruction*> final_instrs;
         for(Instruction* in : new_instrs){
@@ -435,17 +449,21 @@ namespace LB{
                 n_ctr++;
             }
             else if(in->get_name() == "Instruction_continue"){
-                std::string s_loop = loop[in->to_string()];
+                Instruction_continue* instr = (Instruction_continue*) in;
+                std::string s_loop = loop[in->to_string() + instr->get_line_num()];
                 Item* l_cond = condLabel[s_loop];
                 final_instrs.push_back(new Instruction_branch(l_cond));
             }
             else if(in->get_name() == "Instruction_break"){
-                std::string s_loop = loop[in->to_string()];
+                Instruction_break* instr = (Instruction_break*) in;
+                std::string s_loop = loop[in->to_string() + instr->get_line_num()];
                 Item* l_exit = endWhile[s_loop];
                 final_instrs.push_back(new Instruction_branch(l_exit));
             }
             else final_instrs.push_back(in);
         }
+
+        std::cerr << "\n\nfinished pogo\n\n";
 
         return final_instrs;
     }
