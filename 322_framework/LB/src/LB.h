@@ -114,6 +114,21 @@ namespace LB{
             Item *t2;
     };
 
+    class Instruction_cmp : public Instruction{
+        public:
+            Instruction_cmp (Item *var, Item *t1, Item *cmp, Item *t2);
+            
+            Item* get_var();
+            Item* get_t1();
+            Item* get_cmp();
+            Item* get_t2();
+        private:
+            Item *var;
+            Item *t1;
+            Item *cmp;
+            Item *t2;
+    };
+
     class Instruction_label : public Instruction{
         public:
             Instruction_label (Item *l);

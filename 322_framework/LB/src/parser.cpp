@@ -462,6 +462,8 @@ namespace LB {
         pegtl::seq<
             pegtl::sor<
                 pegtl::seq< pegtl::at<define_function_rule>    , define_function_rule     >,
+                pegtl::seq< pegtl::at<Instruction_op_assignment_rule>   , Instruction_op_assignment_rule    >,
+                pegtl::seq< pegtl::at<Instruction_cmp_assignment_rule>  , Instruction_cmp_assignment_rule   >,
                 pegtl::seq< pegtl::at<Instruction_open_brace_rule>    , Instruction_open_brace_rule     >,
                 pegtl::seq< pegtl::at<Instruction_close_brace_rule>    , Instruction_close_brace_rule     >,
                 pegtl::seq< pegtl::at<Instruction_create_array_rule>    , Instruction_create_array_rule     >,
@@ -480,7 +482,6 @@ namespace LB {
                 pegtl::seq< pegtl::at<Instruction_label_rule>           , Instruction_label_rule            >,
                 pegtl::seq< pegtl::at<Instruction_load_assignment_rule> , Instruction_load_assignment_rule  >,
                 pegtl::seq< pegtl::at<Instruction_store_assignment_rule>, Instruction_store_assignment_rule >,
-                pegtl::seq< pegtl::at<Instruction_op_assignment_rule>   , Instruction_op_assignment_rule    >,
                 pegtl::seq< pegtl::at<Instruction_cmp_assignment_rule>  , Instruction_cmp_assignment_rule   >,
                 pegtl::seq< pegtl::at<Instruction_assignment_rule>      , Instruction_assignment_rule       >
             >
@@ -699,6 +700,32 @@ namespace LB {
             * Create the instruction.
             */ 
             auto i = new Instruction_op(var, t1, op, t2); 
+
+            /* 
+            * Add the just-created instruction to the current function.
+            */ 
+            currentF->instructions.push_back(i);
+        }
+    };
+
+    template<> struct action < Instruction_cmp_assignment_rule > {
+        template< typename Input >
+        static void apply( const Input & in, Program & p){
+            auto currentF = p.functions.back();
+
+            auto t2 = parsed_items.back();
+            parsed_items.pop_back();
+            auto cmp = parsed_items.back();
+            parsed_items.pop_back();
+            auto t1 = parsed_items.back();
+            parsed_items.pop_back();
+            auto var = parsed_items.back();
+            parsed_items.pop_back();
+
+            /* 
+            * Create the instruction.
+            */ 
+            auto i = new Instruction_cmp(var, t1, cmp, t2); 
 
             /* 
             * Add the just-created instruction to the current function.

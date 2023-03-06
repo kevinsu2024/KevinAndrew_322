@@ -63,6 +63,9 @@ int main(
    * Parse the input file.
    */
   auto p = LB::parse_file(argv[optind]);
+  // for(auto f : p.functions){
+  //   std::cerr << "printinf fuction\n" << f->to_string() << "\n";
+  // }
 
   LB::generate_code(p);
 

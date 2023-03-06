@@ -163,6 +163,37 @@ Instruction_op::get_t2(){
 }
 
 
+Instruction_cmp::Instruction_cmp(Item* var, Item* t1, Item* cmp, Item* t2){
+    set_name("Instruction_cmp");
+    set_string(var->to_string() + " <- " + t1->to_string() + " " + cmp->to_string() + " " + t2->to_string());
+    this->var = var;
+    this->t1 = t1;
+    this->cmp = cmp;
+    this->t2 = t2;
+    return;
+}
+
+Item*
+Instruction_cmp::get_var(){
+    return var;
+}
+
+Item*
+Instruction_cmp::get_t1(){
+    return t1;
+}
+
+Item*
+Instruction_cmp::get_cmp(){
+    return cmp;
+}
+
+Item*
+Instruction_cmp::get_t2(){
+    return t2;
+}
+
+
 
 Instruction_load::Instruction_load(Item* d, Item* s, std::vector<Item*> i, int64_t l){
     set_name("Instruction_load");
