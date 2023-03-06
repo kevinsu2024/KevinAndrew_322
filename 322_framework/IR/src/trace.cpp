@@ -22,12 +22,23 @@ namespace IR{
     std::vector<BasicBlock*>
     get_succ(BasicBlock* bb, std::vector<BasicBlock*> blocks){ 
         std::vector<BasicBlock*> successors {};
+        std::cerr << "working onb asic block: ";
+        std::cerr << bb->label->to_string() << "\n";
+        for (auto i: bb->instructions){
+            std::cerr << i->to_string() << "\n";
+        }
+        std::cerr << "end is:" << bb->end->to_string() << "\n";
+        // std::cerr <<  << "\n";
         Instruction* end = bb->end;
+        std::cerr << end->get_name();
+        std::cerr << "heerere\n ";
         if (end->get_name() == "Instruction_return" || end->get_name() == "Instruction_return_t"){
+            std::cerr << "heerere2\n ";
             return successors;
         } else if (end->get_name() == "Instruction_branch"){
             Instruction_branch* lab_end = (Instruction_branch*) end;
             std::string label = lab_end->get_label()->to_string();
+            std::cerr << "heerere3\n ";
             for (auto block : blocks){
                 if (block->label->to_string() == label){
                     successors.push_back(block);
@@ -35,6 +46,7 @@ namespace IR{
 
             }
         } else if (end->get_name() == "Instruction_branch_t"){
+            std::cerr << "heerere4\n ";
             Instruction_branch_t* lab_end = (Instruction_branch_t*) end;
             std::string label1 = lab_end->get_label1()->to_string();
             std::string label2 = lab_end->get_label2()->to_string();
@@ -47,7 +59,7 @@ namespace IR{
                 }
             }
         }
-        
+        std::cerr << "size of successors: " << successors.size() << "\n";
         return successors;
     }
     bool
@@ -93,17 +105,22 @@ namespace IR{
             Trace* newTrace = new Trace{};
             BasicBlock* bb = fetch_and_remove(&blocks);
             while(placed_blocks.find(bb) == placed_blocks.end()){
+                int i = 0;
                 if (verbose){
                     std::cerr << "do not see current block in placed_blocks; perform trace action\n";
+                    std::cerr << "execution: " << i << "\n";
                 }
                 placed_blocks.insert(bb);
                 newTrace->blocks.push_back(bb);
+                std::cerr << "before get succ\n";
                 std::vector<BasicBlock*> succs = get_succ(bb, blocks);
                 for (auto c : succs){
                     if (placed_blocks.find(c) == placed_blocks.end() && profitable(bb,c)){
                         bb = c;
                     }
                 }
+                std::cerr << "end execution: " << i << "\n";
+                i++;
             }
             if (newTrace->blocks.size() > 0){
                 traces.push_back(newTrace);

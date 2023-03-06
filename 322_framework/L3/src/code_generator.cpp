@@ -33,6 +33,7 @@ namespace L3{
             }
         }
         longest_label += "_global";
+        std::cerr << "generated global label\n";
         return longest_label;
     }
 
@@ -45,6 +46,7 @@ namespace L3{
             label_mapping.clear();
             for (int i = 0; i < f->instructions.size(); i++){
                 // only instructions with label or s rule
+                std::cerr << "converting instruction: " << f->instructions[i]->to_string() << "\n";
                 std::string new_label = longest_label + std::to_string(ctr);
                 if (f->instructions[i]->get_name() == "Instruction_assignment"){
                     Instruction_assignment* instr = (Instruction_assignment*) f->instructions[i];
@@ -109,6 +111,7 @@ namespace L3{
                 }
 
                 // ctr++;
+                std::cerr << "converted all label\n";
             }   
         }
         return p;
@@ -336,6 +339,7 @@ namespace L3{
                 }
             }
         }
+        std::cerr << "generated contexts and trasnlated labels in L3->L2\n";
         // std::cout << "\ncontexts has size " << contexts.size() << "\n";
         int64_t index = 0;
         
@@ -362,7 +366,9 @@ namespace L3{
                     outputFile << "\t\t" << var_str << " <- " << "stack-arg " << std::to_string(stack_addr) << "\n";
                 }
             }
-            std::vector<Liveness_Node*> liveness_nodes = generate_liveness(f, false);
+            std::cerr << "before liveness\n";
+            std::vector<Liveness_Node*> liveness_nodes = generate_liveness(f, verbose);
+            std::cerr << "generated liveness in L3->L2\n";
             if (verbose) std::cerr<< "working on function b4 contexts: \n" << f->to_string() << "\n";
             while(index < contexts.size() && contexts[index]->func_name == f->name){
                 auto context = contexts[index];
