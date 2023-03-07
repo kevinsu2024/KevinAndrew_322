@@ -135,7 +135,7 @@ namespace L3{
         //do succs and preds
         for(int64_t i = 0; i < instructs.size(); i++){
             Instruction* in = instructs[i];
-
+            // std::cerr << "liveness for instruction: " << in->to_string() << "\n";
             if(in->get_name() == "Instruction_return_t" || in->get_name() == "Instruction_return"){
                 continue;
             }

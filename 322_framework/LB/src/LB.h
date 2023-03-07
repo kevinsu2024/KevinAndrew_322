@@ -29,15 +29,11 @@ namespace LB{
         public:
             Name (std::string name);
     };
+
     class InstructionLabel : public Item{
         public:
             InstructionLabel (std::string label);
-    };
-
-    class FunctionName : public Item{
-        public:
-            FunctionName(std::string name);
-    };
+    };  
 
     class InstructionNumber : public Item {
         public:
@@ -54,19 +50,9 @@ namespace LB{
             Cmp (std::string cmp);
     };
 
-    class FunctionType : public Item{
-        public:
-            FunctionType (std::string s);
-    };
-
     class Type : public Item{
         public:
             Type (std::string s);
-    };
-
-    class StandardLibrary : public Item{
-        public:
-            StandardLibrary(std::string standard_library_function_name);
     };
 
     class Instruction_bracket : public Item{
@@ -125,6 +111,21 @@ namespace LB{
             Item *var;
             Item *t1;
             Item *op;
+            Item *t2;
+    };
+
+    class Instruction_cmp : public Instruction{
+        public:
+            Instruction_cmp (Item *var, Item *t1, Item *cmp, Item *t2);
+            
+            Item* get_var();
+            Item* get_t1();
+            Item* get_cmp();
+            Item* get_t2();
+        private:
+            Item *var;
+            Item *t1;
+            Item *cmp;
             Item *t2;
     };
 
@@ -197,12 +198,28 @@ namespace LB{
 
     class Instruction_continue : public Instruction{
         public:
-            Instruction_continue();
+            Instruction_continue(std::string ln);
+            std::string get_line_num();
+        private:
+            std::string line_num;
     };
 
     class Instruction_break : public Instruction{
         public:
-            Instruction_break();
+            Instruction_break(std::string ln);
+            std::string get_line_num();
+        private:
+            std::string line_num;
+    };
+
+    class Instruction_open_brace : public Instruction{
+        public:
+            Instruction_open_brace();
+    };
+
+    class Instruction_close_brace : public Instruction{
+        public:
+            Instruction_close_brace();
     };
 
     class Instruction_load : public Instruction{
@@ -244,16 +261,6 @@ namespace LB{
             Item* dst_var;
             Item* src_var;
             Item* index;
-    };
-
-    class Instruction_tuple_length : public Instruction{
-        public:
-            Instruction_tuple_length(Item* d, Item* s);
-            Item* get_dst_var();
-            Item* get_src_var();
-        private:
-            Item* dst_var;
-            Item* src_var;
     };
     
 
@@ -301,14 +308,29 @@ namespace LB{
             Item* size;
     };
 
-    class Scope : public Instruction{
-        //Scope is a child of Instructions
+
+    class Instruction_branch : public Instruction{
         public:
-            Scope();
-            std::vector<Instruction*> instructions;
-            std::string to_string();
+            Instruction_branch (Item *l);
+            Item* get_label();
+
+        private:
+            Item *label;
     };
 
+    class Instruction_branch_t : public Instruction{
+        public:
+            Instruction_branch_t (Item *t, Item *l, Item* l2);
+            Item* get_t();
+            Item* get_label1();
+            Item* get_label2();
+
+        private:
+            Item *t;
+            Item *label1;
+            Item* label2;
+    };
+    
 
     /*
     *
@@ -321,11 +343,9 @@ namespace LB{
             std::string return_type;
             std::vector<Item*> types;
             std::vector<Item*> vars;
-            Scope scope;
             std::string longest_name;
             std::string longest_label;
-            std::set<std::string> var_names;
-            std::set<std::string> tuple_names;
+            std::vector<Instruction*> instructions;
             std::string to_string();
     };
     class Program{

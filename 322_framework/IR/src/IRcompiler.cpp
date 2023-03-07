@@ -89,6 +89,6 @@ int main(
 //   }
 
 
-    // std::cout << "\n\nparsing done\n\n";
+    std::cerr << "\n\ncode gen done\n\n";
     return 0;
 }

@@ -13,8 +13,9 @@
 #include <iostream>
 #include <assert.h>
 #include <LB.h>
-#include <parser.h>
 #include <code_generator.h>
+#include <parser.h>
+
 
 
 void print_help (char *progName){
@@ -62,9 +63,11 @@ int main(
    * Parse the input file.
    */
   auto p = LB::parse_file(argv[optind]);
-  for (auto f : p.functions){
-    std::cerr << f->to_string();
-  }
+  // for(auto f : p.functions){
+  //   std::cerr << "printinf fuction\n" << f->to_string() << "\n";
+  // }
+
+  LB::generate_code(p);
 
 
   // LB::generate_code(p);

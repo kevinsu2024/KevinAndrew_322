@@ -31,6 +31,7 @@ namespace IR {
     std::string
     translate_instruction(Instruction* in, std::set<std::string>* array_vars, std::set<std::string>* tuple_vars){
         std::string s = "";
+        std::cerr << "translating: " << in->to_string() << "\n";
         if(in->get_name() == "Instruction_load"){
             Instruction_load* instr = (Instruction_load*) in;
             std::string dst = instr->get_var_dst()->to_string();
@@ -241,16 +242,17 @@ namespace IR {
                     instructions.push_back(block->end);
                     // }
                 }
-                for(int i = 0; i < instructions.size() - 1; i++){
-                    if (instructions[i]->get_name() == "Instruction_branch" && instructions[i+1]->get_name() == "Instruction_label"){
-                        Instruction_branch* ins = (Instruction_branch*) instructions[i];
-                        Instruction_label* lab = (Instruction_label*) instructions[i+1];
-                        if (ins->get_label()->to_string() == lab->get_label()->to_string()){
-                            instructions.erase(instructions.begin() + i + 1);
-                        }
-                    }
-                    // func_string += (translate_instruction(in, &array_mapping, & tuple_mapping) + "\n");
-                }
+                // for(int i = 0; i < instructions.size() - 1; i++){
+                //     if (instructions[i]->get_name() == "Instruction_branch" && instructions[i+1]->get_name() == "Instruction_label"){
+                //         Instruction_branch* ins = (Instruction_branch*) instructions[i];
+                //         Instruction_label* lab = (Instruction_label*) instructions[i+1];
+                //         if (ins->get_label()->to_string() == lab->get_label()->to_string()){
+                //             std::cerr << "erasing instruction: " << instructions[i]->to_string() << "\n";
+                //             instructions.erase(instructions.begin() + i + 1);
+                //         }
+                //     }
+                //     // func_string += (translate_instruction(in, &array_mapping, & tuple_mapping) + "\n");
+                // }
                 for(Instruction* in : instructions){
                     func_string += (translate_instruction(in, &array_mapping, & tuple_mapping) + "\n");
                 }
@@ -258,6 +260,7 @@ namespace IR {
             outputFile<< func_string;
             
             outputFile << "}\n";
+            std::cerr << "finished IR code gen.";
         }
 
         outputFile.close();
