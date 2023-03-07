@@ -725,7 +725,7 @@ namespace LB {
             /* 
             * Create the instruction.
             */ 
-            auto i = new Instruction_cmp(var, t1, cmp, t2); 
+            auto i = new Instruction_op(var, t1, cmp, t2); 
 
             /* 
             * Add the just-created instruction to the current function.

@@ -86,7 +86,6 @@ namespace LB{
                     std::string mapped_t = get_mapping(new_map,maps, t2->to_string());
                     if(mapped_t != "") t2 = new Name(mapped_t);
                 }
-
                 Instruction* new_instr = new Instruction_op(var, t1, op, t2);
                 new_instrs.push_back(new_instr);
             }
@@ -264,7 +263,7 @@ namespace LB{
                 new_instrs.push_back(new_instr);
             }
 
-            else if (in->get_name() == "Instruction_creeate_array"){
+            else if (in->get_name() == "Instruction_create_array"){
                 Instruction_create_array* instr = (Instruction_create_array*) in;
                 Item* dst = instr->get_dst_var();
                 std::vector<Item*> args = instr->get_args();
@@ -283,7 +282,7 @@ namespace LB{
                 new_instrs.push_back(new_instr);
             }
 
-            else if (in->get_name() == "Instruction_creeate_tuple"){
+            else if (in->get_name() == "Instruction_create_tuple"){
                 Instruction_create_tuple* instr = (Instruction_create_tuple*) in;
                 Item* dst = instr->get_dst_var();
                 Item* size = instr->get_size();
@@ -476,7 +475,7 @@ namespace LB{
         for(auto f : p.functions){
             std::cerr << "currently translating function: \n"<< f->to_string() << "\n";
             std::string longest_label = f->longest_label + "_";
-            std::string longest_name = f->longest_name + "_";
+            std::string longest_name = "_"+f->longest_name + "_";
             if(longest_label.size() == 0) longest_label = ":";
 
 
