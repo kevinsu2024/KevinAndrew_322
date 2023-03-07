@@ -35,10 +35,6 @@ namespace LB{
     recursive_scope(std::vector<Instruction*> instructions, std::vector<std::unordered_map<std::string, std::string>> maps){
         std::vector<Instruction*> new_instrs;
         std::unordered_map<std::string,std::string> new_map;
-        std::cerr << "\n\nstarting scope instructions are \n";
-        for(auto ele : instructions){
-            std::cerr << ele->to_string() << "\n";
-        }
         
         int64_t ind = 0;
         while(ind < instructions.size()){
@@ -310,10 +306,6 @@ namespace LB{
                     if(open > 0) inner.push_back(instructions[current]);
                     current += 1;
                 }
-                std::cerr << "scope at this point is \n";
-                for(auto instruction : inner){
-                    std::cerr << instruction->to_string();
-                }
                 maps.push_back(new_map);
 
                 std::vector<Instruction*> inner_instructions = recursive_scope(inner, maps);
@@ -403,7 +395,6 @@ namespace LB{
             new_instrs.push_back(in);
         }
 
-        std::cerr << "\n\nfinished adding to ds\n\n";
 
         std::vector<std::string> loopStack;
         std::unordered_map<std::string,std::string> loop;
@@ -427,8 +418,6 @@ namespace LB{
                 else if(eWhile.find(label) != eWhile.end()) loopStack.pop_back();
             }
         }
-
-        std::cerr << "\n\n finished storing continues and breaks\n\n";
 
         std::vector<Instruction*> final_instrs;
         for(Instruction* in : new_instrs){
@@ -462,7 +451,6 @@ namespace LB{
             else final_instrs.push_back(in);
         }
 
-        std::cerr << "\n\nfinished pogo\n\n";
 
         return final_instrs;
     }
@@ -473,7 +461,6 @@ namespace LB{
         outputFile.open("prog.a");
 
         for(auto f : p.functions){
-            std::cerr << "currently translating function: \n"<< f->to_string() << "\n";
             std::string longest_label = f->longest_label + "_";
             std::string longest_name = "_"+f->longest_name + "_";
             if(longest_label.size() == 0) longest_label = ":";
@@ -485,27 +472,23 @@ namespace LB{
             instructions = translate_declarations(instructions);
 
             f->instructions = instructions;
-            std::cerr << "after translate_declrations new func is \n" << f->to_string() << "\n";
 
 
             //now getting rid of scopes
             instructions = translate_scopes(instructions);
 
             f->instructions = instructions;
-            std::cerr << "after translate_scopes new func is \n" << f->to_string() << "\n";
 
 
             //now getting rid of ifs
             instructions = translate_ifs_and_gotos(instructions, longest_name);
 
             f->instructions = instructions;
-            std::cerr << "after translate_ifs_and_gotos new func is \n" << f->to_string() << "\n";
 
             //now getting rid of whiles
             instructions = translate_whiles(instructions, longest_name, longest_label);
 
             f->instructions = instructions;
-            std::cerr << "after translate_ifs_and_gotos new func is \n" << f->to_string() << "\n";
 
             outputFile << f->to_string();
         }
